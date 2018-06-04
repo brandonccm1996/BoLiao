@@ -1,0 +1,59 @@
+{
+  "project_info": {
+    "project_number": "483011477930",
+    "firebase_url": "https://boliao-c8063.firebaseio.com",
+    "project_id": "boliao-c8063",
+    "storage_bucket": "boliao-c8063.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:483011477930:android:12d796f4276082a1",
+        "android_client_info": {
+          "package_name": "com.example.gekpoh.boliao"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "483011477930-osbvhqu9hrgkfdakd5q31d922l1h1g75.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.gekpoh.boliao",
+            "certificate_hash": "4fc7955b503950857082b6f2e4482c209606933b"
+          }
+        },
+        {
+          "client_id": "483011477930-gdpislli9i8df0o2mtjtkvf9u9ggteal.apps.googleusercontent.com",
+          "client_type": 3
+        },
+        {
+          "client_id": "483011477930-gdpislli9i8df0o2mtjtkvf9u9ggteal.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "***REMOVED***"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "483011477930-gdpislli9i8df0o2mtjtkvf9u9ggteal.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
