@@ -52,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
         };
     }
 <<<<<<< HEAD
+<<<<<<< HEAD
 
     @Override
     protected void onPause() {
@@ -65,6 +66,7 @@ public class MainActivity extends AppCompatActivity {
         mFirebaseAuth.addAuthStateListener(mAuthStateListener);
     }
 
+=======
 =======
 >>>>>>> 252d232e131c71d7a94e364206d37a66818ad1c9
 }
