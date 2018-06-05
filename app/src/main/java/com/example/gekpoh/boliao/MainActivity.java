@@ -81,70 +81,8 @@ public class MainActivity extends AppCompatActivity {
         //===============TO BE REMOVED end==========
         mViewPager = findViewById(R.id.fragmentHolder);
         mViewPager.setAdapter(new GroupPagerAdapter(getSupportFragmentManager()));
-        /*
-        //==================================CODE FOR GESTURES START=================================================//
-        GestureDetector.SimpleOnGestureListener mGestureListener = new GestureDetector.SimpleOnGestureListener(){
-            @Override
-            public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-                Log.v(TAG, "SCROLL DETECTED");
-                if(Math.abs(distanceX) < GestureSettings.ACTIVATEDISTANCE) return true;
-                if(distanceX > 0){
-                    JoinedGroupFragment jgfragment = new JoinedGroupFragment();
-                    Bundle args = new Bundle();
-                    args.putParcelableArrayList(getResources().getString(R.string.joined_groups), joinedGroups);
-                    jgfragment.setArguments(args);
-                    //changeFragment(jgfragment, true);
-                }else{
-                    SearchGroupFragment sgfragment = new SearchGroupFragment();
-                    Bundle args = new Bundle();
-                    args.putParcelableArrayList(getResources().getString(R.string.searched_groups), joinedGroups);
-                    sgfragment.setArguments(args);
-                    //changeFragment(sgfragment, false);
-                }
-                return true;
-            }
-
-            @Override
-            public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-                //if(Math.abs(velocityX) < GestureSettings.ACTIVATEVELOCITY) return true;
-                Log.v(TAG, "FLING DETECTED");
-                if(velocityX > 0){
-                    JoinedGroupFragment jgfragment = new JoinedGroupFragment();
-                    Bundle args = new Bundle();
-                    args.putParcelableArrayList(getResources().getString(R.string.joined_groups), joinedGroups);
-                    jgfragment.setArguments(args);
-                    //changeFragment(jgfragment, true);
-                }else{
-                    SearchGroupFragment sgfragment = new SearchGroupFragment();
-                    Bundle args = new Bundle();
-                    args.putParcelableArrayList(getResources().getString(R.string.searched_groups), joinedGroups);
-                    sgfragment.setArguments(args);
-                    //changeFragment(sgfragment, false);
-                }
-                return true;
-            }
-        };
-        mDetector = new GestureDetector(this, mGestureListener);
-        View fragmentLayout= findViewById(R.id.fragmentHolder);
-        fragmentLayout.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                return mDetector.onTouchEvent(event);
-            }
-        });*/
-        //===================================================CODE FOR GESTURES END============================================//
     }
-    //Changes the fragment from one to another direction = true for left to right else right to left
-    /*public void changeFragment(Fragment fragment, boolean direction) {
-        FragmentTransaction fTran = getFragmentManager().beginTransaction();
-        fTran.add(R.id.fragmentHolder, fragment);
-        if(direction) {
-            fTran.setCustomAnimations(R.animator.enter_from_left, R.animator.exit_to_right, R.animator.enter_from_right, R.animator.exit_to_left);
-        }else{
-            fTran.setCustomAnimations(R.animator.enter_from_right, R.animator.exit_to_left, R.animator.enter_from_left, R.animator.exit_to_right);
-        }
-        fTran.commit();
-    }*/
+
     @Override
     protected void onPause() {
         super.onPause();
