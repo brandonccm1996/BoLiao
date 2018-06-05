@@ -1,6 +1,10 @@
 package com.example.gekpoh.boliao;
 
 import android.content.Intent;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -8,6 +12,8 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Toast;
+
+import java.util.ArrayList;
 
 import com.firebase.ui.auth.AuthUI;
 import com.google.firebase.auth.FirebaseAuth;
@@ -25,13 +31,21 @@ public class MainActivity extends AppCompatActivity {
     public static String userEmail;
     public static String userDisplayName;
 
-    private static final int RC_SIGN_IN = 0;
     private boolean isExistingUser = false;
 
     private FirebaseAuth mFirebaseAuth;
     private FirebaseAuth.AuthStateListener mAuthStateListener;
     private FirebaseDatabase mFirebaseDatabase;
     private DatabaseReference mUsersDatabaseReference;
+
+    ArrayList<Group> joinedGroups, searchedGroups;
+    private ViewPager mViewPager;
+    private static final String TAG = "MAINACTIVITY";
+    private static final int NUM_PAGES = 2;
+    private static final int RC_SIGN_IN = 1;
+
+    //private int pointerID;
+    //GestureDetector mDetector;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,6 +107,25 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         };
+        //===========TO BE REMOVED start===================
+        joinedGroups = new ArrayList<>();//for testing
+        joinedGroups.add(new Group("badminton","gekpoh"));
+        joinedGroups.add(new Group("soccer","nus"));
+        searchedGroups = new ArrayList<>();//for testing
+        searchedGroups.add(new Group("badminton","gekpoh"));
+        searchedGroups.add(new Group("soccer","nus"));
+        searchedGroups.add(new Group("gohomeclub","yourhome"));
+        Bundle args = new Bundle();
+        args.putParcelableArrayList(getResources().getString(R.string.joined_groups), joinedGroups);
+        Fragment jgFragment = JoinedGroupFragment.getInstance();
+        jgFragment.setArguments(args);
+        Bundle args2 = new Bundle();
+        args2.putParcelableArrayList(getResources().getString(R.string.searched_groups), searchedGroups);
+        Fragment sgFragment = SearchGroupFragment.getInstance();
+        sgFragment.setArguments(args2);
+        //===============TO BE REMOVED end==========
+        mViewPager = findViewById(R.id.fragmentHolder);
+        mViewPager.setAdapter(new GroupPagerAdapter(getSupportFragmentManager()));
     }
 
     @Override
@@ -139,5 +172,21 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private class GroupPagerAdapter extends FragmentStatePagerAdapter {
+        public GroupPagerAdapter(FragmentManager fm) {
+            super(fm);
+        }
+
+        @Override
+        public Fragment getItem(int position) {
+            if(position == 0) return JoinedGroupFragment.getInstance();
+            else return SearchGroupFragment.getInstance();
+        }
+
+        @Override
+        public int getCount() {
+            return NUM_PAGES;
+        }
+    }
 
 }
