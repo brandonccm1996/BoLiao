@@ -43,9 +43,4 @@ public class SearchGroupFragment extends Fragment {
         groupView.setLayoutManager(new LinearLayoutManager(getActivity()));
         groupView.setAdapter(adapter);
     }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-    }
 }

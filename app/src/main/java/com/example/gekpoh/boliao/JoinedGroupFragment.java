@@ -37,15 +37,10 @@ public class JoinedGroupFragment extends Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-    }
-
-    @Override
-    public void onStart() {
         groupList = getArguments().getParcelableArrayList(getResources().getString(R.string.joined_groups));
         adapter = new GroupRecyclerAdapter(getActivity(),groupList);
         groupView = getView().findViewById(R.id.groupList);
         groupView.setLayoutManager(new LinearLayoutManager(getActivity()));
         groupView.setAdapter(adapter);
-        super.onStart();
     }
 }
