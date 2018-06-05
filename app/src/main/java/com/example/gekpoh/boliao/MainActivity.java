@@ -4,25 +4,64 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.view.GestureDetector;
 
 
 import java.util.ArrayList;
 
+import com.firebase.ui.auth.AuthUI;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.FirebaseDatabase;
+
+import java.util.Arrays;
+
 public class MainActivity extends AppCompatActivity {
     ArrayList<Group> joinedGroups, searchedGroups;
-    GestureDetector mDetector;
     private ViewPager mViewPager;
     private static final String TAG = "MAINACTIVITY";
     private static final int NUM_PAGES = 2;
-    private int pointerID;
+    private static final int RC_SIGN_IN = 1;
+
+    private FirebaseAuth mFirebaseAuth;
+    private FirebaseAuth.AuthStateListener mAuthStateListener;
+    //private int pointerID;
+    //GestureDetector mDetector;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // App Logo
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+        getSupportActionBar().setLogo(R.drawable.common_google_signin_btn_icon_dark);
+        getSupportActionBar().setDisplayUseLogoEnabled(true);
+
+        mFirebaseAuth = FirebaseAuth.getInstance();
+
+        mAuthStateListener = new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                FirebaseUser user = firebaseAuth.getCurrentUser();
+
+                if (user != null) { // user signed in
+
+                }
+                else {  // user signed out
+                    startActivityForResult(
+                            AuthUI.getInstance()
+                                    .createSignInIntentBuilder()
+                                    .setIsSmartLockEnabled(false)
+                                    .setAvailableProviders(Arrays.asList(
+                                            new AuthUI.IdpConfig.EmailBuilder().build()
+                                    ))
+                                    .build(), RC_SIGN_IN);
+                }
+            }
+        };
         //===========TO BE REMOVED start===================
         joinedGroups = new ArrayList<>();//for testing
         joinedGroups.add(new Group("badminton","gekpoh"));
@@ -95,7 +134,6 @@ public class MainActivity extends AppCompatActivity {
         });*/
         //===================================================CODE FOR GESTURES END============================================//
     }
-
     //Changes the fragment from one to another direction = true for left to right else right to left
     /*public void changeFragment(Fragment fragment, boolean direction) {
         FragmentTransaction fTran = getFragmentManager().beginTransaction();
@@ -107,6 +145,17 @@ public class MainActivity extends AppCompatActivity {
         }
         fTran.commit();
     }*/
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mFirebaseAuth.removeAuthStateListener(mAuthStateListener);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mFirebaseAuth.addAuthStateListener(mAuthStateListener);
+    }
 
     private class GroupPagerAdapter extends FragmentStatePagerAdapter {
         public GroupPagerAdapter(FragmentManager fm) {
