@@ -32,9 +32,8 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdap
     @Override
     public void onBindViewHolder(@NonNull GroupViewHolder holder, int position) {
         final Group group = groupList.get(position);
-        holder.mAppName.setText(group.getName());
-        holder.mAppPlace.setText(group.getPlace());
-        holder.mImageView.setImageBitmap(group.getIcon());
+        holder.mGroupName.setText(group.getName());
+        holder.mGroupDate.setText(group.getStartDate());//Possible Improvement: Indicate how much time left until the activity, Happening now, Over
         holder.mCardView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -52,16 +51,16 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdap
     }
 
     public class GroupViewHolder extends RecyclerView.ViewHolder{
-        public TextView mAppName;
-        public TextView mAppPlace;
+        public TextView mGroupName;
+        public TextView mGroupDate;
         public CardView mCardView;
         public ImageView mImageView;
         public GroupViewHolder(View itemView) {
             super(itemView);
-            mAppName = itemView.findViewById(R.id.cardNoteTitle);
+            mGroupName = itemView.findViewById(R.id.cardNoteTitle);
             mCardView = itemView.findViewById(R.id.cardViewNote);
             mImageView = itemView.findViewById(R.id.cardNoteIcon);
-            mAppPlace = itemView.findViewById(R.id.cardNotePlace);
+            mGroupDate = itemView.findViewById(R.id.cardNoteDate);
             //Include date + people count next time
         }
     }

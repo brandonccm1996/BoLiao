@@ -1,9 +1,12 @@
 package com.example.gekpoh.boliao;
 
 import android.content.Intent;
+import android.support.annotation.Nullable;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.view.PagerTitleStrip;
 import android.support.v4.view.ViewPager;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -25,6 +28,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.Arrays;
+import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -109,12 +113,18 @@ public class MainActivity extends AppCompatActivity {
         };
         //===========TO BE REMOVED start===================
         joinedGroups = new ArrayList<>();//for testing
-        joinedGroups.add(new Group("badminton","gekpoh"));
-        joinedGroups.add(new Group("soccer","nus"));
-        searchedGroups = new ArrayList<>();//for testing
-        searchedGroups.add(new Group("badminton","gekpoh"));
-        searchedGroups.add(new Group("soccer","nus"));
-        searchedGroups.add(new Group("gohomeclub","yourhome"));
+        Date date = new Date();
+        try{
+            date = Group.formatter.parse("11/12/1999 23:34");
+        }catch(Exception e){
+
+        }
+        joinedGroups.add(new Group("badminton","gekpoh", date, date));
+        joinedGroups.add(new Group("soccer","nus", date, date));
+        searchedGroups = new ArrayList<>();
+        searchedGroups.add(new Group("badminton","gekpoh", date, date));
+        searchedGroups.add(new Group("soccer","nus", date, date));
+        searchedGroups.add(new Group("gohomeclub","yourhome", date, date));
         Bundle args = new Bundle();
         args.putParcelableArrayList(getResources().getString(R.string.joined_groups), joinedGroups);
         Fragment jgFragment = JoinedGroupFragment.getInstance();
@@ -126,6 +136,9 @@ public class MainActivity extends AppCompatActivity {
         //===============TO BE REMOVED end==========
         mViewPager = findViewById(R.id.fragmentHolder);
         mViewPager.setAdapter(new GroupPagerAdapter(getSupportFragmentManager()));
+        //PagerTitleStrip tabStrip = findViewById(R.id.pager_title_strip);
+        TabLayout tabLayout = findViewById(R.id.tabLayout);
+        tabLayout.setupWithViewPager(mViewPager);
     }
 
     @Override
@@ -186,6 +199,15 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public int getCount() {
             return NUM_PAGES;
+        }
+
+        @Nullable
+        @Override
+        public CharSequence getPageTitle(int position) {
+            if(position == 0){
+                return getResources().getString(R.string.MainActivityTab1);
+            }
+            return getResources().getString(R.string.MainActivityTab2);
         }
     }
 
