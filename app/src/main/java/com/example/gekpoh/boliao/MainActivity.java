@@ -124,7 +124,7 @@ public class MainActivity extends AppCompatActivity {
         searchedGroups = new ArrayList<>();
         searchedGroups.add(new Group("badminton","gekpoh", date, date));
         searchedGroups.add(new Group("soccer","nus", date, date));
-        searchedGroups.add(new Group("gohomeclub","yourhome", date, date));
+        searchedGroups.add(new Group("gohomeclub","yourhome1234567", date, date));
         Bundle args = new Bundle();
         args.putParcelableArrayList(getResources().getString(R.string.joined_groups), joinedGroups);
         Fragment jgFragment = JoinedGroupFragment.getInstance();

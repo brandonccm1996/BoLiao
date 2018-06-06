@@ -32,8 +32,11 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdap
     @Override
     public void onBindViewHolder(@NonNull GroupViewHolder holder, int position) {
         final Group group = groupList.get(position);
-        holder.mGroupName.setText(group.getName());
+        String groupName = group.getName();
+        holder.mGroupName.setText(groupName.length() > 10? groupName.substring(0,9) + "...":groupName);
         holder.mGroupDate.setText(group.getStartDate());//Possible Improvement: Indicate how much time left until the activity, Happening now, Over
+        String placeName = group.getPlace();
+        holder.mGroupPlace.setText(placeName.length() > 10? placeName.substring(0,9) + "...":placeName);
         holder.mCardView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -51,13 +54,13 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdap
     }
 
     public class GroupViewHolder extends RecyclerView.ViewHolder{
-        public TextView mGroupName;
-        public TextView mGroupDate;
+        public TextView mGroupName, mGroupDate, mGroupPlace;
         public CardView mCardView;
         public ImageView mImageView;
         public GroupViewHolder(View itemView) {
             super(itemView);
             mGroupName = itemView.findViewById(R.id.cardNoteTitle);
+            mGroupPlace = itemView.findViewById(R.id.cardNotePlace);
             mCardView = itemView.findViewById(R.id.cardViewNote);
             mImageView = itemView.findViewById(R.id.cardNoteIcon);
             mGroupDate = itemView.findViewById(R.id.cardNoteDate);

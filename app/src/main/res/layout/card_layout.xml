@@ -47,7 +47,6 @@
                 android:layout_marginTop="4dp"
                 android:text="Title Not Loaded"
                 android:textSize="18sp"
-                android:transitionName="transition1"
                 card_view:layout_constraintBottom_toTopOf="@+id/cardNoteDate"
                 card_view:layout_constraintEnd_toEndOf="parent"
                 card_view:layout_constraintHorizontal_bias="0.106"
@@ -60,16 +59,21 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-                android:layout_marginEnd="8dp"
-                android:layout_marginLeft="8dp"
-                android:layout_marginRight="8dp"
-                android:layout_marginStart="8dp"
                 android:text="Date not loaded"
                 android:textSize="13sp"
                 card_view:layout_constraintBottom_toBottomOf="parent"
-                card_view:layout_constraintEnd_toEndOf="@+id/cardNoteTitle"
-                card_view:layout_constraintHorizontal_bias="0.272"
                 card_view:layout_constraintStart_toStartOf="@+id/cardNoteTitle" />
+
+            <TextView
+                android:id="@+id/cardNotePlace"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
+                android:layout_marginStart="8dp"
+                android:text="Place not loaded"
+                android:textSize="13sp"
+                card_view:layout_constraintBaseline_toBaselineOf="@+id/cardNoteDate"
+                card_view:layout_constraintStart_toEndOf="@+id/cardNoteDate" />
 
         </android.support.constraint.ConstraintLayout>
 
