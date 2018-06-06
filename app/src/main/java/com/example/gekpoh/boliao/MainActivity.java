@@ -79,7 +79,7 @@ public class MainActivity extends AppCompatActivity {
                         @Override
                         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                             for (DataSnapshot uniqueKeySnapshot : dataSnapshot.getChildren()) {
-                                if (uniqueKeySnapshot.getKey() == MainActivity.userEmail) {
+                                if (uniqueKeySnapshot.getKey().equals(MainActivity.userEmail)) {
                                     isExistingUser = true;  // existing user, signed in before
                                     break;
                                 }

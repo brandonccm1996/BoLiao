@@ -6,6 +6,10 @@ public class UserInfo {
     private String photoUrl;
     private float rating;
 
+    public UserInfo() {
+
+    }
+
     public UserInfo(String username, String description, String photoUrl, float rating) {
         this.name = username;
         this.description = description;

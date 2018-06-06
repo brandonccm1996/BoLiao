@@ -16,7 +16,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".EditProfileActivity"></activity>
+        <activity android:name=".EditProfileActivity" />
+        <activity
+            android:name=".EditNameActivity"
+            android:windowSoftInputMode="adjustPan" />
+        <activity
+            android:name=".EditDescriptionActivity"
+            android:windowSoftInputMode="adjustPan"/>
     </application>
 
 </manifest>
