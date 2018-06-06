@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import com.firebase.ui.auth.AuthUI;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserInfo;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -32,8 +33,8 @@ import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
 
-    public static String userEmail;
     public static String userDisplayName;
+    public static String userUid;
 
     private boolean isExistingUser = false;
 
@@ -72,22 +73,21 @@ public class MainActivity extends AppCompatActivity {
 
                 if (user != null) { // user signed in
                     userDisplayName = user.getDisplayName();
-                    userEmail = user.getEmail();
-                    userEmail = userEmail.replace(".","");  // because firebase custom key does not accept dot
+                    userUid = user.getUid();
 
                     mUsersDatabaseReference.addValueEventListener(new ValueEventListener() {
                         @Override
                         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                             for (DataSnapshot uniqueKeySnapshot : dataSnapshot.getChildren()) {
-                                if (uniqueKeySnapshot.getKey().equals(MainActivity.userEmail)) {
+                                if (uniqueKeySnapshot.getKey().equals(userUid)) {
                                     isExistingUser = true;  // existing user, signed in before
                                     break;
                                 }
                             }
 
-                            if (isExistingUser == false) {  // new user, never signed in before
-                                UserInfo newUserInfo = new UserInfo(userDisplayName, "", "", 5);
-                                mUsersDatabaseReference.child(userEmail).setValue(newUserInfo);   // create userEmail key to uniquely identify user
+                            if (!isExistingUser) {  // new user, never signed in before
+                                UserInformation newUserInfo = new UserInformation(userDisplayName, "", "", 5);
+                                mUsersDatabaseReference.child(userUid).setValue(newUserInfo);
                             }
                         }
 
@@ -154,6 +154,10 @@ public class MainActivity extends AppCompatActivity {
             case R.id.edit_profile:
                 Intent startEditProfileActivityIntent = new Intent(MainActivity.this, EditProfileActivity.class);
                 startActivity(startEditProfileActivityIntent);
+                return true;
+            case R.id.signout:
+                AuthUI.getInstance().signOut(this);
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }

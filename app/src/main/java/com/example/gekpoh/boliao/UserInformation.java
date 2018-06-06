@@ -1,16 +1,16 @@
 package com.example.gekpoh.boliao;
 
-public class UserInfo {
+public class UserInformation {
     private String name;
     private String description;
     private String photoUrl;
     private float rating;
 
-    public UserInfo() {
+    public UserInformation() {
 
     }
 
-    public UserInfo(String username, String description, String photoUrl, float rating) {
+    public UserInformation(String username, String description, String photoUrl, float rating) {
         this.name = username;
         this.description = description;
         this.photoUrl = photoUrl;

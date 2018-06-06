@@ -19,6 +19,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.UserInfo;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -45,7 +46,7 @@ public class EditProfileActivity extends AppCompatActivity {
     private FirebaseStorage mFirebaseStorage;
     private StorageReference mProfilePicStorageReference;
 
-    private UserInfo currentUserInfo;
+    private UserInformation currentUserInfo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,9 +95,9 @@ public class EditProfileActivity extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 for (DataSnapshot uniqueKeySnapshot : dataSnapshot.getChildren()) { // find the correct userInfo in the database to display
-                    if (uniqueKeySnapshot.getKey().equals(MainActivity.userEmail)) {
+                    if (uniqueKeySnapshot.getKey().equals(MainActivity.userUid)) {
 
-                        currentUserInfo = uniqueKeySnapshot.getValue(UserInfo.class);
+                        currentUserInfo = uniqueKeySnapshot.getValue(UserInformation.class);
                         textViewName.setText(currentUserInfo.getName());
                         ratingBar.setRating(currentUserInfo.getRating());
                         textViewDescription.setText(currentUserInfo.getDescription());
@@ -126,32 +127,34 @@ public class EditProfileActivity extends AppCompatActivity {
         if (requestCode == editNameRequest) {
             if (resultCode == Activity.RESULT_OK) {
                 String newName = data.getStringExtra(Intent.EXTRA_TEXT);
-                mUsersDatabaseReference.child(MainActivity.userEmail).child("name").setValue(newName);
+                mUsersDatabaseReference.child(MainActivity.userUid).child("name").setValue(newName);
             }
         }
         else if (requestCode == editDescriptionRequest) {
             if (resultCode == Activity.RESULT_OK) {
                 String newDescription = data.getStringExtra(Intent.EXTRA_TEXT);
-                mUsersDatabaseReference.child(MainActivity.userEmail).child("description").setValue(newDescription);
+                mUsersDatabaseReference.child(MainActivity.userUid).child("description").setValue(newDescription);
             }
         }
         else if (requestCode == RC_PHOTO_PICKER) {
             if (resultCode == RESULT_OK) {
 
                 // Delete previous file in Firebase Storage
-                final StorageReference photoDeleteRef = mFirebaseStorage.getReferenceFromUrl(currentUserInfo.getPhotoUrl());
+                if (!currentUserInfo.getPhotoUrl().equals("")) {
+                    final StorageReference photoDeleteRef = mFirebaseStorage.getReferenceFromUrl(currentUserInfo.getPhotoUrl());
 
-                photoDeleteRef.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
+                    photoDeleteRef.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
 
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception exception) {
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception exception) {
 
-                    }
-                });
+                        }
+                    });
+                }
 
                 // Upload new file in Firebase Storage
                 Uri selectedImageUri = data.getData();
@@ -173,7 +176,7 @@ public class EditProfileActivity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<Uri> task) {
                         if (task.isSuccessful()) {
                             Uri downloadUri = task.getResult();
-                            mUsersDatabaseReference.child(MainActivity.userEmail).child("photoUrl").setValue(downloadUri.toString());
+                            mUsersDatabaseReference.child(MainActivity.userUid).child("photoUrl").setValue(downloadUri.toString());
                         }
                         else {
 
