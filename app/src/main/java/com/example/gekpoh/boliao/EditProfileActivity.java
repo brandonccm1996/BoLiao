@@ -2,6 +2,7 @@ package com.example.gekpoh.boliao;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -11,18 +12,28 @@ import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.firebase.ui.auth.data.model.User;
+import com.google.android.gms.tasks.Continuation;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 public class EditProfileActivity extends AppCompatActivity {
 
     private static final int editNameRequest = 1;
     private static final int editDescriptionRequest = 2;
+    private static final int RC_PHOTO_PICKER = 3;
 
     private ImageView imageViewProPic;
     private TextView textViewName;
@@ -31,6 +42,8 @@ public class EditProfileActivity extends AppCompatActivity {
 
     private FirebaseDatabase mFirebaseDatabase;
     private DatabaseReference mUsersDatabaseReference;
+    private FirebaseStorage mFirebaseStorage;
+    private StorageReference mProfilePicStorageReference;
 
     private UserInfo currentUserInfo;
 
@@ -41,6 +54,8 @@ public class EditProfileActivity extends AppCompatActivity {
 
         mFirebaseDatabase = FirebaseDatabase.getInstance();
         mUsersDatabaseReference = mFirebaseDatabase.getReference().child("users");
+        mFirebaseStorage = FirebaseStorage.getInstance();
+        mProfilePicStorageReference = mFirebaseStorage.getReference().child("userprofilepics");
 
         imageViewProPic = findViewById(R.id.imageViewProPic);
         textViewName = findViewById(R.id.textViewName);
@@ -50,7 +65,10 @@ public class EditProfileActivity extends AppCompatActivity {
         imageViewProPic.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                intent.setType("image/jpeg");
+                intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
+                startActivityForResult(Intent.createChooser(intent, "Complete action using"), RC_PHOTO_PICKER);
             }
         });
 
@@ -77,10 +95,20 @@ public class EditProfileActivity extends AppCompatActivity {
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 for (DataSnapshot uniqueKeySnapshot : dataSnapshot.getChildren()) { // find the correct userInfo in the database to display
                     if (uniqueKeySnapshot.getKey().equals(MainActivity.userEmail)) {
+
                         currentUserInfo = uniqueKeySnapshot.getValue(UserInfo.class);
                         textViewName.setText(currentUserInfo.getName());
                         ratingBar.setRating(currentUserInfo.getRating());
                         textViewDescription.setText(currentUserInfo.getDescription());
+
+                        if (currentUserInfo.getPhotoUrl().equals("")) {
+                            imageViewProPic.setImageResource(R.drawable.profilepic);
+                        }
+                        else {
+                            Glide.with(imageViewProPic.getContext())
+                                    .load(currentUserInfo.getPhotoUrl())
+                                    .into(imageViewProPic);
+                        }
                         break;
                     }
                 }
@@ -105,6 +133,53 @@ public class EditProfileActivity extends AppCompatActivity {
             if (resultCode == Activity.RESULT_OK) {
                 String newDescription = data.getStringExtra(Intent.EXTRA_TEXT);
                 mUsersDatabaseReference.child(MainActivity.userEmail).child("description").setValue(newDescription);
+            }
+        }
+        else if (requestCode == RC_PHOTO_PICKER) {
+            if (resultCode == RESULT_OK) {
+
+                // Delete previous file in Firebase Storage
+                final StorageReference photoDeleteRef = mFirebaseStorage.getReferenceFromUrl(currentUserInfo.getPhotoUrl());
+
+                photoDeleteRef.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception exception) {
+
+                    }
+                });
+
+                // Upload new file in Firebase Storage
+                Uri selectedImageUri = data.getData();
+                final StorageReference photoRef = mProfilePicStorageReference.child(selectedImageUri.getLastPathSegment());
+                UploadTask uploadTask = photoRef.putFile(selectedImageUri);
+
+                Task<Uri> urlTask = uploadTask.continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
+                    @Override
+                    public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
+                        if (!task.isSuccessful()) {
+                            throw task.getException();
+                        }
+
+                        // Continue with the task to get the download URL
+                        return photoRef.getDownloadUrl();
+                    }
+                }).addOnCompleteListener(new OnCompleteListener<Uri>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Uri> task) {
+                        if (task.isSuccessful()) {
+                            Uri downloadUri = task.getResult();
+                            mUsersDatabaseReference.child(MainActivity.userEmail).child("photoUrl").setValue(downloadUri.toString());
+                        }
+                        else {
+
+                        }
+                    }
+                });
             }
         }
     }

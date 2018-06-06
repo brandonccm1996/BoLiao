@@ -2,6 +2,7 @@
 <ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_height="match_parent"
     android:layout_width="match_parent"
     android:fillViewport="true">
@@ -38,12 +39,13 @@
             android:layout_marginStart="8dp"
             android:layout_marginTop="48dp"
             android:background="@android:color/background_light"
+            android:drawableEnd="@android:drawable/ic_menu_edit"
             android:drawableRight="@android:drawable/ic_menu_edit"
-            android:text="TextView"
             android:textSize="24sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/imageViewProPic" />
+            app:layout_constraintTop_toBottomOf="@+id/imageViewProPic"
+            tools:text="Name" />
 
         <RatingBar
             android:id="@+id/ratingBar"
@@ -62,7 +64,7 @@
         <TextView
             android:id="@+id/textViewDescription"
             android:layout_width="255dp"
-            android:layout_height="78dp"
+            android:layout_height="80dp"
             android:layout_marginBottom="8dp"
             android:layout_marginEnd="8dp"
             android:layout_marginLeft="8dp"
@@ -70,14 +72,15 @@
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
             android:background="@android:color/white"
+            android:drawableEnd="@android:drawable/ic_menu_edit"
             android:drawableRight="@android:drawable/ic_menu_edit"
-            android:text="TextView"
             android:textSize="14sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.504"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/ratingBar"
-            app:layout_constraintVertical_bias="0.0" />
+            app:layout_constraintVertical_bias="0.0"
+            tools:text="Description" />
     </android.support.constraint.ConstraintLayout>
 </ScrollView>
