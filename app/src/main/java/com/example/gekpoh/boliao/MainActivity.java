@@ -25,6 +25,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.Arrays;
+import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -109,12 +110,18 @@ public class MainActivity extends AppCompatActivity {
         };
         //===========TO BE REMOVED start===================
         joinedGroups = new ArrayList<>();//for testing
-        joinedGroups.add(new Group("badminton","gekpoh"));
-        joinedGroups.add(new Group("soccer","nus"));
-        searchedGroups = new ArrayList<>();//for testing
-        searchedGroups.add(new Group("badminton","gekpoh"));
-        searchedGroups.add(new Group("soccer","nus"));
-        searchedGroups.add(new Group("gohomeclub","yourhome"));
+        Date date = new Date();
+        try{
+            date = Group.formatter.parse("11/12/1999 23:34");
+        }catch(Exception e){
+
+        }
+        joinedGroups.add(new Group("badminton","gekpoh", date, date));
+        joinedGroups.add(new Group("soccer","nus", date, date));
+        searchedGroups = new ArrayList<>();
+        searchedGroups.add(new Group("badminton","gekpoh", date, date));
+        searchedGroups.add(new Group("soccer","nus", date, date));
+        searchedGroups.add(new Group("gohomeclub","yourhome", date, date));
         Bundle args = new Bundle();
         args.putParcelableArrayList(getResources().getString(R.string.joined_groups), joinedGroups);
         Fragment jgFragment = JoinedGroupFragment.getInstance();

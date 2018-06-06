@@ -4,21 +4,26 @@ import android.graphics.Bitmap;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class Group implements Parcelable{
-    private String name, place;
-    private Date date;
+    public static final SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+    private String mName, mPlace;
+    private Date mStartDate, mEndDate;
     private Bitmap groupIcon;
 
-    public Group(String name, String place) {
-        this.name = name;
-        this.place = place;
-
+    public Group(String name, String place, Date startdate, Date enddate) {
+        mName = name;
+        mPlace = place;
+        mStartDate = startdate;
+        mEndDate = enddate;
     }
     private Group(Parcel in) {
-        name = in.readString();
-        place = in.readString();
+        mName = in.readString();
+        mPlace = in.readString();
+        mStartDate = new Date(in.readLong());
+        mEndDate = new Date(in.readLong());
         groupIcon = in.readParcelable(Bitmap.class.getClassLoader());
     }
 
@@ -35,12 +40,19 @@ public class Group implements Parcelable{
     };
 
     public String getName(){
-        return name;
+        return mName;
     }
 
     public String getPlace(){
         //Placeholder for now. Need to use Google Maps API next time
-        return place;
+        return mPlace;
+    }
+
+    public String getStartDate(){
+        return formatter.format(mStartDate);
+    }
+    public String getEndDate(){
+        return formatter.format(mEndDate);
     }
     public Bitmap getIcon() {
         return groupIcon;
@@ -53,8 +65,10 @@ public class Group implements Parcelable{
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(name);
-        dest.writeString(place);
+        dest.writeString(mName);
+        dest.writeString(mPlace);
+        dest.writeLong(mStartDate.getTime());//Converting it to long is better than writeSerializable
+        dest.writeLong(mEndDate.getTime());
         dest.writeValue(groupIcon);
     }
 }
