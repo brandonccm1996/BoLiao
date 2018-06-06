@@ -1,9 +1,12 @@
 package com.example.gekpoh.boliao;
 
 import android.content.Intent;
+import android.support.annotation.Nullable;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.view.PagerTitleStrip;
 import android.support.v4.view.ViewPager;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -133,6 +136,9 @@ public class MainActivity extends AppCompatActivity {
         //===============TO BE REMOVED end==========
         mViewPager = findViewById(R.id.fragmentHolder);
         mViewPager.setAdapter(new GroupPagerAdapter(getSupportFragmentManager()));
+        //PagerTitleStrip tabStrip = findViewById(R.id.pager_title_strip);
+        TabLayout tabLayout = findViewById(R.id.tabLayout);
+        tabLayout.setupWithViewPager(mViewPager);
     }
 
     @Override
@@ -193,6 +199,15 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public int getCount() {
             return NUM_PAGES;
+        }
+
+        @Nullable
+        @Override
+        public CharSequence getPageTitle(int position) {
+            if(position == 0){
+                return getResources().getString(R.string.MainActivityTab1);
+            }
+            return getResources().getString(R.string.MainActivityTab2);
         }
     }
 
