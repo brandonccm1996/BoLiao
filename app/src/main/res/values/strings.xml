@@ -1,5 +1,5 @@
 <resources>
     <string name="app_name">BoLiao</string>
-    <string name = "joined_groups">JoinedGroups</string>
-    <string name = "searched_groups">SearchGroups</string>
+    <string name="joined_groups">JoinedGroups</string>
+    <string name="searched_groups">SearchGroups</string>
 </resources>
