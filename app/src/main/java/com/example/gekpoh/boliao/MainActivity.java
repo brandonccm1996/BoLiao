@@ -36,8 +36,6 @@ public class MainActivity extends AppCompatActivity {
     public static String userDisplayName;
     public static String userUid;
 
-    private boolean isExistingUser = false;
-
     private FirebaseAuth mFirebaseAuth;
     private FirebaseAuth.AuthStateListener mAuthStateListener;
     private FirebaseDatabase mFirebaseDatabase;

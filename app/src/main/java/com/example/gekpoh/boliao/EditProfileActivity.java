@@ -11,6 +11,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.firebase.ui.auth.data.model.User;
@@ -174,7 +175,7 @@ public class EditProfileActivity extends AppCompatActivity {
                             mUsersDatabaseReference.child(MainActivity.userUid).child("photoUrl").setValue(downloadUri.toString());
                         }
                         else {
-
+                            Toast.makeText(getApplicationContext(), "Upload failed", Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
