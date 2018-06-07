@@ -78,14 +78,7 @@ public class MainActivity extends AppCompatActivity {
                     mUsersDatabaseReference.addValueEventListener(new ValueEventListener() {
                         @Override
                         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                            for (DataSnapshot uniqueKeySnapshot : dataSnapshot.getChildren()) {
-                                if (uniqueKeySnapshot.getKey().equals(userUid)) {
-                                    isExistingUser = true;  // existing user, signed in before
-                                    break;
-                                }
-                            }
-
-                            if (!isExistingUser) {  // new user, never signed in before
+                            if (!dataSnapshot.hasChild(userUid)) {  // new user, never signed in before
                                 UserInformation newUserInfo = new UserInformation(userDisplayName, "", "", 5);
                                 mUsersDatabaseReference.child(userUid).setValue(newUserInfo);
                             }

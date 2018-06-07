@@ -94,24 +94,19 @@ public class EditProfileActivity extends AppCompatActivity {
         mUsersDatabaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                for (DataSnapshot uniqueKeySnapshot : dataSnapshot.getChildren()) { // find the correct userInfo in the database to display
-                    if (uniqueKeySnapshot.getKey().equals(MainActivity.userUid)) {
 
-                        currentUserInfo = uniqueKeySnapshot.getValue(UserInformation.class);
-                        textViewName.setText(currentUserInfo.getName());
-                        ratingBar.setRating(currentUserInfo.getRating());
-                        textViewDescription.setText(currentUserInfo.getDescription());
+                currentUserInfo = dataSnapshot.child(MainActivity.userUid).getValue(UserInformation.class);
+                textViewName.setText(currentUserInfo.getName());
+                ratingBar.setRating(currentUserInfo.getRating());
+                textViewDescription.setText(currentUserInfo.getDescription());
 
-                        if (currentUserInfo.getPhotoUrl().equals("")) {
-                            imageViewProPic.setImageResource(R.drawable.profilepic);
-                        }
-                        else {
-                            Glide.with(imageViewProPic.getContext())
-                                    .load(currentUserInfo.getPhotoUrl())
-                                    .into(imageViewProPic);
-                        }
-                        break;
-                    }
+                if (currentUserInfo.getPhotoUrl().equals("")) {
+                    imageViewProPic.setImageResource(R.drawable.profilepic);
+                }
+                else {
+                    Glide.with(imageViewProPic.getContext())
+                            .load(currentUserInfo.getPhotoUrl())
+                            .into(imageViewProPic);
                 }
             }
 
