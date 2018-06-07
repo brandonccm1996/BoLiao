@@ -32,7 +32,7 @@
         android:background="@android:color/background_light"
         android:ems="10"
         android:inputType="textPersonName"
-        android:textSize="24sp"
+        android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.503"
         app:layout_constraintStart_toStartOf="parent"

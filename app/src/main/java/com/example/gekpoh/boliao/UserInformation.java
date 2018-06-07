@@ -4,17 +4,19 @@ public class UserInformation {
     private String name;
     private String description;
     private String photoUrl;
-    private float rating;
+    private float sumRating;
+    private int numRatings;
 
     public UserInformation() {
 
     }
 
-    public UserInformation(String username, String description, String photoUrl, float rating) {
+    public UserInformation(String username, String description, String photoUrl, float sumRating, int numRatings) {
         this.name = username;
         this.description = description;
         this.photoUrl = photoUrl;
-        this.rating = rating;
+        this.sumRating = sumRating;
+        this.numRatings = numRatings;
     }
 
     public String getName() {
@@ -41,11 +43,15 @@ public class UserInformation {
         this.photoUrl = photoUrl;
     }
 
-    public float getRating() {
-        return rating;
+    public float getSumRating() {
+        return sumRating;
     }
 
-    public void setRating(float rating) {
-        this.rating = rating;
+    public void setSumRating(float sumRating) {
+        this.sumRating = sumRating;
     }
+
+    public int getNumRatings() { return numRatings; }
+
+    public void setNumRatings(int numRatings) { this.numRatings = numRatings; }
 }

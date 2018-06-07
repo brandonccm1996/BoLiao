@@ -77,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
                         @Override
                         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                             if (!dataSnapshot.hasChild(userUid)) {  // new user, never signed in before
-                                UserInformation newUserInfo = new UserInformation(userDisplayName, "", "", 5);
+                                UserInformation newUserInfo = new UserInformation(userDisplayName, "", "", 0, 0);
                                 mUsersDatabaseReference.child(userUid).setValue(newUserInfo);
                             }
                         }

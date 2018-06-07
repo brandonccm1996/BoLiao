@@ -40,6 +40,7 @@ public class EditProfileActivity extends AppCompatActivity {
     private ImageView imageViewProPic;
     private TextView textViewName;
     private RatingBar ratingBar;
+    private TextView textViewNumRatings;
     private TextView textViewDescription;
 
     private FirebaseDatabase mFirebaseDatabase;
@@ -62,6 +63,7 @@ public class EditProfileActivity extends AppCompatActivity {
         imageViewProPic = findViewById(R.id.imageViewProPic);
         textViewName = findViewById(R.id.textViewName);
         ratingBar = findViewById(R.id.ratingBar);
+        textViewNumRatings = findViewById(R.id.textViewNumRatings);
         textViewDescription = findViewById(R.id.textViewDescription);
 
         imageViewProPic.setOnClickListener(new View.OnClickListener() {
@@ -97,9 +99,17 @@ public class EditProfileActivity extends AppCompatActivity {
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
                 currentUserInfo = dataSnapshot.child(MainActivity.userUid).getValue(UserInformation.class);
-                textViewName.setText(currentUserInfo.getName());
-                ratingBar.setRating(currentUserInfo.getRating());
-                textViewDescription.setText(currentUserInfo.getDescription());
+
+                if (currentUserInfo.getName().equals("")) textViewName.setText("Enter username");
+                else textViewName.setText(currentUserInfo.getName());
+
+                if (currentUserInfo.getNumRatings() == 0) ratingBar.setRating(0);
+                else ratingBar.setRating(currentUserInfo.getSumRating() / currentUserInfo.getNumRatings());
+
+                textViewNumRatings.setText(currentUserInfo.getNumRatings() + " ratings");
+
+                if (currentUserInfo.getDescription().equals("")) textViewDescription.setText("Enter a description of yourself");
+                else textViewDescription.setText(currentUserInfo.getDescription());
 
                 if (currentUserInfo.getPhotoUrl().equals("")) {
                     imageViewProPic.setImageResource(R.drawable.profilepic);
