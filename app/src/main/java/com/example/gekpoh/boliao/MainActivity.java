@@ -32,7 +32,6 @@ import java.util.Arrays;
 import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
-
     public static String userDisplayName;
     public static String userUid;
 
