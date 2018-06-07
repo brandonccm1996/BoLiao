@@ -7,8 +7,11 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.PopupMenu;
 import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -69,10 +72,36 @@ public class EditProfileActivity extends AppCompatActivity {
         imageViewProPic.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-                intent.setType("image/jpeg");
-                intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
-                startActivityForResult(Intent.createChooser(intent, "Complete action using"), RC_PHOTO_PICKER);
+                final PopupMenu popupMenu = new PopupMenu(EditProfileActivity.this, v);
+                popupMenu.getMenuInflater().inflate(R.menu.menu_editprofilepic, popupMenu.getMenu());
+
+                if (currentUserInfo.getPhotoUrl().equals("")) {
+                    Menu menu = popupMenu.getMenu();
+                    menu.findItem(R.id.remove_pic).setEnabled(false);
+                }
+
+                popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
+                        switch (item.getItemId()) {
+                            case R.id.remove_pic:
+                                deletePic();
+                                mUsersDatabaseReference.child(MainActivity.userUid).child("photoUrl").setValue("");
+                                Toast.makeText(EditProfileActivity.this, "Profile pic removed", Toast.LENGTH_SHORT).show();
+                                return true;
+                            case R.id.update_pic:
+                                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                                intent.setType("image/jpeg");
+                                intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
+                                startActivityForResult(Intent.createChooser(intent, "Complete action using"), RC_PHOTO_PICKER);
+                                return true;
+                            default:
+                                return false;
+                        }
+                    }
+                });
+
+                popupMenu.show();
             }
         });
 
@@ -134,12 +163,14 @@ public class EditProfileActivity extends AppCompatActivity {
             if (resultCode == Activity.RESULT_OK) {
                 String newName = data.getStringExtra(Intent.EXTRA_TEXT);
                 mUsersDatabaseReference.child(MainActivity.userUid).child("name").setValue(newName);
+                Toast.makeText(EditProfileActivity.this, "Username updated", Toast.LENGTH_SHORT).show();
             }
         }
         else if (requestCode == editDescriptionRequest) {
             if (resultCode == Activity.RESULT_OK) {
                 String newDescription = data.getStringExtra(Intent.EXTRA_TEXT);
                 mUsersDatabaseReference.child(MainActivity.userUid).child("description").setValue(newDescription);
+                Toast.makeText(EditProfileActivity.this, "Description updated", Toast.LENGTH_SHORT).show();
             }
         }
         else if (requestCode == RC_PHOTO_PICKER) {
@@ -147,19 +178,7 @@ public class EditProfileActivity extends AppCompatActivity {
 
                 // Delete previous file in Firebase Storage
                 if (!currentUserInfo.getPhotoUrl().equals("")) {
-                    final StorageReference photoDeleteRef = mFirebaseStorage.getReferenceFromUrl(currentUserInfo.getPhotoUrl());
-
-                    photoDeleteRef.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-
-                        }
-                    }).addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception exception) {
-
-                        }
-                    });
+                    deletePic();
                 }
 
                 // Upload new file in Firebase Storage
@@ -183,6 +202,7 @@ public class EditProfileActivity extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             Uri downloadUri = task.getResult();
                             mUsersDatabaseReference.child(MainActivity.userUid).child("photoUrl").setValue(downloadUri.toString());
+                            Toast.makeText(EditProfileActivity.this, "Profile pic updated", Toast.LENGTH_SHORT).show();
                         }
                         else {
                             Toast.makeText(getApplicationContext(), "Upload failed", Toast.LENGTH_SHORT).show();
@@ -191,5 +211,21 @@ public class EditProfileActivity extends AppCompatActivity {
                 });
             }
         }
+    }
+
+    private void deletePic() {
+        final StorageReference photoDeleteRef = mFirebaseStorage.getReferenceFromUrl(currentUserInfo.getPhotoUrl());
+
+        photoDeleteRef.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception exception) {
+
+            }
+        });
     }
 }
