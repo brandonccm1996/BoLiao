@@ -14,9 +14,9 @@ import java.util.ArrayList;
 
 public class SearchGroupFragment extends Fragment {
     private RecyclerView groupView;
-    private ArrayList<Group> groupList;
     private GroupRecyclerAdapter adapter;
     private static Fragment sgFragment;
+    private final ArrayList<Group> searchedgroups = new ArrayList<>();
     private final String TAG = "SEARCHGROUPFRAGMENT";
 
     public static Fragment getInstance(){
@@ -25,7 +25,6 @@ public class SearchGroupFragment extends Fragment {
         }
         return sgFragment;
     }
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -37,8 +36,8 @@ public class SearchGroupFragment extends Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        groupList = getArguments().getParcelableArrayList(getResources().getString(R.string.searched_groups));
-        adapter = new GroupRecyclerAdapter(getActivity(),groupList);
+        //groupList = getArguments().getParcelableArrayList(getResources().getString(R.string.searched_groups));
+        adapter = new GroupRecyclerAdapter(getActivity(),searchedgroups);
         groupView = getView().findViewById(R.id.groupList);
         groupView.setLayoutManager(new LinearLayoutManager(getActivity()));
         groupView.setAdapter(adapter);

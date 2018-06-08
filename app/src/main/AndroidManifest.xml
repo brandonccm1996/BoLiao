@@ -30,7 +30,10 @@
         <activity
             android:name=".EditDescriptionActivity"
             android:windowSoftInputMode="adjustPan" />
-        <activity android:name=".CreateNewEventActivity"></activity>
+        <activity android:name=".CreateNewEventActivity"
+            android:windowSoftInputMode="adjustPan"/>
+        <activity
+            android:name=".GroupDetailsActivity"/>
     </application>
 
 </manifest>

@@ -1,7 +1,13 @@
 <resources>
     <string name="app_name">BoLiao</string>
-    <string name="joined_groups">JoinedGroups</string>
-    <string name="searched_groups">SearchGroups</string>
-    <string name="MainActivityTab1">Your Activities</string>
-    <string name="MainActivityTab2">Search</string>
+    <string name = "joined_groups">JoinedGroups</string>
+    <string name = "searched_groups">SearchGroups</string>
+    <string name = "MainActivityTab1">Your Activities</string>
+    <string name = "MainActivityTab2">Search</string>
+    <string name = "groupDetails">groupDetails</string>
+    <string name = "GroupDetailsActivityTab1">Event Info.</string>
+    <string name = "GroupDetailsActivityTab2">Location</string>
+    <string name = "GroupDetailsActivityTab3">Group Chat</string>
+    <string name = "groupReferenceKey">GroupReference</string>
+    <string name = "send_button_label">Send</string>
 </resources>
