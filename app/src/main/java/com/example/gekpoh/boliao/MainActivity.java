@@ -40,7 +40,6 @@ public class MainActivity extends AppCompatActivity {
     private FirebaseDatabase mFirebaseDatabase;
     private DatabaseReference mUsersDatabaseReference;
 
-    ArrayList<Group> joinedGroups, searchedGroups;
     //private ViewPager mViewPager;
     private static final String TAG = "MAINACTIVITY";
     private static final int NUM_PAGES = 2;
@@ -102,25 +101,22 @@ public class MainActivity extends AppCompatActivity {
             }
         };
         //===========TO BE REMOVED start===================
-        joinedGroups = new ArrayList<>();//for testing
         //joinedGroups.add(new Group("badminton","gekpoh", (long)1, (long)2));
         //joinedGroups.add(new Group("soccer","nus", (long)1000, (long)2000));
-        searchedGroups = new ArrayList<>();
         //searchedGroups.add(new Group("badminton","gekpoh", (long)5090, (long)3123213));
         //searchedGroups.add(new Group("soccer","nus", (long)412431234, (long)41234123));
         //searchedGroups.add(new Group("gohomeclub","yourhome1234567", (long)412341234, (long)41324241));
-        Bundle args = new Bundle();
-        args.putParcelableArrayList(getResources().getString(R.string.joined_groups), joinedGroups);
+        //Bundle args = new Bundle();
+        //args.putParcelableArrayList(getResources().getString(R.string.joined_groups), joinedGroups);
         Fragment jgFragment = JoinedGroupFragment.getInstance();
-        jgFragment.setArguments(args);
-        Bundle args2 = new Bundle();
-        args2.putParcelableArrayList(getResources().getString(R.string.searched_groups), searchedGroups);
+        //jgFragment.setArguments(args);
+        //Bundle args2 = new Bundle();
+        //args2.putParcelableArrayList(getResources().getString(R.string.searched_groups), searchedGroups);
         Fragment sgFragment = SearchGroupFragment.getInstance();
-        sgFragment.setArguments(args2);
+        //sgFragment.setArguments(args2);
         //===============TO BE REMOVED end==========
         ViewPager mViewPager = findViewById(R.id.fragmentHolder);
         mViewPager.setAdapter(new GroupPagerAdapter(getSupportFragmentManager()));
-        //PagerTitleStrip tabStrip = findViewById(R.id.pager_title_strip);
         TabLayout tabLayout = findViewById(R.id.tabLayout);
         tabLayout.setupWithViewPager(mViewPager);
     }

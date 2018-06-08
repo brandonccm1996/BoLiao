@@ -16,8 +16,8 @@ import java.util.ArrayList;
 public class JoinedGroupFragment extends Fragment {
     private static Fragment jgFragment;
     private RecyclerView groupView;
-    private ArrayList<Group> groupList;
     private GroupRecyclerAdapter adapter;
+    private final ArrayList<Group> joinedgroups = new ArrayList<>();
     private final String TAG = "JoinedGroupFragment";
 
     public static Fragment getInstance(){
@@ -37,8 +37,8 @@ public class JoinedGroupFragment extends Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        groupList = getArguments().getParcelableArrayList(getResources().getString(R.string.joined_groups));
-        adapter = new GroupRecyclerAdapter(getActivity(),groupList);
+        //groupList = getArguments().getParcelableArrayList(getResources().getString(R.string.joined_groups));
+        adapter = new GroupRecyclerAdapter(getActivity(),joinedgroups);
         groupView = getView().findViewById(R.id.groupList);
         groupView.setLayoutManager(new LinearLayoutManager(getActivity()));
         groupView.setAdapter(adapter);

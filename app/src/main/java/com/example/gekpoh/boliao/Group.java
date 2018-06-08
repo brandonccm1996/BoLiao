@@ -97,7 +97,7 @@ public class Group implements Parcelable{
     }
     //public method to create a new Activity
     public static void createGroup(final ArrayList<Group> groupList){
-
+        
     }
 
 
