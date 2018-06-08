@@ -27,6 +27,8 @@
         <activity
             android:name=".EditDescriptionActivity"
             android:windowSoftInputMode="adjustPan"/>
+        <activity
+            android:name=".GroupDetailsActivity"/>
     </application>
 
 </manifest>

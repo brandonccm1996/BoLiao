@@ -1,6 +1,7 @@
 package com.example.gekpoh.boliao;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
@@ -25,8 +26,7 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdap
     @Override
     public GroupViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.card_layout, parent, false);
-        GroupViewHolder groupViewHolder = new GroupViewHolder(itemView);
-        return groupViewHolder;
+        return new GroupViewHolder(itemView);
     }
 
     @Override
@@ -35,14 +35,15 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdap
         String groupName = group.getName();
         holder.mGroupName.setText(groupName.length() > 10? groupName.substring(0,9) + "...":groupName);
         holder.mGroupDate.setText(group.getStartDate());//Possible Improvement: Indicate how much time left until the activity, Happening now, Over
-        String placeName = group.getPlace();
+        String placeName = group.getPlaceName();
         holder.mGroupPlace.setText(placeName.length() > 10? placeName.substring(0,9) + "...":placeName);
         holder.mCardView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Toast.makeText(view.getContext(),String.format("%s clicked", group.getName()),Toast.LENGTH_SHORT).show();
-                //Intent intent = new Intent(view.getContext(), GroupDetailsActivity.class);
-                //Put extra data into intent in the form of parcelable
+                Intent intent = new Intent(view.getContext(), GroupDetailsActivity.class);
+                intent.putExtra(view.getContext().getResources().getString(R.string.groupDetails), group);
+                view.getContext().startActivity(intent);
                 //++CAN ADD TRANSITIONS TO NEXT ACTIVITY HERE
             }
         });
@@ -54,10 +55,10 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdap
     }
 
     public class GroupViewHolder extends RecyclerView.ViewHolder{
-        public TextView mGroupName, mGroupDate, mGroupPlace;
-        public CardView mCardView;
-        public ImageView mImageView;
-        public GroupViewHolder(View itemView) {
+        private TextView mGroupName, mGroupDate, mGroupPlace;
+        private CardView mCardView;
+        private ImageView mImageView;
+        private GroupViewHolder(View itemView) {
             super(itemView);
             mGroupName = itemView.findViewById(R.id.cardNoteTitle);
             mGroupPlace = itemView.findViewById(R.id.cardNotePlace);
