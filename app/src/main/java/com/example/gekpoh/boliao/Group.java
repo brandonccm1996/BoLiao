@@ -19,13 +19,14 @@ import java.util.Date;
 public class Group implements Parcelable{
     public static final SimpleDateFormat groupDateFormatter = new SimpleDateFormat("dd/MM/yyyy HH:mm");
     private String groupid;//mGroupId is to indicate the reference to the database for this group
-    private String name, placeid, photourl, description;
+    private String name, placename, placeid, photourl, description;
     private long startdate, enddate;//timestamp
     private int maxsize;
     private ArrayList<String> uids;
     //New Activity Constructor
-    private Group(String name, String placeid, String description ,Long startdate, Long enddate, int maxsize) {
+    private Group(String name, String placename, String placeid, String description ,Long startdate, Long enddate, int maxsize) {
         this.name = name;
+        this.placename = placename;
         this.placeid = placeid;
         this.description = description;
         this.startdate = startdate;
@@ -34,6 +35,7 @@ public class Group implements Parcelable{
     }
     private Group(Parcel in) {
         name = in.readString();
+        placename = in.readString();
         placeid = in.readString();
         groupid = in.readString();
         photourl = in.readString();
@@ -59,9 +61,12 @@ public class Group implements Parcelable{
         return name;
     }
 
+    public String getPlaceId(){
+        return placeid;
+    }
     public String getPlaceName(){
         //Placeholder for now. Need to use Google Maps API next time
-        return placeid;
+        return placename;
     }
     public String getPhotoUrl() {
         return photourl;
@@ -109,6 +114,7 @@ public class Group implements Parcelable{
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(name);
+        dest.writeString(placename);
         dest.writeString(placeid);
         dest.writeString(groupid);
         dest.writeString(description);
