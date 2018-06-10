@@ -135,6 +135,10 @@ public class MainActivity extends AppCompatActivity {
                 Intent startEditProfileActivityIntent = new Intent(MainActivity.this, EditProfileActivity.class);
                 startActivity(startEditProfileActivityIntent);
                 return true;
+            case R.id.create_new_act:
+                Intent startCreateNewEventActivityIntent = new Intent(MainActivity.this, CreateNewEventActivity.class);
+                startActivity(startCreateNewEventActivityIntent);
+                return true;
             case R.id.signout:
                 AuthUI.getInstance().signOut(this);
                 return true;
