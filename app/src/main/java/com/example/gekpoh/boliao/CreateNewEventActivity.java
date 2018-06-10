@@ -11,7 +11,7 @@ import android.os.Bundle;
 
 public class CreateNewEventActivity extends AppCompatActivity {
 
-    private static final int NUM_PAGES = 2; // will change to 3 after including map
+    private static final int NUM_PAGES = 4;
     private ViewPager mViewPager;
     private TabLayout mTabLayout;
 
@@ -36,6 +36,8 @@ public class CreateNewEventActivity extends AppCompatActivity {
         public Fragment getItem (int position) {
             if (position == 0) return new CreateNewEventFragment1();
             else if (position == 1) return new CreateNewEventFragment2();
+            else if (position == 2) return new CreateNewEventFragment3();
+            else if (position == 3) return new CreateNewEventFragment4();
             else return null;
         }
 
@@ -46,8 +48,10 @@ public class CreateNewEventActivity extends AppCompatActivity {
 
         @Override
         public CharSequence getPageTitle(int position) {
-            if (position == 0) return "Step 1: Main Details";
-            else if (position == 1) return "Step 2: Description";
+            if (position == 0) return "Step 1";
+            else if (position == 1) return "Step 2";
+            else if (position == 2) return "Step 3";
+            else if (position == 3) return "Step 4";
             else return null;
         }
     }
