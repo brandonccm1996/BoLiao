@@ -3,29 +3,78 @@ package com.example.gekpoh.boliao;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.Toast;
 
-public class CreateNewEventActivity extends AppCompatActivity {
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
-    private static final int NUM_PAGES = 4;
+import java.util.HashMap;
+import java.util.Map;
+
+public class CreateNewEventActivity extends AppCompatActivity{
+
+    private static final int NUM_PAGES = 3;
+
     private ViewPager mViewPager;
     private TabLayout mTabLayout;
+    private Button buttonSubmit;
+
+    private GroupTest groupData;
+
+    private CreateNewEventFragment1 fragment1;
+    private CreateNewEventFragment2 fragment2;
+    private CreateNewEventFragment3 fragment3;
+
+    private FirebaseDatabase mFirebaseDatabase;
+    private DatabaseReference mGroupsDatabaseReference;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_new_event);
 
+        mFirebaseDatabase = FirebaseDatabase.getInstance();
+        mGroupsDatabaseReference = mFirebaseDatabase.getReference().child("groups");
+
+        buttonSubmit = findViewById(R.id.buttonSubmit);
+
         mViewPager = findViewById(R.id.view_pager_create_new_event);
         CreateNewEventAdapter adapter = new CreateNewEventAdapter(getSupportFragmentManager());
         mViewPager.setAdapter(adapter);
         mTabLayout = findViewById(R.id.tab_layout_create_new_event);
         mTabLayout.setupWithViewPager(mViewPager);
+
+        buttonSubmit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (fragment1.sendName().equals("") || fragment1.sendLocation().equals("") || fragment1.sendSDate().equals("") ||
+                        fragment1.sendSTime().equals("") || fragment1.sendEDate().equals("") || fragment1.sendETime().equals("") ||
+                        fragment2.sendDescription().equals("") || fragment2.sendNumPeople().equals(""))
+                    Toast.makeText(CreateNewEventActivity.this, "Please fill in all fields", Toast.LENGTH_SHORT).show();
+                else {
+                    Map mapToUpload = new HashMap();
+                    mapToUpload.put("name", fragment1.sendName());
+                    mapToUpload.put("location", fragment1.sendLocation());
+                    mapToUpload.put("startDateTime", fragment1.sendSDate() + " " + fragment1.sendSTime());
+                    mapToUpload.put("endDateTime", fragment1.sendEDate() + " " + fragment1.sendETime());
+                    mapToUpload.put("numParticipants", fragment2.sendNumPeople());
+                    mapToUpload.put("description", fragment2.sendDescription());
+                    mGroupsDatabaseReference.push().setValue(mapToUpload);
+                    finish();
+                }
+            }
+        });
     }
+
+
 
     private class CreateNewEventAdapter extends FragmentStatePagerAdapter {
         public CreateNewEventAdapter(FragmentManager fm) {
@@ -37,7 +86,6 @@ public class CreateNewEventActivity extends AppCompatActivity {
             if (position == 0) return new CreateNewEventFragment1();
             else if (position == 1) return new CreateNewEventFragment2();
             else if (position == 2) return new CreateNewEventFragment3();
-            else if (position == 3) return new CreateNewEventFragment4();
             else return null;
         }
 
@@ -51,8 +99,16 @@ public class CreateNewEventActivity extends AppCompatActivity {
             if (position == 0) return "Step 1";
             else if (position == 1) return "Step 2";
             else if (position == 2) return "Step 3";
-            else if (position == 3) return "Step 4";
             else return null;
+        }
+
+        @Override
+        public Object instantiateItem(ViewGroup container, int position) {
+            Fragment createdFragment = (Fragment) super.instantiateItem(container, position);
+            if (position == 0) fragment1 = (CreateNewEventFragment1) createdFragment;
+            else if (position == 1) fragment2 = (CreateNewEventFragment2) createdFragment;
+            else if (position == 2) fragment3 = (CreateNewEventFragment3) createdFragment;
+            return createdFragment;
         }
     }
 }

@@ -14,7 +14,7 @@
         android:layout_marginTop="48dp"
         android:ems="10"
         android:hint="No of Participants"
-        android:inputType="textPersonName"
+        android:inputType="number"
         android:textSize="14sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"

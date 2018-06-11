@@ -33,4 +33,7 @@ public class CreateNewEventFragment2 extends Fragment {
             }
         });
     }
+
+    public String sendNumPeople() {return editTextNumPeople.getText().toString(); }
+    public String sendDescription() { return editTextDescription.getText().toString(); }
 }

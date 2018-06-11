@@ -1,12 +1,15 @@
 package com.example.gekpoh.boliao;
 
+import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.content.Context;
 import android.support.v4.app.Fragment;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,8 +17,12 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 
 public class CreateNewEventFragment1 extends Fragment{
 
@@ -30,6 +37,10 @@ public class CreateNewEventFragment1 extends Fragment{
     private TimePickerDialog mTimePickerDialog;
     private Calendar calendar;
     private int year, month, dayOfMonth;
+
+    private Date sDateTime;
+    private Date eDateTime;
+    private SimpleDateFormat groupDateFormatter = new SimpleDateFormat("dd/MM/yyyy HH:mm");
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -89,8 +100,8 @@ public class CreateNewEventFragment1 extends Fragment{
                 mTimePickerDialog = new TimePickerDialog(getActivity(), new TimePickerDialog.OnTimeSetListener() {
                     @Override
                     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-                        if (hourOfDay >= 12) editTextSTime.setText(String.format("%02d:%02d", hourOfDay, minute) + "PM");
-                        else editTextSTime.setText(String.format("%02d:%02d", hourOfDay, minute) + "AM");
+                        if (hourOfDay >= 12) editTextSTime.setText(String.format("%02d:%02d", hourOfDay, minute));
+                        else editTextSTime.setText(String.format("%02d:%02d", hourOfDay, minute));
                     }
                 }, 0, 0, false);
 
@@ -104,14 +115,20 @@ public class CreateNewEventFragment1 extends Fragment{
                 mTimePickerDialog = new TimePickerDialog(getActivity(), new TimePickerDialog.OnTimeSetListener() {
                     @Override
                     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-                        if (hourOfDay >= 12) editTextETime.setText(String.format("%02d:%02d", hourOfDay, minute) + "PM");
-                        else editTextETime.setText(String.format("%02d:%02d", hourOfDay, minute) + "AM");
+                        if (hourOfDay >= 12) editTextETime.setText(String.format("%02d:%02d", hourOfDay, minute));
+                        else editTextETime.setText(String.format("%02d:%02d", hourOfDay, minute));
                     }
                 }, 0, 0, false);
 
                 mTimePickerDialog.show();
             }
         });
-
     }
+
+    public String sendName() { return editTextName.getText().toString(); }
+    public String sendLocation() { return editTextLocation.getText().toString(); }
+    public String sendSDate() { return editTextSDate.getText().toString(); }
+    public String sendSTime() { return editTextSTime.getText().toString(); }
+    public String sendEDate() { return editTextEDate.getText().toString(); }
+    public String sendETime() { return editTextETime.getText().toString(); }
 }
