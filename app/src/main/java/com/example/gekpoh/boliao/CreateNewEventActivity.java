@@ -27,8 +27,6 @@ public class CreateNewEventActivity extends AppCompatActivity{
     private TabLayout mTabLayout;
     private Button buttonSubmit;
 
-    private GroupTest groupData;
-
     private CreateNewEventFragment1 fragment1;
     private CreateNewEventFragment2 fragment2;
     private CreateNewEventFragment3 fragment3;
@@ -67,6 +65,9 @@ public class CreateNewEventActivity extends AppCompatActivity{
                     mapToUpload.put("endDateTime", fragment1.sendEDate() + " " + fragment1.sendETime());
                     mapToUpload.put("numParticipants", fragment2.sendNumPeople());
                     mapToUpload.put("description", fragment2.sendDescription());
+                    if (fragment2.sendPhotoUri() == null) mapToUpload.put("photoUrl", "");
+                    else mapToUpload.put("photoUrl", fragment2.sendPhotoUri());
+
                     mGroupsDatabaseReference.push().setValue(mapToUpload);
                     finish();
                 }
