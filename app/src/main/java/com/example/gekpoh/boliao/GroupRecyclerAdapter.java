@@ -13,6 +13,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdapter.GroupViewHolder> {
     private Context mContext;
@@ -34,15 +35,15 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdap
         final Group group = groupList.get(position);
         String groupName = group.getName();
         holder.mGroupName.setText(groupName.length() > 10? groupName.substring(0,9) + "...":groupName);
-        holder.mGroupDate.setText(group.getStartDate());//Possible Improvement: Indicate how much time left until the activity, Happening now, Over
+        holder.mGroupDate.setText(Group.groupDateFormatter.format(new Date(group.getStartDate())));//Possible Improvement: Indicate how much time left until the activity, Happening now, Over
         String placeName = group.getPlaceName();
         holder.mGroupPlace.setText(placeName.length() > 10? placeName.substring(0,9) + "...":placeName);
         holder.mCardView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(view.getContext(),String.format("%s clicked", group.getName()),Toast.LENGTH_SHORT).show();
+                //Toast.makeText(view.getContext(),String.format("%s clicked", group.getName()),Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(view.getContext(), GroupDetailsActivity.class);
-                intent.putExtra(view.getContext().getResources().getString(R.string.groupDetails), group);
+                intent.putExtra(view.getContext().getResources().getString(R.string.groupKey), group);
                 view.getContext().startActivity(intent);
                 //++CAN ADD TRANSITIONS TO NEXT ACTIVITY HERE
             }

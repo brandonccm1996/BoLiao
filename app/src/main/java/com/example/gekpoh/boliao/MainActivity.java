@@ -6,7 +6,6 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
-import android.support.v4.view.PagerTitleStrip;
 import android.support.v4.view.ViewPager;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -16,12 +15,9 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import java.util.ArrayList;
-
 import com.firebase.ui.auth.AuthUI;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.UserInfo;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -29,7 +25,6 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.Arrays;
-import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
     public static String userDisplayName;
@@ -57,7 +52,6 @@ public class MainActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setLogo(R.drawable.common_google_signin_btn_icon_dark);
         getSupportActionBar().setDisplayUseLogoEnabled(true);
-
         mFirebaseDatabase = FirebaseDatabase.getInstance();
         mUsersDatabaseReference = mFirebaseDatabase.getReference().child("users");
 
@@ -193,9 +187,9 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public CharSequence getPageTitle(int position) {
             if(position == 0){
-                return getResources().getString(R.string.MainActivityTab1);
+                return getString(R.string.MainActivityTab1Name);
             }
-            return getResources().getString(R.string.MainActivityTab2);
+            return getString(R.string.MainActivityTab2Name);
         }
     }
 

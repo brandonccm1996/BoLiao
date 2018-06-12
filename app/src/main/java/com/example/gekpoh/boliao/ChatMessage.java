@@ -2,30 +2,22 @@ package com.example.gekpoh.boliao;
 
 public class ChatMessage {
     private String text;
-    private String name;
+    private String uid;
     private long timeStamp;
-    public ChatMessage(String text, String name, String photoUrl, long timeStamp) {
+
+    public ChatMessage(){
+
+    }
+    public ChatMessage(String text, String uid, long timeStamp) {
         this.text = text;
-        this.name = name;
+        this.uid = uid;
         this.timeStamp = timeStamp;
     }
     public String getText() {
         return text;
     }
 
-    public void setText(String text) {
-        this.text = text;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setTimeStamp(long timeStamp){this.timeStamp = timeStamp;}
+    public String getUid() {return uid;}
 
     public long getTimeStamp(){return timeStamp;}
 }

@@ -48,11 +48,22 @@ public class GroupDetailsActivity extends AppCompatActivity implements OnMapRead
         super.onCreate(savedInstanceState);
         setContentView(R.layout.group_details_activity_layout);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        mGroup = getIntent().getParcelableExtra(getResources().getString(R.string.groupDetails));//Need to pass on group details before starting this activity
+        mGroup = getIntent().getParcelableExtra(getString(R.string.groupKey));//Need to pass on group details before starting this activity
         chatFragment = new ChatFragment();
+        Bundle args = new Bundle();
+        args.putString(getString(R.string.groupIdKey), mGroup.getGroupId());
         mapFragment = SupportMapFragment.newInstance();
         mapFragment.getMapAsync(this);
         eventInfoFragment = new EventInfoFragment();
+        Bundle args2 = new Bundle();
+        args2.putString(getString(R.string.groupNameKey), mGroup.getName());
+        args2.putString(getString(R.string.groupPlaceKey), mGroup.getPlaceName());
+        args2.putLong(getString(R.string.groupStartKey), mGroup.getStartDate());
+        args2.putLong(getString(R.string.groupEndKey), mGroup.getEndDate());
+        args2.putString(getString(R.string.groupPhotoUrlKey), mGroup.getPhotoUrl());
+        args2.putInt(getString(R.string.groupCurrentSizeKey),mGroup.getCurrentSize());
+        args2.putInt(getString(R.string.groupMaxSizeKey),mGroup.getMaxSize());
+        eventInfoFragment.setArguments(args2);
         ViewPager detailsPager = findViewById(R.id.groupDetailsPager);
         detailsPager.setAdapter(new GroupDetailsPagerAdapter(getSupportFragmentManager()));
         TabLayout tabLayout = findViewById(R.id.detailsTabLayout);
@@ -145,11 +156,11 @@ public class GroupDetailsActivity extends AppCompatActivity implements OnMapRead
         public CharSequence getPageTitle(int position) {
             switch (position) {
                 case 0:
-                    return getResources().getString(R.string.GroupDetailsActivityTab1);
+                    return getString(R.string.GroupDetailsActivityTab1Name);
                 case 1:
-                    return getResources().getString(R.string.GroupDetailsActivityTab2);
+                    return getString(R.string.GroupDetailsActivityTab2Name);
                 case 2:
-                    return getResources().getString(R.string.GroupDetailsActivityTab3);
+                    return getString(R.string.GroupDetailsActivityTab3Name);
                 default:
                     return null;
             }

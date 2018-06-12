@@ -47,7 +47,7 @@
         android:layout_marginEnd="8dp"
         android:layout_marginRight="8dp"
         android:enabled="false"
-        android:text="@string/send_button_label"
+        android:text="@string/chatFragmentSendButtonLabel"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 </android.support.constraint.ConstraintLayout>

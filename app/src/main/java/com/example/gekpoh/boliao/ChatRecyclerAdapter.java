@@ -8,9 +8,16 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 
 public class ChatRecyclerAdapter extends RecyclerView.Adapter<ChatRecyclerAdapter.ChatMessageViewHolder>  {
     public static final SimpleDateFormat chatDateFormatter = new SimpleDateFormat("dd/MM/yyyy HH:mm");
@@ -28,7 +35,7 @@ public class ChatRecyclerAdapter extends RecyclerView.Adapter<ChatRecyclerAdapte
     public void onBindViewHolder(@NonNull ChatMessageViewHolder holder, int position) {
         final ChatMessage chatMessage = chatMessageList.get(position);
         holder.messageContent.setText(chatMessage.getText());
-        holder.messageOwner.setText(chatMessage.getName());
+        holder.messageOwner.setText(chatMessage.getUid());
         holder.messageTime.setText(chatDateFormatter.format(new Date(chatMessage.getTimeStamp())));
     }
 
