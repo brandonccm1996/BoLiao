@@ -37,18 +37,12 @@ public class GroupTest {
         if (name != null) return name;
         else return "DEBUGGING DEBUGGING";
     }
-    public void setName(String name) { this.name = name; }
+
     public String getLocation() { return location; }
-    public void setLocation(String location) { this.location = location; }
     public String getDescription() { return description; }
-    public void setDescription(String description) { this.description = description; }
     public String getPhotoUrl() { return photoUrl; }
-    public void setPhotoUrl(String photoUrl) { this.photoUrl = photoUrl; }
     public int getNumPeople() { return numPeople; }
-    public void setNumPeople(int numPeople) { this.numPeople = numPeople; }
     public Date getsDate() { return sDate; }
-    public void setsDate(Date sDate) { this.sDate = sDate; }
     public Date geteDate() { return eDate; }
-    public void seteDate(Date eDate) { this.eDate = eDate; }
 }
 
