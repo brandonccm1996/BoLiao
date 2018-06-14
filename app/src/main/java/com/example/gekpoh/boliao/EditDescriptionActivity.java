@@ -17,6 +17,9 @@ public class EditDescriptionActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_description);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+        getSupportActionBar().setLogo(R.drawable.common_google_signin_btn_icon_dark);
+        getSupportActionBar().setDisplayUseLogoEnabled(true);
 
         editTextDescription = findViewById(R.id.editTextDescription);
         saveBtn = findViewById(R.id.saveBtn);

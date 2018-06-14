@@ -29,6 +29,7 @@
         android:layout_marginRight="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="28dp"
+        android:padding="3dp"
         android:background="@android:color/background_light"
         android:ems="10"
         android:inputType="textPersonName"
