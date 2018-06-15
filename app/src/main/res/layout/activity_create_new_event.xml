@@ -9,7 +9,7 @@
     <android.support.v4.view.ViewPager
         android:id="@+id/view_pager_create_new_event"
         android:layout_width="0dp"
-        android:layout_height="458dp"
+        android:layout_height="464dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"

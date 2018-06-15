@@ -48,6 +48,7 @@ public class CreateNewEventActivity extends AppCompatActivity{
         buttonSubmit = findViewById(R.id.buttonSubmit);
 
         mViewPager = findViewById(R.id.view_pager_create_new_event);
+        mViewPager.setOffscreenPageLimit(3);
         CreateNewEventAdapter adapter = new CreateNewEventAdapter(getSupportFragmentManager());
         mViewPager.setAdapter(adapter);
         mTabLayout = findViewById(R.id.tab_layout_create_new_event);
@@ -58,7 +59,7 @@ public class CreateNewEventActivity extends AppCompatActivity{
             public void onClick(View v) {
                 if (fragment1.sendName().equals("") || fragment1.sendLocation().equals("") || fragment1.sendSDate().equals("") ||
                         fragment1.sendSTime().equals("") || fragment1.sendEDate().equals("") || fragment1.sendETime().equals("") ||
-                        fragment2.sendDescription().equals("") || fragment2.sendNumPeople().equals(""))
+                        fragment2.sendDescription().equals("") || fragment2.sendNumPeople().equals("") || fragment3.sendPlaceId() == null)
                     Toast.makeText(CreateNewEventActivity.this, "Please fill in all fields", Toast.LENGTH_SHORT).show();
                 else {
                     Map mapToUpload = new HashMap();
@@ -68,6 +69,7 @@ public class CreateNewEventActivity extends AppCompatActivity{
                     mapToUpload.put("endDateTime", fragment1.sendEDate() + " " + fragment1.sendETime());
                     mapToUpload.put("numParticipants", fragment2.sendNumPeople());
                     mapToUpload.put("description", fragment2.sendDescription());
+                    mapToUpload.put("placeId", fragment3.sendPlaceId());
                     if (fragment2.sendPhotoUri() == null) mapToUpload.put("photoUrl", "");
                     else mapToUpload.put("photoUrl", fragment2.sendPhotoUri());
 

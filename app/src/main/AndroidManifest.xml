@@ -37,7 +37,6 @@
         <activity
             android:name=".CreateNewEventActivity"
             android:windowSoftInputMode="adjustPan" />
-        <activity android:name=".CreateNewEventMapActivity"></activity>
     </application>
 
 </manifest>
