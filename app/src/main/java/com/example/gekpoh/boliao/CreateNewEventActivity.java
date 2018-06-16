@@ -33,6 +33,8 @@ public class CreateNewEventActivity extends AppCompatActivity{
 
     private FirebaseDatabase mFirebaseDatabase;
     private DatabaseReference mGroupsDatabaseReference;
+    private DatabaseReference mChatsDatabaseReference;
+    private String chatId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +46,7 @@ public class CreateNewEventActivity extends AppCompatActivity{
 
         mFirebaseDatabase = FirebaseDatabase.getInstance();
         mGroupsDatabaseReference = mFirebaseDatabase.getReference().child("groups");
+        mChatsDatabaseReference = mFirebaseDatabase.getReference().child("chats");
 
         buttonSubmit = findViewById(R.id.buttonSubmit);
 
@@ -63,13 +66,24 @@ public class CreateNewEventActivity extends AppCompatActivity{
                     Toast.makeText(CreateNewEventActivity.this, "Please fill in all fields", Toast.LENGTH_SHORT).show();
                 else {
                     Map mapToUpload = new HashMap();
-                    mapToUpload.put("name", fragment1.sendName());
+                    Map mapToUpload2 = new HashMap();
+                    Map mapToUpload3 = new HashMap();
+
+                    chatId = mChatsDatabaseReference.push().getKey();
+                    mChatsDatabaseReference.child(chatId).setValue(new ChatMessage("Welcome to activity chat", "",0)); // just some dummy values
+
+                    mapToUpload3.put("isOrganiser", true);
+                    mapToUpload2.put(MainActivity.userUid, mapToUpload3);
+                    mapToUpload.put("users", mapToUpload2);
+                    mapToUpload.put("names", fragment1.sendName());
                     mapToUpload.put("location", fragment1.sendLocation());
                     mapToUpload.put("startDateTime", fragment1.sendSDate() + " " + fragment1.sendSTime());
                     mapToUpload.put("endDateTime", fragment1.sendEDate() + " " + fragment1.sendETime());
-                    mapToUpload.put("numParticipants", fragment2.sendNumPeople());
+                    mapToUpload.put("maxParticipants", Integer.parseInt(fragment2.sendNumPeople()));
                     mapToUpload.put("description", fragment2.sendDescription());
                     mapToUpload.put("placeId", fragment3.sendPlaceId());
+                    mapToUpload.put("numParticipants", 0);
+                    mapToUpload.put("chatId", chatId);
                     if (fragment2.sendPhotoUri() == null) mapToUpload.put("photoUrl", "");
                     else mapToUpload.put("photoUrl", fragment2.sendPhotoUri());
 
