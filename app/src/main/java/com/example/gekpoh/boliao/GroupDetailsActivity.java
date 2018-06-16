@@ -34,6 +34,7 @@ public class GroupDetailsActivity extends AppCompatActivity implements OnMapRead
     private static final int DEFAULT_ZOOM = 15;
     private boolean locationPermissionGranted = false;
     private Group mGroup;//The group to refer to when we want to access required information
+    private GroupUsersInformation mGroupUsersInformation;
     private ChatFragment chatFragment;
     private EventInfoFragment eventInfoFragment;
     private SupportMapFragment mapFragment;
@@ -54,6 +55,7 @@ public class GroupDetailsActivity extends AppCompatActivity implements OnMapRead
         chatFragment = new ChatFragment();
         Bundle args = new Bundle();
         args.putString(getString(R.string.groupIdKey), mGroup.getChatId());
+        mGroupUsersInformation = new GroupUsersInformation(mGroup.getChatId());
         chatFragment.setArguments(args);
         mapFragment = SupportMapFragment.newInstance();
         mapFragment.getMapAsync(this);

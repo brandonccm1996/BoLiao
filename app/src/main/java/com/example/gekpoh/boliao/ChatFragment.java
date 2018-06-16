@@ -47,7 +47,8 @@ public class ChatFragment extends Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         //super.onViewCreated(view, savedInstanceState);
-        mDatabaseReference = FirebaseDatabase.getInstance().getReference().child("chats").child(getArguments().getString(getString(R.string.groupIdKey)));
+        String chatKey = getArguments().getString(getString(R.string.groupIdKey));
+        mDatabaseReference = FirebaseDatabase.getInstance().getReference().child("chats").child(chatKey);
         editText = getView().findViewById(R.id.messageEditText);
         editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(MAX_MESSAGE_LENGTH)});
         sendButton = getView().findViewById(R.id.sendButton);
@@ -86,7 +87,7 @@ public class ChatFragment extends Fragment {
         chatMessageList = new ArrayList<>();//initialize new empty chatList
         chatRecyclerView = getView().findViewById(R.id.chatRecyclerView);
         chatRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        adapter = new ChatRecyclerAdapter(chatMessageList);
+        adapter = new ChatRecyclerAdapter(chatMessageList,chatKey);
         chatRecyclerView.setAdapter(adapter);
         mChildEventListener = new ChildEventListener() {
             @Override

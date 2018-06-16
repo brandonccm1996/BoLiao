@@ -1,7 +1,7 @@
 package com.example.gekpoh.boliao;
 
+import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
-import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,7 +23,7 @@ public class ChatRecyclerAdapter extends RecyclerView.Adapter<ChatRecyclerAdapte
     public static final SimpleDateFormat chatDateFormatter = new SimpleDateFormat("dd/MM/yyyy HH:mm");
     @NonNull
     private ArrayList<ChatMessage> chatMessageList;
-    public ChatRecyclerAdapter(ArrayList<ChatMessage> chatMessages){
+    public ChatRecyclerAdapter(ArrayList<ChatMessage> chatMessages,String chatKey){
         chatMessageList = chatMessages;
     }
     @Override
@@ -35,8 +35,9 @@ public class ChatRecyclerAdapter extends RecyclerView.Adapter<ChatRecyclerAdapte
     public void onBindViewHolder(@NonNull ChatMessageViewHolder holder, int position) {
         final ChatMessage chatMessage = chatMessageList.get(position);
         holder.messageContent.setText(chatMessage.getText());
-        holder.messageOwner.setText(chatMessage.getUid());
         holder.messageTime.setText(chatDateFormatter.format(new Date(chatMessage.getTimeStamp())));
+        holder.messageOwner.setText(GroupUsersInformation.getNamefromId(chatMessage.getUid()));
+
     }
 
     @Override
