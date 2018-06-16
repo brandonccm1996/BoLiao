@@ -7,7 +7,6 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -34,6 +33,7 @@ public class CreateNewEventActivity extends AppCompatActivity{
     private FirebaseDatabase mFirebaseDatabase;
     private DatabaseReference mGroupsDatabaseReference;
     private DatabaseReference mChatsDatabaseReference;
+    private DatabaseReference mUserListsDatabaseReference;
     private String chatId;
 
     @Override
@@ -47,7 +47,7 @@ public class CreateNewEventActivity extends AppCompatActivity{
         mFirebaseDatabase = FirebaseDatabase.getInstance();
         mGroupsDatabaseReference = mFirebaseDatabase.getReference().child("groups");
         mChatsDatabaseReference = mFirebaseDatabase.getReference().child("chats");
-
+        mUserListsDatabaseReference = mFirebaseDatabase.getReference().child("userlists");
         buttonSubmit = findViewById(R.id.buttonSubmit);
 
         mViewPager = findViewById(R.id.view_pager_create_new_event);
@@ -74,7 +74,8 @@ public class CreateNewEventActivity extends AppCompatActivity{
 
                     mapToUpload3.put("isOrganiser", true);
                     mapToUpload2.put(MainActivity.userUid, mapToUpload3);
-                    mapToUpload.put("users", mapToUpload2);
+                    mUserListsDatabaseReference.child(chatId).setValue(mapToUpload2);
+                    //mapToUpload.put("users", mapToUpload2);
                     mapToUpload.put("names", fragment1.sendName());
                     mapToUpload.put("location", fragment1.sendLocation());
                     mapToUpload.put("startDateTime", fragment1.sendSDate() + " " + fragment1.sendSTime());
