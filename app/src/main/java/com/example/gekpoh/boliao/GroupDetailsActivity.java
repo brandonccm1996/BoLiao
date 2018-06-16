@@ -11,6 +11,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.google.android.gms.location.places.GeoDataClient;
@@ -26,7 +27,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 
-public class GroupDetailsActivity extends AppCompatActivity implements OnMapReadyCallback{
+public class GroupDetailsActivity extends AppCompatActivity implements OnMapReadyCallback {
     private static final String TAG = "GroupDetailsActivity";
     private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
     private static int NUM_PAGES = 3;
@@ -41,6 +42,7 @@ public class GroupDetailsActivity extends AppCompatActivity implements OnMapRead
     private CameraPosition mCameraPosition;
     //Client to get data from placeid
     private GeoDataClient mGeoDataClient;
+
     // Client to get current Location
     //private FusedLocationProviderClient mFusedLocationProviderClient;
     @Override
@@ -63,14 +65,15 @@ public class GroupDetailsActivity extends AppCompatActivity implements OnMapRead
         args2.putString(getString(R.string.groupEndKey), mGroup.getEndDateTime());
         args2.putString(getString(R.string.groupPhotoUrlKey), mGroup.getPhotoUrl());
         args2.putString(getString(R.string.groupDescriptionKey), mGroup.getDescription());
-        args2.putInt(getString(R.string.groupCurrentSizeKey),mGroup.getNumParticipants());
-        args2.putInt(getString(R.string.groupMaxSizeKey),mGroup.getMaxParticipants());
+        args2.putInt(getString(R.string.groupCurrentSizeKey), mGroup.getNumParticipants());
+        args2.putInt(getString(R.string.groupMaxSizeKey), mGroup.getMaxParticipants());
         eventInfoFragment.setArguments(args2);
         ViewPager detailsPager = findViewById(R.id.groupDetailsPager);
         detailsPager.setAdapter(new GroupDetailsPagerAdapter(getSupportFragmentManager()));
         TabLayout tabLayout = findViewById(R.id.detailsTabLayout);
         tabLayout.setupWithViewPager(detailsPager);
         mGeoDataClient = Places.getGeoDataClient(this);
+
     }
 
     private void checkRequestLocationPermission() {
@@ -80,30 +83,34 @@ public class GroupDetailsActivity extends AppCompatActivity implements OnMapRead
             ActivityCompat.requestPermissions(this,
                     new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
                     PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
-        }else{
+        } else {
             locationPermissionGranted = true;
         }
     }
 
-    private void updateMapUI(){
+    private void updateMapUI() {
         mGeoDataClient.getPlaceById(mGroup.getPlaceId()).addOnCompleteListener(new OnCompleteListener<PlaceBufferResponse>() {
             @Override
             public void onComplete(@NonNull Task<PlaceBufferResponse> task) {
                 if (task.isSuccessful()) {
                     PlaceBufferResponse places = task.getResult();
-                    place = places.get(0);
+                    Place place = places.get(0);
+                    googleMap.addMarker(new MarkerOptions().position(place.getLatLng())
+                            .title(place.getName().toString())
+                            .snippet(place.getAddress().toString()));
+                    googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(place.getLatLng(), DEFAULT_ZOOM));
                     places.release();
                 } else {
                     Toast.makeText(GroupDetailsActivity.this, "Place not found", Toast.LENGTH_SHORT).show();
                 }
             }
         });
-        if(place == null)return;
-        googleMap.addMarker(new MarkerOptions().position(place.getLatLng())
-                .title(place.getName().toString())
-                .snippet(place.getAddress().toString()));
-        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(place.getLatLng(),DEFAULT_ZOOM));
+        if (place == null){
+            Log.v(TAG, "place not in");
+            return;
+        }
     }
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         switch (requestCode) {
@@ -116,6 +123,7 @@ public class GroupDetailsActivity extends AppCompatActivity implements OnMapRead
             }
         }
     }
+
     @Override
     public boolean onSupportNavigateUp() {
         finish();

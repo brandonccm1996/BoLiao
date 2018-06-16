@@ -84,7 +84,7 @@ public class CreateNewEventActivity extends AppCompatActivity{
                     mapToUpload.put("maxParticipants", Integer.parseInt(fragment2.sendNumPeople()));
                     mapToUpload.put("description", fragment2.sendDescription());
                     mapToUpload.put("placeId", fragment3.sendPlaceId());
-                    mapToUpload.put("numParticipants", 0);
+                    mapToUpload.put("numParticipants", 1);
                     mapToUpload.put("chatId", chatId);
                     if (fragment2.sendPhotoUri() == null) mapToUpload.put("photoUrl", "");
                     else mapToUpload.put("photoUrl", fragment2.sendPhotoUri());

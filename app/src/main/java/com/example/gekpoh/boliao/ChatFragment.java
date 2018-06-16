@@ -24,7 +24,6 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ServerValue;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -32,7 +31,7 @@ public class ChatFragment extends Fragment {
     private static final int MAX_MESSAGE_LENGTH = 140;
     private final String TAG = "ChatFragment";
     private RecyclerView chatRecyclerView;
-    private final ArrayList<ChatMessage> chatMessageList = new ArrayList<>();;
+    private ArrayList<ChatMessage> chatMessageList;
     private ChatRecyclerAdapter adapter;
     private EditText editText;
     private Button sendButton;
@@ -84,6 +83,7 @@ public class ChatFragment extends Fragment {
             public void afterTextChanged(Editable editable) {
             }
         });
+        chatMessageList = new ArrayList<>();//initialize new empty chatList
         chatRecyclerView = getView().findViewById(R.id.chatRecyclerView);
         chatRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         adapter = new ChatRecyclerAdapter(chatMessageList);
