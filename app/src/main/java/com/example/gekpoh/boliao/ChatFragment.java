@@ -9,6 +9,7 @@ import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,13 +32,13 @@ public class ChatFragment extends Fragment {
     private static final int MAX_MESSAGE_LENGTH = 140;
     private final String TAG = "ChatFragment";
     private RecyclerView chatRecyclerView;
-    private ArrayList<ChatMessage> chatMessageList;
+    private final ArrayList<ChatMessage> chatMessageList = new ArrayList<>();;
     private ChatRecyclerAdapter adapter;
     private EditText editText;
     private Button sendButton;
     private DatabaseReference mDatabaseReference;
     private ChildEventListener mChildEventListener;
-
+    
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -46,20 +47,21 @@ public class ChatFragment extends Fragment {
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        mDatabaseReference = FirebaseDatabase.getInstance().getReference().child("chat").child(getArguments().getString(getString(R.string.groupIdKey)));
+        //super.onViewCreated(view, savedInstanceState);
+        mDatabaseReference = FirebaseDatabase.getInstance().getReference().child("chats").child(getArguments().getString(getString(R.string.groupIdKey)));
         editText = getView().findViewById(R.id.messageEditText);
         editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(MAX_MESSAGE_LENGTH)});
         sendButton = getView().findViewById(R.id.sendButton);
         sendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Log.v(TAG,"SENDING MESSAGE");
                 String key = mDatabaseReference.push().getKey();
                 // Clear input box
-                Map<String, Object> map = new HashMap<>();
-                map.put("name", MainActivity.userUid);
-                map.put("text", editText.getText());
-                map.put("timestamp", ServerValue.TIMESTAMP);
+                Map<String,Object> map = new HashMap<>();
+                map.put("uid", MainActivity.userUid);
+                map.put("text", editText.getText().toString());
+                map.put("timeStamp",ServerValue.TIMESTAMP);
                 mDatabaseReference.child(key).setValue(map);
                 editText.setText("");
             }
@@ -82,15 +84,10 @@ public class ChatFragment extends Fragment {
             public void afterTextChanged(Editable editable) {
             }
         });
-        sendButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-            }
-        });
         chatRecyclerView = getView().findViewById(R.id.chatRecyclerView);
         chatRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         adapter = new ChatRecyclerAdapter(chatMessageList);
+        chatRecyclerView.setAdapter(adapter);
         mChildEventListener = new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {

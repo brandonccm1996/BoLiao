@@ -46,8 +46,6 @@ public class JoinedGroupFragment extends Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        //groupList = getArguments().getParcelableArrayList(getResources().getString(R.string.joined_groups));
-        //joinedgroups.add(new Group("hi","hi","hi","hi","","hi",(long)123123,(long)1432432,132));
         adapter = new GroupRecyclerAdapter(getActivity(),joinedgroups);
         groupView = getView().findViewById(R.id.groupList);
         groupView.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -81,5 +79,6 @@ public class JoinedGroupFragment extends Fragment {
 
             }
         };
+        mDatabaseReference.addChildEventListener(mChildEventListener);
     }
 }

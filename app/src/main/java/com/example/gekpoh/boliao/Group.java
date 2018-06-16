@@ -15,39 +15,39 @@ import java.util.ArrayList;
 
 public class Group implements Parcelable{
     public static final SimpleDateFormat groupDateFormatter = new SimpleDateFormat("dd/MM/yyyy HH:mm");
-    private String groupid;//mGroupId is to indicate the reference to the database for this group. groupid is also used as chatid
-    private String name, placename, placeid, photourl, description;
-    private long startdate, enddate;//timestamp
-    private int currentsize, maxsize;
+    private String chatId;//mGroupId is to indicate the reference to the database for this group. groupid is also used as chatid
+    private String names, location, placeId, photoUrl, description;
+    private String startDateTime, endDateTime;//timestamp
+    private int maxParticipants, numParticipants;
 
     public Group(){
 
     }
 
     //Constructor for creating new Activity
-    public Group(String groupid, String name, String placename, String placeid, String photourl, String description ,Long startdate, Long enddate, int maxsize) {
-        this.groupid = groupid;
-        this.name = name;
-        this.placename = placename;
-        this.placeid = placeid;
-        this.photourl = photourl;
+    public Group(String groupid, String name, String placename, String placeid, String photourl, String description ,String startdate, String enddate, int currentsize, int maxsize) {
+        this.chatId = groupid;
+        this.names = name;
+        this.location = placename;
+        this.placeId = placeid;
+        this.photoUrl = photourl;
         this.description = description;
-        this.startdate = startdate;
-        this.enddate = enddate;
-        this.currentsize = 1;
-        this.maxsize = maxsize;
+        this.startDateTime = startdate;
+        this.endDateTime = enddate;
+        this.numParticipants = currentsize;
+        this.maxParticipants = maxsize;
     }
     private Group(Parcel in) {
-        name = in.readString();
-        placename = in.readString();
-        placeid = in.readString();
-        groupid = in.readString();
-        photourl = in.readString();
+        names = in.readString();
+        location = in.readString();
+        placeId = in.readString();
+        chatId = in.readString();
+        photoUrl = in.readString();
         description = in.readString();
-        startdate = in.readLong();
-        enddate = in.readLong();
-        currentsize = in.readInt();
-        maxsize = in.readInt();
+        startDateTime = in.readString();
+        endDateTime = in.readString();
+        numParticipants = in.readInt();
+        maxParticipants = in.readInt();
     }
 
     public static final Creator<Group> CREATOR = new Creator<Group>() {
@@ -62,26 +62,25 @@ public class Group implements Parcelable{
         }
     };
 
-    public String getName(){
-        return name;
+    public String getNames(){
+        return names;
     }
     public String getPlaceId(){
-        return placeid;
+        return placeId;
     }
-    public String getPlaceName(){ return placename; }//Might need to use google api next time
+    public String getLocation(){ return location; }
     public String getDescription(){ return description; }
     public String getPhotoUrl() {
-        return photourl;
+        return photoUrl;
     }
-    //start date and end date are number of seconds since jan 1 1970
-    public Long getStartDate(){
-        return startdate;
+    public String getStartDateTime(){
+        return startDateTime;
     }
-    public Long getEndDate(){ return enddate; }
-    public int getMaxSize(){ return maxsize; }
-    public int getCurrentSize(){ return currentsize; }
-    public String getGroupId(){
-        return groupid;
+    public String getEndDateTime(){ return endDateTime; }
+    public int getMaxParticipants(){ return maxParticipants; }
+    public int getNumParticipants(){ return numParticipants; }
+    public String getChatId(){
+        return chatId;
     }
 
     public static void getGroupfromId(final String groupid, final ArrayList<Group> groupList){
@@ -108,15 +107,15 @@ public class Group implements Parcelable{
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(name);
-        dest.writeString(placename);
-        dest.writeString(placeid);
-        dest.writeString(groupid);
-        dest.writeString(photourl);
+        dest.writeString(names);
+        dest.writeString(location);
+        dest.writeString(placeId);
+        dest.writeString(chatId);
+        dest.writeString(photoUrl);
         dest.writeString(description);
-        dest.writeLong(startdate);//Converting it to long is better than writeSerializable
-        dest.writeLong(enddate);
-        dest.writeInt(currentsize);
-        dest.writeInt(maxsize);
+        dest.writeString(startDateTime);//Converting it to long is better than writeSerializable
+        dest.writeString(endDateTime);
+        dest.writeInt(numParticipants);
+        dest.writeInt(maxParticipants);
     }
 }

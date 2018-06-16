@@ -43,11 +43,11 @@ public class EventInfoFragment extends Fragment {
         String sizeViewText = Integer.toString(args.getInt(getString(R.string.groupCurrentSizeKey))) +'/' + Integer.toString(args.getInt(getString(R.string.groupMaxSizeKey)));
         sizeView.setText(sizeViewText);
         startView = getView().findViewById(R.id.eventStartDateView);
-        Date startDate = new Date(args.getLong(getString(R.string.groupStartKey)));
-        Date endDate = new Date(args.getLong(getString(R.string.groupEndKey)));
-        startView.setText(Group.groupDateFormatter.format(startDate));
+        //Date startDate = new Date(args.getLong(getString(R.string.groupStartKey)));
+        //Date endDate = new Date(args.getLong(getString(R.string.groupEndKey)));
+        startView.setText(args.getString(getString(R.string.groupStartKey)));
         endView = getView().findViewById(R.id.eventEndDateView);
-        endView.setText(Group.groupDateFormatter.format(endDate));
+        endView.setText(args.getString(getString(R.string.groupEndKey)));
         placeView = getView().findViewById(R.id.eventPlaceView);
         placeView.setText(args.getString(getString(R.string.groupPlaceKey)));
         descriptionView = getView().findViewById(R.id.eventDescriptionView);

@@ -33,10 +33,10 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdap
     @Override
     public void onBindViewHolder(@NonNull GroupViewHolder holder, int position) {
         final Group group = groupList.get(position);
-        String groupName = group.getName();
+        String groupName = group.getNames();
         holder.mGroupName.setText(groupName.length() > 10? groupName.substring(0,9) + "...":groupName);
-        holder.mGroupDate.setText(Group.groupDateFormatter.format(new Date(group.getStartDate())));//Possible Improvement: Indicate how much time left until the activity, Happening now, Over
-        String placeName = group.getPlaceName();
+        holder.mGroupDate.setText(group.getStartDateTime());//Possible Improvement: Indicate how much time left until the activity, Happening now, Over
+        String placeName = group.getLocation();
         holder.mGroupPlace.setText(placeName.length() > 10? placeName.substring(0,9) + "...":placeName);
         holder.mCardView.setOnClickListener(new View.OnClickListener() {
             @Override

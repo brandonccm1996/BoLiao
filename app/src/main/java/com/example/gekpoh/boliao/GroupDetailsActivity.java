@@ -51,18 +51,20 @@ public class GroupDetailsActivity extends AppCompatActivity implements OnMapRead
         mGroup = getIntent().getParcelableExtra(getString(R.string.groupKey));//Need to pass on group details before starting this activity
         chatFragment = new ChatFragment();
         Bundle args = new Bundle();
-        args.putString(getString(R.string.groupIdKey), mGroup.getGroupId());
+        args.putString(getString(R.string.groupIdKey), mGroup.getChatId());
+        chatFragment.setArguments(args);
         mapFragment = SupportMapFragment.newInstance();
         mapFragment.getMapAsync(this);
         eventInfoFragment = new EventInfoFragment();
         Bundle args2 = new Bundle();
-        args2.putString(getString(R.string.groupNameKey), mGroup.getName());
-        args2.putString(getString(R.string.groupPlaceKey), mGroup.getPlaceName());
-        args2.putLong(getString(R.string.groupStartKey), mGroup.getStartDate());
-        args2.putLong(getString(R.string.groupEndKey), mGroup.getEndDate());
+        args2.putString(getString(R.string.groupNameKey), mGroup.getNames());
+        args2.putString(getString(R.string.groupPlaceKey), mGroup.getLocation());
+        args2.putString(getString(R.string.groupStartKey), mGroup.getStartDateTime());
+        args2.putString(getString(R.string.groupEndKey), mGroup.getEndDateTime());
         args2.putString(getString(R.string.groupPhotoUrlKey), mGroup.getPhotoUrl());
-        args2.putInt(getString(R.string.groupCurrentSizeKey),mGroup.getCurrentSize());
-        args2.putInt(getString(R.string.groupMaxSizeKey),mGroup.getMaxSize());
+        args2.putString(getString(R.string.groupDescriptionKey), mGroup.getDescription());
+        args2.putInt(getString(R.string.groupCurrentSizeKey),mGroup.getNumParticipants());
+        args2.putInt(getString(R.string.groupMaxSizeKey),mGroup.getMaxParticipants());
         eventInfoFragment.setArguments(args2);
         ViewPager detailsPager = findViewById(R.id.groupDetailsPager);
         detailsPager.setAdapter(new GroupDetailsPagerAdapter(getSupportFragmentManager()));

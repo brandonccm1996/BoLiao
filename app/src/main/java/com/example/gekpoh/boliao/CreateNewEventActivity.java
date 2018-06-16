@@ -70,7 +70,8 @@ public class CreateNewEventActivity extends AppCompatActivity{
                     Map mapToUpload3 = new HashMap();
 
                     chatId = mChatsDatabaseReference.push().getKey();
-                    mChatsDatabaseReference.child(chatId).setValue(new ChatMessage("Welcome to activity chat", "",0)); // just some dummy values
+                    String key = mChatsDatabaseReference.child(chatId).push().getKey();
+                    mChatsDatabaseReference.child(chatId).child(key).setValue(new ChatMessage("Welcome to activity chat", "",0)); // just some dummy values
 
                     mapToUpload3.put("isOrganiser", true);
                     mapToUpload2.put(MainActivity.userUid, mapToUpload3);
