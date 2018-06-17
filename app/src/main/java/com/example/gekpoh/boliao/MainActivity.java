@@ -79,9 +79,12 @@ public class MainActivity extends AppCompatActivity {
 
                         }
                     });
-
+                    JoinedGroupFragment jg = (JoinedGroupFragment)JoinedGroupFragment.getInstance();
+                    jg.onSignIn();
                 }
                 else {  // user signed out
+                    JoinedGroupFragment jg = (JoinedGroupFragment)JoinedGroupFragment.getInstance();
+                    jg.onSignOut();
                     startActivityForResult(
                             AuthUI.getInstance()
                                     .createSignInIntentBuilder()

@@ -22,6 +22,7 @@ import java.util.ArrayList;
 
 public class JoinedGroupFragment extends Fragment {
     private static Fragment jgFragment;
+    private boolean signedIn = false;
     private RecyclerView groupView;
     private GroupRecyclerAdapter adapter;
     private DatabaseReference mDatabaseReference;
@@ -29,8 +30,8 @@ public class JoinedGroupFragment extends Fragment {
     private final ArrayList<Group> joinedgroups = new ArrayList<>();
     private final String TAG = "JoinedGroupFragment";
 
-    public static Fragment getInstance(){
-        if(jgFragment == null){
+    public static Fragment getInstance() {
+        if (jgFragment == null) {
             jgFragment = new JoinedGroupFragment();
         }
         return jgFragment;
@@ -46,10 +47,15 @@ public class JoinedGroupFragment extends Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        adapter = new GroupRecyclerAdapter(getActivity(),joinedgroups);
+        adapter = new GroupRecyclerAdapter(getActivity(), joinedgroups);
         groupView = getView().findViewById(R.id.groupList);
         groupView.setLayoutManager(new LinearLayoutManager(getActivity()));
         groupView.setAdapter(adapter);
+    }
+
+    public void onSignIn() {
+        if (signedIn) return;
+        signedIn = true;
         mDatabaseReference = FirebaseDatabase.getInstance().getReference().child("groups");
         mDatabaseReference.keepSynced(true);
         mChildEventListener = new ChildEventListener() {
@@ -81,5 +87,16 @@ public class JoinedGroupFragment extends Fragment {
             }
         };
         mDatabaseReference.addChildEventListener(mChildEventListener);
+    }
+
+    public void onSignOut() {
+        if(!signedIn) return;
+        signedIn = false;
+        joinedgroups.clear();
+        adapter.notifyDataSetChanged();
+        if (mDatabaseReference != null && mChildEventListener != null) {
+            mDatabaseReference.removeEventListener(mChildEventListener);
+            mChildEventListener = null;
+        }
     }
 }

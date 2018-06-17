@@ -30,14 +30,15 @@ import java.util.Map;
 public class ChatFragment extends Fragment {
     private static final int MAX_MESSAGE_LENGTH = 140;
     private final String TAG = "ChatFragment";
+    private boolean moveToEndAllowed = true;
     private RecyclerView chatRecyclerView;
+    private LinearLayoutManager layoutManager;
     private ArrayList<ChatMessage> chatMessageList;
     private ChatRecyclerAdapter adapter;
     private EditText editText;
     private Button sendButton;
     private DatabaseReference mDatabaseReference;
     private ChildEventListener mChildEventListener;
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -86,18 +87,30 @@ public class ChatFragment extends Fragment {
         chatMessageList = new ArrayList<>();
 
         chatRecyclerView = getView().findViewById(R.id.chatRecyclerView);
-        chatRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        layoutManager = new LinearLayoutManager(getActivity());
+        chatRecyclerView.setLayoutManager(layoutManager);
         adapter = new ChatRecyclerAdapter(chatMessageList);
         chatRecyclerView.setAdapter(adapter);
-
+        chatRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                int currentPosition = layoutManager.findLastVisibleItemPosition();
+                if(chatMessageList.size() - currentPosition < 3){
+                    moveToEndAllowed = true;
+                }else{
+                    moveToEndAllowed = false;
+                }
+                super.onScrolled(recyclerView, dx, dy);
+            }
+        });
         String chatKey = getArguments().getString(getString(R.string.groupIdKey));
         mDatabaseReference = FirebaseDatabase.getInstance().getReference().child("chats").child(chatKey);
         mChildEventListener = new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                Log.v(TAG, "ADDING NEW MESSAGE " + dataSnapshot.getKey());
                 chatMessageList.add(dataSnapshot.getValue(ChatMessage.class));
                 adapter.notifyDataSetChanged();
+                if(moveToEndAllowed) chatRecyclerView.scrollToPosition(chatMessageList.size() - 1);
             }
 
             @Override
