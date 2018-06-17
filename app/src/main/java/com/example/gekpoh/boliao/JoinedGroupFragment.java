@@ -51,6 +51,7 @@ public class JoinedGroupFragment extends Fragment {
         groupView.setLayoutManager(new LinearLayoutManager(getActivity()));
         groupView.setAdapter(adapter);
         mDatabaseReference = FirebaseDatabase.getInstance().getReference().child("groups");
+        mDatabaseReference.keepSynced(true);
         mChildEventListener = new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {

@@ -41,7 +41,6 @@ public class SearchGroupFragment extends Fragment {
         Log.v(TAG, "Attaching View");
         return inflater.inflate(R.layout.groups_fragment_layout, container, false);
     }
-
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
