@@ -37,7 +37,7 @@ public class ChatFragment extends Fragment {
     private Button sendButton;
     private DatabaseReference mDatabaseReference;
     private ChildEventListener mChildEventListener;
-    
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -47,21 +47,19 @@ public class ChatFragment extends Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         //super.onViewCreated(view, savedInstanceState);
-        String chatKey = getArguments().getString(getString(R.string.groupIdKey));
-        mDatabaseReference = FirebaseDatabase.getInstance().getReference().child("chats").child(chatKey);
         editText = getView().findViewById(R.id.messageEditText);
         editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(MAX_MESSAGE_LENGTH)});
         sendButton = getView().findViewById(R.id.sendButton);
         sendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.v(TAG,"SENDING MESSAGE");
+                Log.v(TAG, "SENDING MESSAGE");
                 String key = mDatabaseReference.push().getKey();
                 // Clear input box
-                Map<String,Object> map = new HashMap<>();
+                Map<String, Object> map = new HashMap<>();
                 map.put("uid", MainActivity.userUid);
                 map.put("text", editText.getText().toString());
-                map.put("timeStamp",ServerValue.TIMESTAMP);
+                map.put("timeStamp", ServerValue.TIMESTAMP);
                 mDatabaseReference.child(key).setValue(map);
                 editText.setText("");
             }
@@ -84,14 +82,20 @@ public class ChatFragment extends Fragment {
             public void afterTextChanged(Editable editable) {
             }
         });
-        chatMessageList = new ArrayList<>();//initialize new empty chatList
+
+        chatMessageList = new ArrayList<>();
+
         chatRecyclerView = getView().findViewById(R.id.chatRecyclerView);
         chatRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        adapter = new ChatRecyclerAdapter(chatMessageList,chatKey);
+        adapter = new ChatRecyclerAdapter(chatMessageList);
         chatRecyclerView.setAdapter(adapter);
+
+        String chatKey = getArguments().getString(getString(R.string.groupIdKey));
+        mDatabaseReference = FirebaseDatabase.getInstance().getReference().child("chats").child(chatKey);
         mChildEventListener = new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                Log.v(TAG, "ADDING NEW MESSAGE " + dataSnapshot.getKey());
                 chatMessageList.add(dataSnapshot.getValue(ChatMessage.class));
                 adapter.notifyDataSetChanged();
             }
@@ -117,5 +121,14 @@ public class ChatFragment extends Fragment {
             }
         };
         mDatabaseReference.addChildEventListener(mChildEventListener);
+    }
+
+    @Override
+    public void onPause() {
+        if (mDatabaseReference != null && mChildEventListener != null) {
+            mDatabaseReference.removeEventListener(mChildEventListener);
+            mChildEventListener = null;
+        }
+        super.onPause();
     }
 }

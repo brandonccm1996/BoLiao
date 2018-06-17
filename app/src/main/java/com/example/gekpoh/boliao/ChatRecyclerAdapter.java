@@ -23,7 +23,7 @@ public class ChatRecyclerAdapter extends RecyclerView.Adapter<ChatRecyclerAdapte
     public static final SimpleDateFormat chatDateFormatter = new SimpleDateFormat("dd/MM/yyyy HH:mm");
     @NonNull
     private ArrayList<ChatMessage> chatMessageList;
-    public ChatRecyclerAdapter(ArrayList<ChatMessage> chatMessages,String chatKey){
+    public ChatRecyclerAdapter(ArrayList<ChatMessage> chatMessages){
         chatMessageList = chatMessages;
     }
     @Override

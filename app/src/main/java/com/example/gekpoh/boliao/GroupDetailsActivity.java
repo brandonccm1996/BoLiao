@@ -22,7 +22,6 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -40,7 +39,6 @@ public class GroupDetailsActivity extends AppCompatActivity implements OnMapRead
     private SupportMapFragment mapFragment;
     private GoogleMap googleMap;
     private Place place;
-    private CameraPosition mCameraPosition;
     //Client to get data from placeid
     private GeoDataClient mGeoDataClient;
 
@@ -96,7 +94,7 @@ public class GroupDetailsActivity extends AppCompatActivity implements OnMapRead
             public void onComplete(@NonNull Task<PlaceBufferResponse> task) {
                 if (task.isSuccessful()) {
                     PlaceBufferResponse places = task.getResult();
-                    Place place = places.get(0);
+                    place = places.get(0);
                     googleMap.addMarker(new MarkerOptions().position(place.getLatLng())
                             .title(place.getName().toString())
                             .snippet(place.getAddress().toString()));
