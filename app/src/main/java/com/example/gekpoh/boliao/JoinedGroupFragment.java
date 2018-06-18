@@ -17,16 +17,19 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 
 public class JoinedGroupFragment extends Fragment {
     private static Fragment jgFragment;
     private boolean signedIn = false;
     private RecyclerView groupView;
     private GroupRecyclerAdapter adapter;
-    private DatabaseReference mDatabaseReference;
+    private DatabaseReference mGroupDatabaseReference, mUserListDatabaseReference;
     private ChildEventListener mChildEventListener;
+    private ValueEventListener mValueEventListener;
     private final ArrayList<Group> joinedgroups = new ArrayList<>();
     private final String TAG = "JoinedGroupFragment";
 
@@ -56,14 +59,32 @@ public class JoinedGroupFragment extends Fragment {
     public void onSignIn() {
         if (signedIn) return;
         signedIn = true;
-        mDatabaseReference = FirebaseDatabase.getInstance().getReference().child("groups");
-        mDatabaseReference.keepSynced(true);
-        mChildEventListener = new ChildEventListener() {
+        mUserListDatabaseReference = FirebaseDatabase.getInstance().getReference().child("joinedlists").child(MainActivity.userUid);
+        mUserListDatabaseReference.keepSynced(true);
+        mGroupDatabaseReference = FirebaseDatabase.getInstance().getReference().child("groups");
+        mGroupDatabaseReference.keepSynced(true);
+        mValueEventListener = new ValueEventListener() {
             @Override
-            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                Log.e(TAG,"Adding group");
                 Group group = dataSnapshot.getValue(Group.class);
                 joinedgroups.add(group);
                 adapter.notifyDataSetChanged();
+                Log.e(TAG,"Group added");
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        };
+        mChildEventListener = new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                Log.v(TAG, (String)dataSnapshot.getValue());
+                if(((String)dataSnapshot.getValue()).equals("true")) {
+                    mGroupDatabaseReference.child(dataSnapshot.getKey()).addListenerForSingleValueEvent(mValueEventListener);
+                }
             }
 
             @Override
@@ -86,7 +107,7 @@ public class JoinedGroupFragment extends Fragment {
 
             }
         };
-        mDatabaseReference.addChildEventListener(mChildEventListener);
+        mUserListDatabaseReference.addChildEventListener(mChildEventListener);
     }
 
     public void onSignOut() {
@@ -94,8 +115,8 @@ public class JoinedGroupFragment extends Fragment {
         signedIn = false;
         joinedgroups.clear();
         adapter.notifyDataSetChanged();
-        if (mDatabaseReference != null && mChildEventListener != null) {
-            mDatabaseReference.removeEventListener(mChildEventListener);
+        if (mUserListDatabaseReference != null && mChildEventListener != null) {
+            mUserListDatabaseReference.removeEventListener(mChildEventListener);
             mChildEventListener = null;
         }
     }

@@ -34,6 +34,7 @@ public class CreateNewEventActivity extends AppCompatActivity{
     private DatabaseReference mGroupsDatabaseReference;
     private DatabaseReference mChatsDatabaseReference;
     private DatabaseReference mUserListsDatabaseReference;
+    private DatabaseReference mJoinedListsReference;
     private String chatId;
 
     @Override
@@ -48,6 +49,7 @@ public class CreateNewEventActivity extends AppCompatActivity{
         mGroupsDatabaseReference = mFirebaseDatabase.getReference().child("groups");
         mChatsDatabaseReference = mFirebaseDatabase.getReference().child("chats");
         mUserListsDatabaseReference = mFirebaseDatabase.getReference().child("userlists");
+        mJoinedListsReference = mFirebaseDatabase.getReference().child("joinedlists");
         buttonSubmit = findViewById(R.id.buttonSubmit);
 
         mViewPager = findViewById(R.id.view_pager_create_new_event);
@@ -65,18 +67,13 @@ public class CreateNewEventActivity extends AppCompatActivity{
                         fragment2.sendDescription().equals("") || fragment2.sendNumPeople().equals("") || fragment3.sendPlaceId() == null)
                     Toast.makeText(CreateNewEventActivity.this, "Please fill in all fields", Toast.LENGTH_SHORT).show();
                 else {
+                    chatId = mChatsDatabaseReference.push().getKey();
+
                     Map mapToUpload = new HashMap();
                     Map mapToUpload2 = new HashMap();
                     Map mapToUpload3 = new HashMap();
 
-                    chatId = mChatsDatabaseReference.push().getKey();
-                    String key = mChatsDatabaseReference.child(chatId).push().getKey();
-                    mChatsDatabaseReference.child(chatId).child(key).setValue(new ChatMessage("Welcome to activity chat", "",0)); // just some dummy values
-
-                    mapToUpload3.put("isOrganiser", true);
-                    mapToUpload2.put(MainActivity.userUid, mapToUpload3);
-                    mUserListsDatabaseReference.child(chatId).setValue(mapToUpload2);
-                    //mapToUpload.put("users", mapToUpload2);
+                    //Create group in database with relevant information
                     mapToUpload.put("names", fragment1.sendName());
                     mapToUpload.put("location", fragment1.sendLocation());
                     mapToUpload.put("startDateTime", fragment1.sendSDate() + " " + fragment1.sendSTime());
@@ -88,8 +85,17 @@ public class CreateNewEventActivity extends AppCompatActivity{
                     mapToUpload.put("chatId", chatId);
                     if (fragment2.sendPhotoUri() == null) mapToUpload.put("photoUrl", "");
                     else mapToUpload.put("photoUrl", fragment2.sendPhotoUri());
+                    //Create chat in database
+                    mGroupsDatabaseReference.child(chatId).setValue(mapToUpload);
 
-                    mGroupsDatabaseReference.push().setValue(mapToUpload);
+                    String key = mChatsDatabaseReference.child(chatId).push().getKey();
+                    mChatsDatabaseReference.child(chatId).child(key).setValue(new ChatMessage("Welcome to activity chat", "",0)); // just some dummy values
+                    //Create lists of users for this group
+                    mapToUpload3.put("isOrganiser", true);
+                    mapToUpload2.put(MainActivity.userUid, mapToUpload3);
+                    mUserListsDatabaseReference.child(chatId).setValue(mapToUpload2);
+                    //add this group to list of joinedgroups for this user
+                    mJoinedListsReference.child(MainActivity.userUid).child(chatId).setValue("true");
                     finish();
                 }
             }

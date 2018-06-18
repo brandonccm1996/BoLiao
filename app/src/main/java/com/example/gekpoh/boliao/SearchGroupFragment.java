@@ -27,7 +27,7 @@ public class SearchGroupFragment extends Fragment {
     private DatabaseReference mDatabaseReference;
     private ChildEventListener mChildEventListener;
     private final String TAG = "SEARCHGROUPFRAGMENT";
-
+    private boolean signedIn = false;
     public static Fragment getInstance(){
         if(sgFragment == null){
             sgFragment = new SearchGroupFragment();
@@ -78,5 +78,52 @@ public class SearchGroupFragment extends Fragment {
 
             }
         };
+    }
+
+    public void onSignIn() {
+        if (signedIn) return;
+        signedIn = true;
+        mDatabaseReference = FirebaseDatabase.getInstance().getReference().child("groups");
+        mDatabaseReference.keepSynced(true);
+        mChildEventListener = new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                Group group = dataSnapshot.getValue(Group.class);
+                searchedgroups.add(group);
+                adapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        };
+        mDatabaseReference.addChildEventListener(mChildEventListener);
+    }
+
+    public void onSignOut() {
+        if(!signedIn) return;
+        signedIn = false;
+        searchedgroups.clear();
+        adapter.notifyDataSetChanged();
+        if (mDatabaseReference != null && mChildEventListener != null) {
+            mDatabaseReference.removeEventListener(mChildEventListener);
+            mChildEventListener = null;
+        }
     }
 }

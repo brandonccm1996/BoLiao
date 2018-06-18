@@ -95,7 +95,7 @@ public class ChatFragment extends Fragment {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 int currentPosition = layoutManager.findLastVisibleItemPosition();
-                if(chatMessageList.size() - currentPosition < 3){
+                if(chatMessageList.size() - currentPosition <= 10){
                     moveToEndAllowed = true;
                 }else{
                     moveToEndAllowed = false;

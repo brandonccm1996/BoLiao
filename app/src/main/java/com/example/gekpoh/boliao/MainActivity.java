@@ -81,10 +81,14 @@ public class MainActivity extends AppCompatActivity {
                     });
                     JoinedGroupFragment jg = (JoinedGroupFragment)JoinedGroupFragment.getInstance();
                     jg.onSignIn();
+                    SearchGroupFragment sg = (SearchGroupFragment)SearchGroupFragment.getInstance();
+                    sg.onSignIn();
                 }
                 else {  // user signed out
                     JoinedGroupFragment jg = (JoinedGroupFragment)JoinedGroupFragment.getInstance();
                     jg.onSignOut();
+                    SearchGroupFragment sg = (SearchGroupFragment)SearchGroupFragment.getInstance();
+                    sg.onSignOut();
                     startActivityForResult(
                             AuthUI.getInstance()
                                     .createSignInIntentBuilder()
