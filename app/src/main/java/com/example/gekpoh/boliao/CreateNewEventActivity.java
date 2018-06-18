@@ -73,6 +73,11 @@ public class CreateNewEventActivity extends AppCompatActivity{
                     Map mapToUpload2 = new HashMap();
                     Map mapToUpload3 = new HashMap();
 
+                    //Create lists of users for this group
+                    mapToUpload3.put("isOrganiser", true);
+                    mapToUpload2.put(MainActivity.userUid, mapToUpload3);
+                    mUserListsDatabaseReference.child(chatId).setValue(mapToUpload2);
+
                     //Create group in database with relevant information
                     mapToUpload.put("names", fragment1.sendName());
                     mapToUpload.put("location", fragment1.sendLocation());
@@ -90,10 +95,7 @@ public class CreateNewEventActivity extends AppCompatActivity{
 
                     String key = mChatsDatabaseReference.child(chatId).push().getKey();
                     mChatsDatabaseReference.child(chatId).child(key).setValue(new ChatMessage("Welcome to activity chat", "",0)); // just some dummy values
-                    //Create lists of users for this group
-                    mapToUpload3.put("isOrganiser", true);
-                    mapToUpload2.put(MainActivity.userUid, mapToUpload3);
-                    mUserListsDatabaseReference.child(chatId).setValue(mapToUpload2);
+
                     //add this group to list of joinedgroups for this user
                     mJoinedListsReference.child(MainActivity.userUid).child(chatId).setValue("true");
                     finish();
