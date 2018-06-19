@@ -1,6 +1,8 @@
 package com.example.gekpoh.boliao;
 
 
+import android.content.Intent;
+import android.graphics.Paint;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -20,20 +22,23 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 
-public class JoinedGroupFragment extends Fragment {
-    private static Fragment jgFragment;
+public class JoinedGroupFragment extends Fragment implements GroupRecyclerAdapter.GroupTouchCallBack{
+    private static HashSet<String> joinedgroupIds = new HashSet<>();
+    private static JoinedGroupFragment jgFragment;
     private boolean signedIn = false;
     private RecyclerView groupView;
     private GroupRecyclerAdapter adapter;
-    private DatabaseReference mGroupDatabaseReference, mUserListDatabaseReference;
+    private DatabaseReference mGroupDatabaseReference, mJoinedListDatabaseReference;
     private ChildEventListener mChildEventListener;
     private ValueEventListener mValueEventListener;
     private final ArrayList<Group> joinedgroups = new ArrayList<>();
     private final String TAG = "JoinedGroupFragment";
 
-    public static Fragment getInstance() {
+    public static JoinedGroupFragment getInstance() {
         if (jgFragment == null) {
             jgFragment = new JoinedGroupFragment();
         }
@@ -50,7 +55,7 @@ public class JoinedGroupFragment extends Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        adapter = new GroupRecyclerAdapter(getActivity(), joinedgroups);
+        adapter = new GroupRecyclerAdapter(this, joinedgroups);
         groupView = getView().findViewById(R.id.groupList);
         groupView.setLayoutManager(new LinearLayoutManager(getActivity()));
         groupView.setAdapter(adapter);
@@ -59,18 +64,16 @@ public class JoinedGroupFragment extends Fragment {
     public void onSignIn() {
         if (signedIn) return;
         signedIn = true;
-        mUserListDatabaseReference = FirebaseDatabase.getInstance().getReference().child("joinedlists").child(MainActivity.userUid);
-        mUserListDatabaseReference.keepSynced(true);
+        mJoinedListDatabaseReference = FirebaseDatabase.getInstance().getReference().child("joinedlists").child(MainActivity.userUid);
+        mJoinedListDatabaseReference.keepSynced(true);
         mGroupDatabaseReference = FirebaseDatabase.getInstance().getReference().child("groups");
         mGroupDatabaseReference.keepSynced(true);
         mValueEventListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                Log.e(TAG,"Adding group");
                 Group group = dataSnapshot.getValue(Group.class);
                 joinedgroups.add(group);
                 adapter.notifyDataSetChanged();
-                Log.e(TAG,"Group added");
             }
 
             @Override
@@ -83,6 +86,7 @@ public class JoinedGroupFragment extends Fragment {
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                 Log.v(TAG, (String)dataSnapshot.getValue());
                 if(((String)dataSnapshot.getValue()).equals("true")) {
+                    joinedgroupIds.add(dataSnapshot.getKey());
                     mGroupDatabaseReference.child(dataSnapshot.getKey()).addListenerForSingleValueEvent(mValueEventListener);
                 }
             }
@@ -94,7 +98,15 @@ public class JoinedGroupFragment extends Fragment {
 
             @Override
             public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-
+                String id = dataSnapshot.getKey();
+                for(Group group: joinedgroups){
+                    if(group.getChatId().equals(id)){
+                        joinedgroups.remove(group);
+                        adapter.notifyDataSetChanged();
+                        break;
+                    }
+                }
+                joinedgroupIds.remove(id);
             }
 
             @Override
@@ -107,7 +119,7 @@ public class JoinedGroupFragment extends Fragment {
 
             }
         };
-        mUserListDatabaseReference.addChildEventListener(mChildEventListener);
+        mJoinedListDatabaseReference.addChildEventListener(mChildEventListener);
     }
 
     public void onSignOut() {
@@ -115,9 +127,21 @@ public class JoinedGroupFragment extends Fragment {
         signedIn = false;
         joinedgroups.clear();
         adapter.notifyDataSetChanged();
-        if (mUserListDatabaseReference != null && mChildEventListener != null) {
-            mUserListDatabaseReference.removeEventListener(mChildEventListener);
+        if (mJoinedListDatabaseReference != null && mChildEventListener != null) {
+            mJoinedListDatabaseReference.removeEventListener(mChildEventListener);
             mChildEventListener = null;
         }
+        JoinedGroupFragment.joinedgroupIds.clear();
+    }
+
+    @Override
+    public void touchGroup(int pos) {
+        Intent intent = new Intent(getContext(), GroupDetailsActivity.class);
+        intent.putExtra(getString(R.string.groupKey), joinedgroups.get(pos));
+        intent.putExtra(getString(R.string.InActivityKey),true);
+        startActivity(intent);
+    }
+    public static boolean alreadyJoinedGroup(String id){
+        return joinedgroupIds.contains(id);
     }
 }

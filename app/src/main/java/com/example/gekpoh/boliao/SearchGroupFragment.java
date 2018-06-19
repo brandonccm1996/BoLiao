@@ -1,5 +1,7 @@
 package com.example.gekpoh.boliao;
 
+import android.content.Intent;
+import android.graphics.Paint;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -16,19 +18,20 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 
-public class SearchGroupFragment extends Fragment {
+public class SearchGroupFragment extends Fragment implements GroupRecyclerAdapter.GroupTouchCallBack {
     private RecyclerView groupView;
     private GroupRecyclerAdapter adapter;
-    private static Fragment sgFragment;
+    private static SearchGroupFragment sgFragment;
     private final ArrayList<Group> searchedgroups = new ArrayList<>();
     private DatabaseReference mDatabaseReference;
-    private ChildEventListener mChildEventListener;
+    private ValueEventListener mValueEventListener;
     private final String TAG = "SEARCHGROUPFRAGMENT";
     private boolean signedIn = false;
-    public static Fragment getInstance(){
+    public static SearchGroupFragment getInstance(){
         if(sgFragment == null){
             sgFragment = new SearchGroupFragment();
         }
@@ -45,39 +48,10 @@ public class SearchGroupFragment extends Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         //groupList = getArguments().getParcelableArrayList(getResources().getString(R.string.searched_groups));
-        adapter = new GroupRecyclerAdapter(getActivity(),searchedgroups);
+        adapter = new GroupRecyclerAdapter(this,searchedgroups);
         groupView = getView().findViewById(R.id.groupList);
         groupView.setLayoutManager(new LinearLayoutManager(getActivity()));
         groupView.setAdapter(adapter);
-        mDatabaseReference = FirebaseDatabase.getInstance().getReference().child("groups");
-        mChildEventListener = new ChildEventListener() {
-            @Override
-            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                Group group = dataSnapshot.getValue(Group.class);
-                searchedgroups.add(group);
-                adapter.notifyDataSetChanged();
-            }
-
-            @Override
-            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
-            }
-
-            @Override
-            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-
-            }
-
-            @Override
-            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        };
     }
 
     public void onSignIn() {
@@ -85,35 +59,7 @@ public class SearchGroupFragment extends Fragment {
         signedIn = true;
         mDatabaseReference = FirebaseDatabase.getInstance().getReference().child("groups");
         mDatabaseReference.keepSynced(true);
-        mChildEventListener = new ChildEventListener() {
-            @Override
-            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                Group group = dataSnapshot.getValue(Group.class);
-                searchedgroups.add(group);
-                adapter.notifyDataSetChanged();
-            }
-
-            @Override
-            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
-            }
-
-            @Override
-            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-
-            }
-
-            @Override
-            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        };
-        mDatabaseReference.addChildEventListener(mChildEventListener);
+        //reloadList();
     }
 
     public void onSignOut() {
@@ -121,9 +67,54 @@ public class SearchGroupFragment extends Fragment {
         signedIn = false;
         searchedgroups.clear();
         adapter.notifyDataSetChanged();
-        if (mDatabaseReference != null && mChildEventListener != null) {
-            mDatabaseReference.removeEventListener(mChildEventListener);
-            mChildEventListener = null;
+    }
+
+    @Override
+    public void touchGroup(int pos) {
+        Intent intent = new Intent(getContext(), GroupDetailsActivity.class);
+        intent.putExtra(getString(R.string.groupKey), searchedgroups.get(pos));
+        startActivity(intent);
+    }
+
+    public void reloadList(){
+        //Add other filters here
+        searchedgroups.clear();
+        if(mValueEventListener == null) {
+            mValueEventListener = new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    for (DataSnapshot data : dataSnapshot.getChildren()) {
+                        if(JoinedGroupFragment.alreadyJoinedGroup(data.getKey()))continue;
+                        Log.v(TAG, "NEW GROUP ADDED");
+                        Group group = data.getValue(Group.class);
+                        searchedgroups.add(group);
+                        adapter.notifyDataSetChanged();
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                }
+            };
+        }
+        mDatabaseReference.addListenerForSingleValueEvent(mValueEventListener);
+    }
+
+    //automatically reloads on every swipe
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+        reloadList();
+    }
+
+    public void removeFromList(String id){
+        for(Group group: searchedgroups){
+            if(group.getChatId().equals(id)){
+                searchedgroups.remove(group);
+                adapter.notifyDataSetChanged();
+                break;
+            }
         }
     }
 }

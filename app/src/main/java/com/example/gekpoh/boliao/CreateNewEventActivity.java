@@ -74,7 +74,7 @@ public class CreateNewEventActivity extends AppCompatActivity{
                     Map mapToUpload3 = new HashMap();
 
                     //Create lists of users for this group
-                    mapToUpload3.put("isOrganiser", true);
+                    mapToUpload3.put("isAdmin", true);
                     mapToUpload2.put(MainActivity.userUid, mapToUpload3);
                     mUserListsDatabaseReference.child(chatId).setValue(mapToUpload2);
 
@@ -88,6 +88,8 @@ public class CreateNewEventActivity extends AppCompatActivity{
                     mapToUpload.put("placeId", fragment3.sendPlaceId());
                     mapToUpload.put("numParticipants", 1);
                     mapToUpload.put("chatId", chatId);
+                    mapToUpload.put("organizerId", MainActivity.userUid);
+
                     if (fragment2.sendPhotoUri() == null) mapToUpload.put("photoUrl", "");
                     else mapToUpload.put("photoUrl", fragment2.sendPhotoUri());
                     //Create chat in database

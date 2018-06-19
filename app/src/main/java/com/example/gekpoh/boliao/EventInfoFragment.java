@@ -1,11 +1,14 @@
 package com.example.gekpoh.boliao;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -16,6 +19,17 @@ import java.util.Date;
 
 public class EventInfoFragment extends Fragment {
     private final String TAG = "EVENTINFOfragment";
+    private eventInfoCallBack mCallBack;
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        try{
+            mCallBack = (eventInfoCallBack)context;
+        }catch(ClassCastException e){
+            Log.e(TAG,"Need to implement call back");
+        }
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -36,6 +50,23 @@ public class EventInfoFragment extends Fragment {
                     .load(photoUrl)
                     .into(picView);
         }
+        Button button = getView().findViewById(R.id.joinleaveButton);
+        if(args.getBoolean(getString(R.string.InActivityKey))){
+            button.setText(getString(R.string.LeaveButtonLabel));
+        }else{
+            if(args.getInt(getString(R.string.groupCurrentSizeKey)) == args.getInt(getString(R.string.groupMaxSizeKey))){
+                //Maxed out.
+                button.setEnabled(false);
+            }
+            button.setText(getString(R.string.JoinButtonLabel));
+        }
+        button.setOnClickListener(new View.OnClickListener(){
+
+            @Override
+            public void onClick(View v) {
+                mCallBack.onJoinLeaveClick();
+            }
+        });
         TextView nameView, startView, endView, placeView, descriptionView, sizeView;
         nameView = getView().findViewById(R.id.eventNameView);
         nameView.setText(args.getString(getString(R.string.groupNameKey),""));
@@ -52,5 +83,9 @@ public class EventInfoFragment extends Fragment {
         placeView.setText(args.getString(getString(R.string.groupPlaceKey)));
         descriptionView = getView().findViewById(R.id.eventDescriptionView);
         descriptionView.setText(args.getString(getString(R.string.groupDescriptionKey)));
+    }
+
+    public interface eventInfoCallBack{
+        void onJoinLeaveClick();
     }
 }

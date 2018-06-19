@@ -25,14 +25,26 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.MutableData;
+import com.google.firebase.database.Transaction;
 
-public class GroupDetailsActivity extends AppCompatActivity implements OnMapReadyCallback {
+import java.util.HashMap;
+import java.util.Map;
+
+public class GroupDetailsActivity extends AppCompatActivity implements OnMapReadyCallback,EventInfoFragment.eventInfoCallBack {
+    private boolean inEvent;
     private static final String TAG = "GroupDetailsActivity";
     private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
-    private static int NUM_PAGES = 3;
+    private static int JOIN_NUM_PAGES = 3;
+    private static int NOT_JOIN_NUM_PAGES = 2;
     private static final int DEFAULT_ZOOM = 15;
     private boolean locationPermissionGranted = false;
     private Group mGroup;//The group to refer to when we want to access required information
+    private String organizerId;
     private GroupUsersInformation mGroupUsersInformation;
     private ChatFragment chatFragment;
     private EventInfoFragment eventInfoFragment;
@@ -50,15 +62,21 @@ public class GroupDetailsActivity extends AppCompatActivity implements OnMapRead
         setContentView(R.layout.group_details_activity_layout);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         mGroup = getIntent().getParcelableExtra(getString(R.string.groupKey));//Need to pass on group details before starting this activity
-        chatFragment = new ChatFragment();
         Bundle args = new Bundle();
-        args.putString(getString(R.string.groupIdKey), mGroup.getChatId());
+        inEvent = getIntent().getBooleanExtra(getString(R.string.InActivityKey),false);
+
+        if(inEvent) {
+            args.putString(getString(R.string.groupIdKey), mGroup.getChatId());
+            chatFragment = new ChatFragment();
+            chatFragment.setArguments(args);
+        }
+
         mGroupUsersInformation = new GroupUsersInformation(mGroup.getChatId());
-        chatFragment.setArguments(args);
         mapFragment = SupportMapFragment.newInstance();
         mapFragment.getMapAsync(this);
         eventInfoFragment = new EventInfoFragment();
         Bundle args2 = new Bundle();
+        args2.putBoolean(getString(R.string.InActivityKey), inEvent);
         args2.putString(getString(R.string.groupNameKey), mGroup.getNames());
         args2.putString(getString(R.string.groupPlaceKey), mGroup.getLocation());
         args2.putString(getString(R.string.groupStartKey), mGroup.getStartDateTime());
@@ -73,7 +91,6 @@ public class GroupDetailsActivity extends AppCompatActivity implements OnMapRead
         TabLayout tabLayout = findViewById(R.id.detailsTabLayout);
         tabLayout.setupWithViewPager(detailsPager);
         mGeoDataClient = Places.getGeoDataClient(this);
-
     }
 
     private void checkRequestLocationPermission() {
@@ -137,6 +154,69 @@ public class GroupDetailsActivity extends AppCompatActivity implements OnMapRead
         updateMapUI();
     }
 
+    @Override
+    public void onJoinLeaveClick() {
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        String id = mGroup.getChatId();
+        DatabaseReference joinedlistref = database.getReference().child("joinedlists").child(MainActivity.userUid).child(id);
+        DatabaseReference userlistref = database.getReference().child("userlists").child(id).child(MainActivity.userUid);
+        DatabaseReference numParticipantsRef = database.getReference().child("groups").child(id).child("numParticipants");
+
+        if(inEvent){
+            if(mGroup.getOrganizerId().equals(MainActivity.userUid)){
+                Toast.makeText(this, "Organizer cant quit", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            //update userlist and join list
+            joinedlistref.removeValue();
+            userlistref.removeValue();
+            //update num of participants
+            numParticipantsRef.runTransaction(new Transaction.Handler() {
+                @NonNull
+                @Override
+                public Transaction.Result doTransaction(@NonNull MutableData mutableData) {
+                    long numParticipants = (long)mutableData.getValue();
+                    numParticipants = numParticipants - 1;
+                    Log.v(TAG,"DOING TRANSACTION" + numParticipants);
+                    mutableData.setValue(numParticipants);
+                    return Transaction.success(mutableData);
+                }
+
+                @Override
+                public void onComplete(@Nullable DatabaseError databaseError, boolean b, @Nullable DataSnapshot dataSnapshot) {
+
+                }
+            });
+            //numParticipantsRef.setValue(mGroup.getNumParticipants() + 1);
+        }else{
+            //update user list and join list
+            HashMap<String,Boolean> map = new HashMap<>();
+            map.put("isAdmin", false);
+            userlistref.setValue(map);
+            joinedlistref.setValue("true");
+            //update num participants
+            numParticipantsRef.runTransaction(new Transaction.Handler() {
+                @NonNull
+                @Override
+                public Transaction.Result doTransaction(@NonNull MutableData mutableData) {
+                    long numParticipants = (long)mutableData.getValue();
+                    numParticipants = numParticipants + 1;
+                    mutableData.setValue(numParticipants);
+                    Log.v(TAG,"DOING TRANSACTION" + numParticipants);
+                    return Transaction.success(mutableData);
+                }
+
+                @Override
+                public void onComplete(@Nullable DatabaseError databaseError, boolean b, @Nullable DataSnapshot dataSnapshot) {
+
+                }
+            });
+            SearchGroupFragment.getInstance().removeFromList(id);
+            //numParticipantsRef.setValue(mGroup.getNumParticipants() - 1);
+        }
+        finish();
+    }
+
     private class GroupDetailsPagerAdapter extends FragmentStatePagerAdapter {
         public GroupDetailsPagerAdapter(FragmentManager fm) {
             super(fm);
@@ -158,7 +238,7 @@ public class GroupDetailsActivity extends AppCompatActivity implements OnMapRead
 
         @Override
         public int getCount() {
-            return NUM_PAGES;
+            return inEvent ? JOIN_NUM_PAGES : NOT_JOIN_NUM_PAGES;
         }
 
         @Nullable

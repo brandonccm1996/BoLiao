@@ -128,7 +128,8 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:layout_margin="4dp">
 
             <TextView
                 android:id="@+id/eventDescriptionView"
@@ -150,5 +151,19 @@
         app:layout_constraintBottom_toTopOf="@+id/eventStartDateView"
         app:layout_constraintStart_toStartOf="@+id/textView9"
         app:layout_constraintTop_toBottomOf="@+id/textView9" />
+
+    <Button
+        android:id="@+id/joinleaveButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginStart="8dp"
+        android:text="Join"
+        android:textSize="12sp"
+        app:layout_constraintBaseline_toBaselineOf="@+id/eventNameView"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/eventNameView" />
 
 </android.support.constraint.ConstraintLayout>

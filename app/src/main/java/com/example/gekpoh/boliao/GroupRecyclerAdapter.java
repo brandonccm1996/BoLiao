@@ -10,17 +10,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.Date;
 
 public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdapter.GroupViewHolder> {
-    private Context mContext;
+    private GroupTouchCallBack mCallBack;
     private ArrayList<Group> groupList;
     private final String TAG = "GROUPRECYCLERADAPTER";
-    public GroupRecyclerAdapter(Context context, ArrayList<Group> groups){
-        mContext = context;
+    public GroupRecyclerAdapter(GroupTouchCallBack callBack, ArrayList<Group> groups){
+        mCallBack = callBack;
         groupList = groups;
     }
     @NonNull
@@ -32,7 +30,8 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdap
 
     @Override
     public void onBindViewHolder(@NonNull GroupViewHolder holder, int position) {
-        final Group group = groupList.get(position);
+        Group group = groupList.get(position);
+        final int mPosition = position;
         String groupName = group.getNames();
         holder.mGroupName.setText(groupName.length() > 10? groupName.substring(0,9) + "...":groupName);
         holder.mGroupDate.setText(group.getStartDateTime());//Possible Improvement: Indicate how much time left until the activity, Happening now, Over
@@ -42,9 +41,12 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdap
             @Override
             public void onClick(View view) {
                 //Toast.makeText(view.getContext(),String.format("%s clicked", group.getName()),Toast.LENGTH_SHORT).show();
+                mCallBack.touchGroup(mPosition);
+                /*
                 Intent intent = new Intent(view.getContext(), GroupDetailsActivity.class);
                 intent.putExtra(view.getContext().getResources().getString(R.string.groupKey), group);
                 view.getContext().startActivity(intent);
+                */
                 //++CAN ADD TRANSITIONS TO NEXT ACTIVITY HERE
             }
         });
@@ -68,5 +70,9 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdap
             mGroupDate = itemView.findViewById(R.id.cardNoteDate);
             //Include date + people count next time
         }
+    }
+
+    public interface GroupTouchCallBack{
+        public void touchGroup(int pos);
     }
 }

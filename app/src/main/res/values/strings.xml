@@ -6,6 +6,9 @@
     <string name="GroupDetailsActivityTab2Name">Location</string>
     <string name="GroupDetailsActivityTab3Name">Group Chat</string>
     <string name="chatFragmentSendButtonLabel">Send</string>
+    <string name="JoinButtonLabel">Join</string>
+    <string name="LeaveButtonLabel">Leave</string>
+
 
 
     <string name="joinedGroupsKey">JoinedGroups</string>
@@ -20,4 +23,5 @@
     <string name="groupMaxSizeKey">eventmaxsize</string>
     <string name="groupCurrentSizeKey">eventcurrentsize</string>
     <string name="groupIdKey">eventcurrentsize</string>
+    <string name="InActivityKey">inevent</string>
 </resources>
