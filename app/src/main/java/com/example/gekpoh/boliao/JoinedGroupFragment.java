@@ -34,7 +34,7 @@ public class JoinedGroupFragment extends Fragment implements GroupRecyclerAdapte
     private GroupRecyclerAdapter adapter;
     private DatabaseReference mGroupDatabaseReference, mJoinedListDatabaseReference;
     private ChildEventListener mChildEventListener;
-    private ValueEventListener mValueEventListener;
+    private ValueEventListener mValueEventListener, replaceValueEventListener;
     private final ArrayList<Group> joinedgroups = new ArrayList<>();
     private final String TAG = "JoinedGroupFragment";
 
@@ -136,12 +136,19 @@ public class JoinedGroupFragment extends Fragment implements GroupRecyclerAdapte
 
     @Override
     public void touchGroup(int pos) {
+        if(GroupDetailsActivity.isInstanceCreated()) return;
         Intent intent = new Intent(getContext(), GroupDetailsActivity.class);
-        intent.putExtra(getString(R.string.groupKey), joinedgroups.get(pos));
+        intent.putExtra(getString(R.string.groupKey), joinedgroups.get(pos).getChatId());
         intent.putExtra(getString(R.string.InActivityKey),true);
+        intent.putExtra(getString(R.string.TapPositionKey),pos);
         startActivity(intent);
     }
     public static boolean alreadyJoinedGroup(String id){
         return joinedgroupIds.contains(id);
+    }
+
+    public void updateGroupDetails(Group group, final int pos) {
+        if(pos == -1)return;
+        joinedgroups.set(pos,group);
     }
 }

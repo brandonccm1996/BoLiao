@@ -24,4 +24,5 @@
     <string name="groupCurrentSizeKey">eventcurrentsize</string>
     <string name="groupIdKey">eventcurrentsize</string>
     <string name="InActivityKey">inevent</string>
+    <string name="TapPositionKey">tapposition</string>
 </resources>

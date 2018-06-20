@@ -14,12 +14,15 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 
+import org.w3c.dom.Text;
+
 import java.util.ArrayList;
 import java.util.Date;
 
 public class EventInfoFragment extends Fragment {
     private final String TAG = "EVENTINFOfragment";
     private eventInfoCallBack mCallBack;
+    private TextView sizeView;
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
@@ -67,11 +70,11 @@ public class EventInfoFragment extends Fragment {
                 mCallBack.onJoinLeaveClick();
             }
         });
-        TextView nameView, startView, endView, placeView, descriptionView, sizeView;
+        TextView nameView, startView, endView, placeView, descriptionView;
         nameView = getView().findViewById(R.id.eventNameView);
         nameView.setText(args.getString(getString(R.string.groupNameKey),""));
         sizeView = getView().findViewById(R.id.eventSizeView);
-        String sizeViewText = Integer.toString(args.getInt(getString(R.string.groupCurrentSizeKey))) +'/' + Integer.toString(args.getInt(getString(R.string.groupMaxSizeKey)));
+        String sizeViewText = Long.toString(args.getInt(getString(R.string.groupCurrentSizeKey))) +'/' + Long.toString(args.getInt(getString(R.string.groupMaxSizeKey)));
         sizeView.setText(sizeViewText);
         startView = getView().findViewById(R.id.eventStartDateView);
         //Date startDate = new Date(args.getLong(getString(R.string.groupStartKey)));
@@ -87,5 +90,11 @@ public class EventInfoFragment extends Fragment {
 
     public interface eventInfoCallBack{
         void onJoinLeaveClick();
+    }
+
+    public void updateNumParticipants(long x){
+        Bundle args = getArguments();
+        String sizeViewText = Long.toString(x) +'/' + Long.toString(args.getInt(getString(R.string.groupMaxSizeKey)));
+        sizeView.setText(sizeViewText);
     }
 }

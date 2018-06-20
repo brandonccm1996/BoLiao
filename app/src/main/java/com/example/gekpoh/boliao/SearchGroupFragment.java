@@ -71,8 +71,9 @@ public class SearchGroupFragment extends Fragment implements GroupRecyclerAdapte
 
     @Override
     public void touchGroup(int pos) {
+        if(GroupDetailsActivity.isInstanceCreated()) return;
         Intent intent = new Intent(getContext(), GroupDetailsActivity.class);
-        intent.putExtra(getString(R.string.groupKey), searchedgroups.get(pos));
+        intent.putExtra(getString(R.string.groupKey), searchedgroups.get(pos).getChatId());
         startActivity(intent);
     }
 
@@ -116,5 +117,10 @@ public class SearchGroupFragment extends Fragment implements GroupRecyclerAdapte
                 break;
             }
         }
+    }
+
+    public void updateGroupDetails(Group group, final int pos) {
+        if(pos == -1)return;
+        searchedgroups.set(pos,group);
     }
 }
