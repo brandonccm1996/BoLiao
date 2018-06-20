@@ -2,6 +2,7 @@ package com.example.gekpoh.boliao;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -23,6 +24,8 @@ public class EventInfoFragment extends Fragment {
     private final String TAG = "EVENTINFOfragment";
     private eventInfoCallBack mCallBack;
     private TextView sizeView;
+    private long mLastClickTime = 0;
+
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
@@ -67,6 +70,11 @@ public class EventInfoFragment extends Fragment {
 
             @Override
             public void onClick(View v) {
+                //Following code prevent double clicking
+                if (SystemClock.elapsedRealtime() - mLastClickTime < 1000){
+                    return;
+                }
+                mLastClickTime = SystemClock.elapsedRealtime();
                 mCallBack.onJoinLeaveClick();
             }
         });
