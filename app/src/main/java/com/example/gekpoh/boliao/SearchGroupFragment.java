@@ -1,8 +1,10 @@
 package com.example.gekpoh.boliao;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Paint;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -31,6 +33,7 @@ public class SearchGroupFragment extends Fragment implements GroupRecyclerAdapte
     private ValueEventListener mValueEventListener;
     private final String TAG = "SEARCHGROUPFRAGMENT";
     private boolean signedIn = false;
+    private long reloadTimer = 0;
     public static SearchGroupFragment getInstance(){
         if(sgFragment == null){
             sgFragment = new SearchGroupFragment();
@@ -50,7 +53,7 @@ public class SearchGroupFragment extends Fragment implements GroupRecyclerAdapte
         //groupList = getArguments().getParcelableArrayList(getResources().getString(R.string.searched_groups));
         adapter = new GroupRecyclerAdapter(this,searchedgroups);
         groupView = getView().findViewById(R.id.groupList);
-        groupView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        groupView.setLayoutManager(new reloadLayoutManager(getActivity()));
         groupView.setAdapter(adapter);
     }
 
@@ -79,6 +82,8 @@ public class SearchGroupFragment extends Fragment implements GroupRecyclerAdapte
 
     public void reloadList(){
         //Add other filters here
+        if(SystemClock.elapsedRealtime() - reloadTimer < 2000) return;//Can only reload once every 2 second
+        reloadTimer = SystemClock.elapsedRealtime();
         searchedgroups.clear();
         if(mValueEventListener == null) {
             mValueEventListener = new ValueEventListener() {
@@ -106,7 +111,7 @@ public class SearchGroupFragment extends Fragment implements GroupRecyclerAdapte
     @Override
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
-        reloadList();
+        //reloadList();
     }
 
     public void removeFromList(String id){
@@ -122,5 +127,22 @@ public class SearchGroupFragment extends Fragment implements GroupRecyclerAdapte
     public void updateGroupDetails(Group group, final int pos) {
         if(pos == -1)return;
         searchedgroups.set(pos,group);
+    }
+
+    private class reloadLayoutManager extends LinearLayoutManager{
+        public reloadLayoutManager(Context context){
+            super(context);
+        }
+
+        @Override
+        public int scrollVerticallyBy(int dy, RecyclerView.Recycler recycler, RecyclerView.State state) {
+            int scrollRange = super.scrollVerticallyBy(dy, recycler, state);
+            int overscroll = dy - scrollRange;
+            if (overscroll < -150) {//any value lesser than 0 is overscroll
+                // top overscroll
+                reloadList();
+            }
+            return scrollRange;
+        }
     }
 }

@@ -2,7 +2,6 @@ package com.example.gekpoh.boliao;
 
 
 import android.content.Intent;
-import android.graphics.Paint;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -22,8 +21,6 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 
 public class JoinedGroupFragment extends Fragment implements GroupRecyclerAdapter.GroupTouchCallBack{
@@ -34,7 +31,7 @@ public class JoinedGroupFragment extends Fragment implements GroupRecyclerAdapte
     private GroupRecyclerAdapter adapter;
     private DatabaseReference mGroupDatabaseReference, mJoinedListDatabaseReference;
     private ChildEventListener mChildEventListener;
-    private ValueEventListener mValueEventListener, replaceValueEventListener;
+    private ValueEventListener mValueEventListener;
     private final ArrayList<Group> joinedgroups = new ArrayList<>();
     private final String TAG = "JoinedGroupFragment";
 
