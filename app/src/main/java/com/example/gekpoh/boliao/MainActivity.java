@@ -12,9 +12,14 @@ import android.support.annotation.NonNull;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.CompoundButton;
+import android.widget.EditText;
+import android.widget.Switch;
 import android.widget.Toast;
 
 import com.firebase.ui.auth.AuthUI;
@@ -37,6 +42,8 @@ public class MainActivity extends AppCompatActivity {
     private FirebaseDatabase mFirebaseDatabase;
     private DatabaseReference mUsersDatabaseReference;
     private DrawerLayout mDrawerLayout;
+    private EditText distanceText, startDateText, endDateText;
+    private Switch distanceFilterSwitch, timeFilterSwitch;
     //private ViewPager mViewPager;
     private static final String TAG = "MAINACTIVITY";
     private static final int NUM_PAGES = 2;
@@ -107,6 +114,36 @@ public class MainActivity extends AppCompatActivity {
         mViewPager.setAdapter(new GroupPagerAdapter(getSupportFragmentManager()));
         TabLayout tabLayout = findViewById(R.id.tabLayout);
         tabLayout.setupWithViewPager(mViewPager);
+        distanceText = findViewById(R.id.distancetext);
+        distanceText.setEnabled(false);
+        startDateText = findViewById(R.id.startDateText);
+        startDateText.setEnabled(false);
+        endDateText = findViewById(R.id.endDatetText);
+        endDateText.setEnabled(false);
+        distanceFilterSwitch = findViewById(R.id.distanceSwitch);
+        timeFilterSwitch = findViewById(R.id.timeSwitch);
+        distanceFilterSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if(isChecked){
+                    distanceText.setEnabled(true);
+                }else{
+                    distanceText.setEnabled(false);
+                }
+            }
+        });
+        timeFilterSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if(isChecked){
+                    startDateText.setEnabled(true);
+                    endDateText.setEnabled(true);
+                }else{
+                    startDateText.setEnabled(false);
+                    endDateText.setEnabled(false);
+                }
+            }
+        });
     }
 
     @Override
