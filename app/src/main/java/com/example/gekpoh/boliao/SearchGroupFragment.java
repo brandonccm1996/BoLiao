@@ -60,7 +60,7 @@ public class SearchGroupFragment extends Fragment implements GroupRecyclerAdapte
     public void onSignIn() {
         if (signedIn) return;
         signedIn = true;
-        mDatabaseReference = FirebaseDatabase.getInstance().getReference().child("groups");
+        mDatabaseReference = FirebaseDatabaseUtils.getDatabase().getReference().child("groups");
         mDatabaseReference.keepSynced(true);
         //reloadList();
     }

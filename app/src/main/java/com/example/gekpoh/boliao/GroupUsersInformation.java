@@ -20,8 +20,9 @@ public class GroupUsersInformation {
     public GroupUsersInformation(String chatId) {
         uidtoName.clear();
         this.chatId = chatId;
-        userListsDatabaseReference = FirebaseDatabase.getInstance().getReference().child("userlists").child(chatId);
-        usersDatabaseReference = FirebaseDatabase.getInstance().getReference().child("users");
+        FirebaseDatabase database = FirebaseDatabaseUtils.getDatabase();
+        userListsDatabaseReference = database.getReference().child("userlists").child(chatId);
+        usersDatabaseReference = database.getReference().child("users");
         updateNameListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {

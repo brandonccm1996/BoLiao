@@ -17,4 +17,10 @@
         android:title="Sign Out"
         app:showAsAction="never"/>
 
+    <item
+        android:id="@+id/filter"
+        android:title="Filter"
+        android:icon="@drawable/baseline_search_black_18dp"
+        app:showAsAction="ifRoom|collapseActionView"/>
+
 </menu>

@@ -104,7 +104,7 @@ public class ChatFragment extends Fragment {
             }
         });
         String chatKey = getArguments().getString(getString(R.string.groupIdKey));
-        mDatabaseReference = FirebaseDatabase.getInstance().getReference().child("chats").child(chatKey);
+        mDatabaseReference = FirebaseDatabaseUtils.getDatabase().getReference().child("chats").child(chatKey);
         mChildEventListener = new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {

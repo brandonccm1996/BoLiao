@@ -53,7 +53,7 @@ public class CreateNewEventFragment2 extends Fragment {
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        mFirebaseDatabase = FirebaseDatabase.getInstance();
+        mFirebaseDatabase = FirebaseDatabaseUtils.getDatabase();
         mGroupsDatabaseReference = mFirebaseDatabase.getReference().child("groups").child("temppics");
         mFirebaseStorage = FirebaseStorage.getInstance();
         mProfilePicStorageReference = mFirebaseStorage.getReference().child("groupprofilepics");

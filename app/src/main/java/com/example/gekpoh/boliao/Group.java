@@ -90,22 +90,6 @@ public class Group implements Parcelable,Comparable<Group>{
         return chatId;
     }
     public String getOrganizerId() { return organizerId; }
-    public static void getGroupfromId(final String groupid, final ArrayList<Group> groupList){
-        DatabaseReference ref = FirebaseDatabase.getInstance().getReference().child("groups");
-        ref.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                //Need to decide how to obtain the data from database, I dont think the code below works
-                //Group group = dataSnapshot.child(groupid).getValue(Group.class);
-                //group.setGroupId(groupid);
-                //groupList.add(group);
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-            }
-        });
-    }
 
     @Override
     public int describeContents() {

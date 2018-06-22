@@ -45,7 +45,7 @@ public class CreateNewEventActivity extends AppCompatActivity{
         getSupportActionBar().setLogo(R.drawable.common_google_signin_btn_icon_dark);
         getSupportActionBar().setDisplayUseLogoEnabled(true);
 
-        mFirebaseDatabase = FirebaseDatabase.getInstance();
+        mFirebaseDatabase = FirebaseDatabaseUtils.getDatabase();
         mGroupsDatabaseReference = mFirebaseDatabase.getReference().child("groups");
         mChatsDatabaseReference = mFirebaseDatabase.getReference().child("chats");
         mUserListsDatabaseReference = mFirebaseDatabase.getReference().child("userlists");

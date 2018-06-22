@@ -37,7 +37,7 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.HashMap;
 import java.util.Map;
 
-public class GroupDetailsActivity extends AppCompatActivity implements OnMapReadyCallback,EventInfoFragment.eventInfoCallBack {
+public class GroupDetailsActivity extends AppCompatActivity implements OnMapReadyCallback, EventInfoFragment.eventInfoCallBack {
     private static boolean instanceCreated = false;
     private boolean inEvent;
     private static final String TAG = "GroupDetailsActivity";
@@ -49,6 +49,7 @@ public class GroupDetailsActivity extends AppCompatActivity implements OnMapRead
     private String groupId;
     private Group mGroup;//The group to refer to when we want to access required information
     private GroupUsersInformation mGroupUsersInformation;
+    private FirebaseDatabase mFirebaseDatabase;
     private ChatFragment chatFragment;
     private EventInfoFragment eventInfoFragment;
     private SupportMapFragment mapFragment;
@@ -66,8 +67,9 @@ public class GroupDetailsActivity extends AppCompatActivity implements OnMapRead
         setContentView(R.layout.group_details_activity_layout);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         groupId = getIntent().getStringExtra(getString(R.string.groupKey));
-        inEvent = getIntent().getBooleanExtra(getString(R.string.InActivityKey),false);
-        DatabaseReference ref = FirebaseDatabase.getInstance().getReference().child("groups").child(groupId);
+        inEvent = getIntent().getBooleanExtra(getString(R.string.InActivityKey), false);
+        mFirebaseDatabase = FirebaseDatabaseUtils.getDatabase();
+        DatabaseReference ref = mFirebaseDatabase.getReference().child("groups").child(groupId);
         ValueEventListener listener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -93,23 +95,23 @@ public class GroupDetailsActivity extends AppCompatActivity implements OnMapRead
                 TabLayout tabLayout = findViewById(R.id.detailsTabLayout);
                 tabLayout.setupWithViewPager(detailsPager);
                 mGeoDataClient = Places.getGeoDataClient(GroupDetailsActivity.this);
-                if(inEvent){
-                    JoinedGroupFragment.getInstance().updateGroupDetails(mGroup, getIntent().getIntExtra(getString(R.string.TapPositionKey),-1));
-                }else{
-                    SearchGroupFragment.getInstance().updateGroupDetails(mGroup, getIntent().getIntExtra(getString(R.string.TapPositionKey),-1));
+                if (inEvent) {
+                    JoinedGroupFragment.getInstance().updateGroupDetails(mGroup, getIntent().getIntExtra(getString(R.string.TapPositionKey), -1));
+                } else {
+                    SearchGroupFragment.getInstance().updateGroupDetails(mGroup, getIntent().getIntExtra(getString(R.string.TapPositionKey), -1));
                 }
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-                Toast.makeText(GroupDetailsActivity.this,"Activity not found", Toast.LENGTH_SHORT).show();
+                Toast.makeText(GroupDetailsActivity.this, "Activity not found", Toast.LENGTH_SHORT).show();
             }
         };
         ref.addListenerForSingleValueEvent(listener);
 
         mGroupUsersInformation = new GroupUsersInformation(groupId);
 
-        if(inEvent) {
+        if (inEvent) {
             Bundle args = new Bundle();
             args.putString(getString(R.string.groupIdKey), groupId);
             chatFragment = new ChatFragment();
@@ -149,7 +151,7 @@ public class GroupDetailsActivity extends AppCompatActivity implements OnMapRead
                 }
             }
         });
-        if (place == null){
+        if (place == null) {
             Log.v(TAG, "place not in");
             return;
         }
@@ -183,13 +185,12 @@ public class GroupDetailsActivity extends AppCompatActivity implements OnMapRead
 
     @Override
     public void onJoinLeaveClick() {
-        final FirebaseDatabase database = FirebaseDatabase.getInstance();
         final String id = mGroup.getChatId();
-        final DatabaseReference joinedlistref = database.getReference().child("joinedlists").child(MainActivity.userUid).child(id);
-        final DatabaseReference userlistref = database.getReference().child("userlists").child(id).child(MainActivity.userUid);
-        final DatabaseReference numParticipantsRef = database.getReference().child("groups").child(id).child("numParticipants");
-        if(inEvent){
-            if(mGroup.getOrganizerId().equals(MainActivity.userUid)){
+        final DatabaseReference joinedlistref = mFirebaseDatabase.getReference().child("joinedlists").child(MainActivity.userUid).child(id);
+        final DatabaseReference userlistref = mFirebaseDatabase.getReference().child("userlists").child(id).child(MainActivity.userUid);
+        final DatabaseReference numParticipantsRef = mFirebaseDatabase.getReference().child("groups").child(id).child("numParticipants");
+        if (inEvent) {
+            if (mGroup.getOrganizerId().equals(MainActivity.userUid)) {
                 Toast.makeText(this, "Organizer cant quit", Toast.LENGTH_SHORT).show();
                 return;
             }
@@ -201,9 +202,9 @@ public class GroupDetailsActivity extends AppCompatActivity implements OnMapRead
                 @NonNull
                 @Override
                 public Transaction.Result doTransaction(@NonNull MutableData mutableData) {
-                    long numParticipants = (long)mutableData.getValue();
+                    long numParticipants = (long) mutableData.getValue();
                     numParticipants = numParticipants - 1;
-                    Log.v(TAG,"DOING TRANSACTION" + numParticipants);
+                    Log.v(TAG, "DOING TRANSACTION" + numParticipants);
                     mutableData.setValue(numParticipants);
                     return Transaction.success(mutableData);
                 }
@@ -213,8 +214,8 @@ public class GroupDetailsActivity extends AppCompatActivity implements OnMapRead
                 }
             });
             finish();
-        }else{
-            numParticipantsRef.runTransaction(new numParticipantJoinTransactionHandler(id,userlistref,joinedlistref));
+        } else {
+            numParticipantsRef.runTransaction(new numParticipantJoinTransactionHandler(id, userlistref, joinedlistref));
         }
     }
 
@@ -225,7 +226,7 @@ public class GroupDetailsActivity extends AppCompatActivity implements OnMapRead
         super.onDestroy();
     }
 
-    public static boolean isInstanceCreated(){
+    public static boolean isInstanceCreated() {
         return instanceCreated;
     }
 
@@ -269,40 +270,43 @@ public class GroupDetailsActivity extends AppCompatActivity implements OnMapRead
         }
     }
 
-    private class numParticipantJoinTransactionHandler implements Transaction.Handler{
+    private class numParticipantJoinTransactionHandler implements Transaction.Handler {
         private boolean allowJoin = false;
         private DatabaseReference userlistref, joinedlistref;
         private String id;
-        private numParticipantJoinTransactionHandler(String id, DatabaseReference userlistref, DatabaseReference joinedlistref){
+
+        private numParticipantJoinTransactionHandler(String id, DatabaseReference userlistref, DatabaseReference joinedlistref) {
             this.id = id;
             this.userlistref = userlistref;
             this.joinedlistref = joinedlistref;
         }
+
         @NonNull
         @Override
         public Transaction.Result doTransaction(@NonNull MutableData mutableData) {
-            long numParticipants = (long)mutableData.getValue();
-            if(numParticipants >= mGroup.getMaxParticipants()){
+            long numParticipants = (long) mutableData.getValue();
+            if (numParticipants >= mGroup.getMaxParticipants()) {
                 allowJoin = false;
-            }else{
+            } else {
                 allowJoin = true;
                 numParticipants = numParticipants + 1;
                 mutableData.setValue(numParticipants);
             }
-            Log.v(TAG,"DOING TRANSACTION" + numParticipants);
+            Log.v(TAG, "DOING TRANSACTION" + numParticipants);
             return Transaction.success(mutableData);
         }
 
         @Override
         public void onComplete(@Nullable DatabaseError databaseError, boolean b, @Nullable DataSnapshot dataSnapshot) {
-            if(databaseError != null) return;
-            if(!allowJoin){
+            if (databaseError != null) return;
+            if (!allowJoin) {
                 Toast.makeText(GroupDetailsActivity.this, "Sorry, group is already full", Toast.LENGTH_SHORT).show();
-                if(!GroupDetailsActivity.instanceCreated || eventInfoFragment == null || eventInfoFragment.isDetached())return;
-                eventInfoFragment.updateNumParticipants((long)dataSnapshot.getValue());
+                if (!GroupDetailsActivity.instanceCreated || eventInfoFragment == null || eventInfoFragment.isDetached())
+                    return;
+                eventInfoFragment.updateNumParticipants((long) dataSnapshot.getValue());
                 return;
             }
-            HashMap<String,Boolean> map = new HashMap<>();
+            HashMap<String, Boolean> map = new HashMap<>();
             map.put("isAdmin", false);
             userlistref.setValue(map);
             joinedlistref.setValue("true");

@@ -6,8 +6,10 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
 import android.support.annotation.NonNull;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -26,15 +28,15 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.Arrays;
 
-public class MainActivity extends AppCompatActivity{
+public class MainActivity extends AppCompatActivity {
     public static String userDisplayName;
     public static String userUid;
-
+    private boolean persistanceEnabled = false;
     private FirebaseAuth mFirebaseAuth;
     private FirebaseAuth.AuthStateListener mAuthStateListener;
     private FirebaseDatabase mFirebaseDatabase;
     private DatabaseReference mUsersDatabaseReference;
-
+    private DrawerLayout mDrawerLayout;
     //private ViewPager mViewPager;
     private static final String TAG = "MAINACTIVITY";
     private static final int NUM_PAGES = 2;
@@ -47,13 +49,13 @@ public class MainActivity extends AppCompatActivity{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        FirebaseDatabase.getInstance().setPersistenceEnabled(true);
         // App Logo
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setLogo(R.drawable.common_google_signin_btn_icon_dark);
         getSupportActionBar().setDisplayUseLogoEnabled(true);
+        mDrawerLayout = findViewById(R.id.drawer_layout);
 
-        mFirebaseDatabase = FirebaseDatabase.getInstance();
+        mFirebaseDatabase = FirebaseDatabaseUtils.getDatabase();
         mUsersDatabaseReference = mFirebaseDatabase.getReference().child("users");
 
         mFirebaseAuth = FirebaseAuth.getInstance();
@@ -74,6 +76,7 @@ public class MainActivity extends AppCompatActivity{
                                 mUsersDatabaseReference.child(userUid).setValue(newUserInfo);
                             }
                         }
+
                         @Override
                         public void onCancelled(@NonNull DatabaseError databaseError) {
 
@@ -83,8 +86,7 @@ public class MainActivity extends AppCompatActivity{
                     jg.onSignIn();
                     SearchGroupFragment sg = SearchGroupFragment.getInstance();
                     sg.onSignIn();
-                }
-                else {  // user signed out
+                } else {  // user signed out
                     JoinedGroupFragment jg = JoinedGroupFragment.getInstance();
                     jg.onSignOut();
                     SearchGroupFragment sg = SearchGroupFragment.getInstance();
@@ -116,7 +118,7 @@ public class MainActivity extends AppCompatActivity{
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch(item.getItemId()) {
+        switch (item.getItemId()) {
             case R.id.edit_profile:
                 Intent startEditProfileActivityIntent = new Intent(MainActivity.this, EditProfileActivity.class);
                 startActivity(startEditProfileActivityIntent);
@@ -127,6 +129,9 @@ public class MainActivity extends AppCompatActivity{
                 return true;
             case R.id.signout:
                 AuthUI.getInstance().signOut(this);
+                return true;
+            case R.id.filter:
+                mDrawerLayout.openDrawer(GravityCompat.END);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -146,14 +151,21 @@ public class MainActivity extends AppCompatActivity{
     }
 
     @Override
+    public void onBackPressed() {
+        if (mDrawerLayout.isDrawerVisible(R.id.filter_drawer)) {
+            mDrawerLayout.closeDrawers();
+        }
+        super.onBackPressed();
+    }
+
+    @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == RC_SIGN_IN) {
             if (resultCode == RESULT_OK) {
                 Toast.makeText(this, "Signed in!", Toast.LENGTH_SHORT).show();
-            }
-            else if (resultCode == RESULT_CANCELED){
+            } else if (resultCode == RESULT_CANCELED) {
                 finish();
             }
         }
@@ -166,7 +178,7 @@ public class MainActivity extends AppCompatActivity{
 
         @Override
         public Fragment getItem(int position) {
-            if(position == 0) return JoinedGroupFragment.getInstance();
+            if (position == 0) return JoinedGroupFragment.getInstance();
             else return SearchGroupFragment.getInstance();
         }
 
@@ -178,7 +190,7 @@ public class MainActivity extends AppCompatActivity{
         @Nullable
         @Override
         public CharSequence getPageTitle(int position) {
-            if(position == 0){
+            if (position == 0) {
                 return getString(R.string.MainActivityTab1Name);
             }
             return getString(R.string.MainActivityTab2Name);
