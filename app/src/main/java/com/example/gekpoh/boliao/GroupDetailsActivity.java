@@ -185,13 +185,18 @@ public class GroupDetailsActivity extends AppCompatActivity implements OnMapRead
 
     @Override
     public void onJoinLeaveClick() {
+        if(!FirebaseDatabaseUtils.connectedToDatabase()){
+            Toast.makeText(this,"Please check your internet connection", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         final String id = mGroup.getChatId();
         final DatabaseReference joinedlistref = mFirebaseDatabase.getReference().child("joinedlists").child(MainActivity.userUid).child(id);
         final DatabaseReference userlistref = mFirebaseDatabase.getReference().child("userlists").child(id).child(MainActivity.userUid);
         final DatabaseReference numParticipantsRef = mFirebaseDatabase.getReference().child("groups").child(id).child("numParticipants");
         if (inEvent) {
             if (mGroup.getOrganizerId().equals(MainActivity.userUid)) {
-                Toast.makeText(this, "Organizer cant quit", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Organizer can't quit.", Toast.LENGTH_SHORT).show();
                 return;
             }
             //update userlist and join list
@@ -211,6 +216,9 @@ public class GroupDetailsActivity extends AppCompatActivity implements OnMapRead
 
                 @Override
                 public void onComplete(@Nullable DatabaseError databaseError, boolean b, @Nullable DataSnapshot dataSnapshot) {
+                    if (databaseError != null) {
+                        return;
+                    }
                 }
             });
             finish();
@@ -298,7 +306,9 @@ public class GroupDetailsActivity extends AppCompatActivity implements OnMapRead
 
         @Override
         public void onComplete(@Nullable DatabaseError databaseError, boolean b, @Nullable DataSnapshot dataSnapshot) {
-            if (databaseError != null) return;
+            if (databaseError != null) {
+                return;
+            }
             if (!allowJoin) {
                 Toast.makeText(GroupDetailsActivity.this, "Sorry, group is already full", Toast.LENGTH_SHORT).show();
                 if (!GroupDetailsActivity.instanceCreated || eventInfoFragment == null || eventInfoFragment.isDetached())

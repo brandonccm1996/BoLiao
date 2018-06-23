@@ -1,6 +1,7 @@
 package com.example.gekpoh.boliao;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
@@ -66,6 +67,17 @@ public class CreateNewEventFragment3 extends Fragment implements OnMapReadyCallb
     private AutoCompleteTextView searchBar;
     private ImageView imageViewGps;
     private PlaceAutoCompleteAdapter mPlaceAutoCompleteAdapter;
+    private fragment3CallBack mCallback;
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        try{
+            mCallback = (fragment3CallBack)context;
+        }catch(ClassCastException e){
+            e.printStackTrace();
+        }
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -211,6 +223,7 @@ public class CreateNewEventFragment3 extends Fragment implements OnMapReadyCallb
                         PlaceBufferResponse places = task.getResult();
                         Place myPlace = places.get(0);
                         moveCamera(myPlace.getLatLng(), DEFAULT_ZOOM, myPlace.getName().toString());
+                        mCallback.setLatLng(myPlace.getLatLng());
                         Toast.makeText(getActivity(), "Activity location marked at: " + myPlace.getName().toString(), Toast.LENGTH_LONG).show();
                         places.release();
                     } else {
@@ -227,4 +240,8 @@ public class CreateNewEventFragment3 extends Fragment implements OnMapReadyCallb
     }
 
     public String sendPlaceId() {return placeIdToSave; }
+
+    public interface fragment3CallBack{
+        void setLatLng(LatLng ll);
+    }
 }

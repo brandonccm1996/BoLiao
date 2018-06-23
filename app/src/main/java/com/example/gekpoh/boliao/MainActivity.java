@@ -14,6 +14,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -36,7 +37,6 @@ import java.util.Arrays;
 public class MainActivity extends AppCompatActivity {
     public static String userDisplayName;
     public static String userUid;
-    private boolean persistanceEnabled = false;
     private FirebaseAuth mFirebaseAuth;
     private FirebaseAuth.AuthStateListener mAuthStateListener;
     private FirebaseDatabase mFirebaseDatabase;
@@ -63,8 +63,8 @@ public class MainActivity extends AppCompatActivity {
         mDrawerLayout = findViewById(R.id.drawer_layout);
 
         mFirebaseDatabase = FirebaseDatabaseUtils.getDatabase();
+        FirebaseDatabaseUtils.setUpConnectionListener();
         mUsersDatabaseReference = mFirebaseDatabase.getReference().child("users");
-
         mFirebaseAuth = FirebaseAuth.getInstance();
         mAuthStateListener = new FirebaseAuth.AuthStateListener() {
             @Override
@@ -161,6 +161,10 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(startEditProfileActivityIntent);
                 return true;
             case R.id.create_new_act:
+                if(!FirebaseDatabaseUtils.connectedToDatabase()){
+                    Toast.makeText(this, "Please make sure that you have an internet connection before trying to create a new activity", Toast.LENGTH_LONG).show();
+                    return true;
+                }
                 Intent startCreateNewEventActivityIntent = new Intent(MainActivity.this, CreateNewEventActivity.class);
                 startActivity(startCreateNewEventActivityIntent);
                 return true;

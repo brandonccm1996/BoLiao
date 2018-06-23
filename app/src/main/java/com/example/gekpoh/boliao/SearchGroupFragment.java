@@ -14,6 +14,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -25,6 +26,7 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 
 public class SearchGroupFragment extends Fragment implements GroupRecyclerAdapter.GroupTouchCallBack {
+    private Context mContext;
     private RecyclerView groupView;
     private GroupRecyclerAdapter adapter;
     private static SearchGroupFragment sgFragment;
@@ -40,6 +42,13 @@ public class SearchGroupFragment extends Fragment implements GroupRecyclerAdapte
         }
         return sgFragment;
     }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        mContext = context;
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -61,7 +70,7 @@ public class SearchGroupFragment extends Fragment implements GroupRecyclerAdapte
         if (signedIn) return;
         signedIn = true;
         mDatabaseReference = FirebaseDatabaseUtils.getDatabase().getReference().child("groups");
-        mDatabaseReference.keepSynced(true);
+        //mDatabaseReference.keepSynced(true);
         //reloadList();
     }
 
@@ -74,6 +83,10 @@ public class SearchGroupFragment extends Fragment implements GroupRecyclerAdapte
 
     @Override
     public void touchGroup(int pos) {
+        if(!FirebaseDatabaseUtils.connectedToDatabase()){
+            Toast.makeText(mContext,"Unable to retrieve information of selected activity. Please check your internet connection", Toast.LENGTH_SHORT).show();
+            return;
+        }
         if(GroupDetailsActivity.isInstanceCreated()) return;
         Intent intent = new Intent(getContext(), GroupDetailsActivity.class);
         intent.putExtra(getString(R.string.groupKey), searchedgroups.get(pos).getChatId());
@@ -84,7 +97,13 @@ public class SearchGroupFragment extends Fragment implements GroupRecyclerAdapte
         //Add other filters here
         if(SystemClock.elapsedRealtime() - reloadTimer < 2000) return;//Can only reload once every 2 second
         reloadTimer = SystemClock.elapsedRealtime();
+
+        if(!FirebaseDatabaseUtils.connectedToDatabase()){
+            Toast.makeText(mContext,"Offline searching not available. Please check your internet connection", Toast.LENGTH_SHORT).show();
+            return;
+        }
         searchedgroups.clear();
+        //adapter.notifyDataSetChanged();
         if(mValueEventListener == null) {
             mValueEventListener = new ValueEventListener() {
                 @Override
@@ -94,8 +113,8 @@ public class SearchGroupFragment extends Fragment implements GroupRecyclerAdapte
                         Log.v(TAG, "NEW GROUP ADDED");
                         Group group = data.getValue(Group.class);
                         searchedgroups.add(group);
-                        adapter.notifyDataSetChanged();
                     }
+                    adapter.notifyDataSetChanged();
                 }
 
                 @Override
