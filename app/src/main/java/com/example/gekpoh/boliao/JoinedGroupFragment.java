@@ -1,6 +1,7 @@
 package com.example.gekpoh.boliao;
 
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -12,6 +13,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -27,6 +29,7 @@ public class JoinedGroupFragment extends Fragment implements GroupRecyclerAdapte
     private static HashSet<String> joinedgroupIds = new HashSet<>();
     private static JoinedGroupFragment jgFragment;
     private boolean signedIn = false;
+    private Context mContext;
     private RecyclerView groupView;
     private GroupRecyclerAdapter adapter;
     private DatabaseReference mGroupDatabaseReference, mJoinedListDatabaseReference;
@@ -40,6 +43,12 @@ public class JoinedGroupFragment extends Fragment implements GroupRecyclerAdapte
             jgFragment = new JoinedGroupFragment();
         }
         return jgFragment;
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        mContext = context;
     }
 
     @Override
@@ -146,6 +155,11 @@ public class JoinedGroupFragment extends Fragment implements GroupRecyclerAdapte
 
     public void updateGroupDetails(Group group, final int pos) {
         if(pos == -1)return;
-        joinedgroups.set(pos,group);
+        if(group != null) {
+            joinedgroups.set(pos, group);
+        }else{
+            Toast.makeText(mContext,"For some reason, this activity has been deleted.", Toast.LENGTH_SHORT).show();
+            joinedgroups.remove(pos);
+        }
     }
 }

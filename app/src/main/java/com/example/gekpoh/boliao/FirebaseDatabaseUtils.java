@@ -1,5 +1,8 @@
 package com.example.gekpoh.boliao;
 
+import android.provider.ContactsContract;
+
+import com.firebase.geofire.GeoFire;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -43,5 +46,11 @@ public class FirebaseDatabaseUtils {
 
     public static boolean connectedToDatabase(){
         return connection;
+    }
+
+    public static GeoFire getGeoFireInstance(){
+        FirebaseDatabase database = getDatabase();
+        DatabaseReference geofireref = database.getReference().child("geoFireObjects");
+        return new GeoFire(geofireref);
     }
 }

@@ -74,31 +74,34 @@ public class GroupDetailsActivity extends AppCompatActivity implements OnMapRead
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 mGroup = dataSnapshot.getValue(Group.class);
-
-                mapFragment = SupportMapFragment.newInstance();
-                mapFragment.getMapAsync(GroupDetailsActivity.this);
-                eventInfoFragment = new EventInfoFragment();
-                Bundle args2 = new Bundle();
-                args2.putBoolean(getString(R.string.InActivityKey), inEvent);
-                args2.putString(getString(R.string.groupNameKey), mGroup.getNames());
-                args2.putString(getString(R.string.groupPlaceKey), mGroup.getLocation());
-                args2.putString(getString(R.string.groupStartKey), mGroup.getStartDateTime());
-                args2.putString(getString(R.string.groupEndKey), mGroup.getEndDateTime());
-                args2.putString(getString(R.string.groupPhotoUrlKey), mGroup.getPhotoUrl());
-                args2.putString(getString(R.string.groupDescriptionKey), mGroup.getDescription());
-                args2.putInt(getString(R.string.groupCurrentSizeKey), mGroup.getNumParticipants());
-                args2.putInt(getString(R.string.groupMaxSizeKey), mGroup.getMaxParticipants());
-                eventInfoFragment.setArguments(args2);
-
-                ViewPager detailsPager = findViewById(R.id.groupDetailsPager);
-                detailsPager.setAdapter(new GroupDetailsPagerAdapter(getSupportFragmentManager()));
-                TabLayout tabLayout = findViewById(R.id.detailsTabLayout);
-                tabLayout.setupWithViewPager(detailsPager);
-                mGeoDataClient = Places.getGeoDataClient(GroupDetailsActivity.this);
                 if (inEvent) {
                     JoinedGroupFragment.getInstance().updateGroupDetails(mGroup, getIntent().getIntExtra(getString(R.string.TapPositionKey), -1));
                 } else {
                     SearchGroupFragment.getInstance().updateGroupDetails(mGroup, getIntent().getIntExtra(getString(R.string.TapPositionKey), -1));
+                }
+                if(mGroup != null) {
+                    mapFragment = SupportMapFragment.newInstance();
+                    mapFragment.getMapAsync(GroupDetailsActivity.this);
+                    eventInfoFragment = new EventInfoFragment();
+                    Bundle args2 = new Bundle();
+                    args2.putBoolean(getString(R.string.InActivityKey), inEvent);
+                    args2.putString(getString(R.string.groupNameKey), mGroup.getNames());
+                    args2.putString(getString(R.string.groupPlaceKey), mGroup.getLocation());
+                    args2.putString(getString(R.string.groupStartKey), mGroup.getStartDateTime());
+                    args2.putString(getString(R.string.groupEndKey), mGroup.getEndDateTime());
+                    args2.putString(getString(R.string.groupPhotoUrlKey), mGroup.getPhotoUrl());
+                    args2.putString(getString(R.string.groupDescriptionKey), mGroup.getDescription());
+                    args2.putInt(getString(R.string.groupCurrentSizeKey), mGroup.getNumParticipants());
+                    args2.putInt(getString(R.string.groupMaxSizeKey), mGroup.getMaxParticipants());
+                    eventInfoFragment.setArguments(args2);
+
+                    ViewPager detailsPager = findViewById(R.id.groupDetailsPager);
+                    detailsPager.setAdapter(new GroupDetailsPagerAdapter(getSupportFragmentManager()));
+                    TabLayout tabLayout = findViewById(R.id.detailsTabLayout);
+                    tabLayout.setupWithViewPager(detailsPager);
+                    mGeoDataClient = Places.getGeoDataClient(GroupDetailsActivity.this);
+                }else{
+                    finish();
                 }
             }
 

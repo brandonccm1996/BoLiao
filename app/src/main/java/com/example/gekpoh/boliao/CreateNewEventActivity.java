@@ -17,6 +17,7 @@ import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -107,8 +108,15 @@ public class CreateNewEventActivity extends AppCompatActivity implements CreateN
                     //add this group to list of joinedgroups for this user
                     mJoinedListsReference.child(MainActivity.userUid).child(chatId).setValue("true");
                     //DatabaseReference ref = mFirebaseDatabase.getReference().child("geoFireObjects");
-                    //GeoFire geoFire = new GeoFire(ref);
-                    //geoFire.setLocation(chatId,new GeoLocation(mLatLng.latitude, mLatLng.longitude));
+                    GeoFire geoFire = FirebaseDatabaseUtils.getGeoFireInstance();
+                    geoFire.setLocation(chatId, new GeoLocation(mLatLng.latitude, mLatLng.longitude), new GeoFire.CompletionListener() {
+                        @Override
+                        public void onComplete(String key, DatabaseError error) {
+                            if(error != null){
+                                Toast.makeText(CreateNewEventActivity.this, "Error in setting location in geofire", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    });
                     finish();
                 }
             }

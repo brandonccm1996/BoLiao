@@ -1,8 +1,12 @@
 package com.example.gekpoh.boliao;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
@@ -24,6 +28,7 @@ import android.widget.Switch;
 import android.widget.Toast;
 
 import com.firebase.ui.auth.AuthUI;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -33,8 +38,9 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.Arrays;
+import java.util.HashSet;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements SearchGroupFragment.reloadFilterInterface{
     public static String userDisplayName;
     public static String userUid;
     private FirebaseAuth mFirebaseAuth;
@@ -183,6 +189,14 @@ public class MainActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         mFirebaseAuth.removeAuthStateListener(mAuthStateListener);
+        LatLng latLng = SearchGroupFragment.getInstance().getLastKnownLatLng();
+        if(latLng != null) {
+            SharedPreferences prefs = getPreferences(Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.putFloat(getString(R.string.sharedprefs_lastknownlatitudekey), (float)latLng.latitude);
+            editor.putFloat(getString(R.string.sharedprefs_lastknownlongitudekey), (float)latLng.longitude);
+            editor.commit();
+        }
     }
 
     @Override
@@ -212,6 +226,44 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public boolean distanceFilterChecked() {
+        return distanceFilterSwitch.isChecked();
+    }
+
+    @Override
+    public boolean timeFilterChecked() {
+        return timeFilterSwitch.isChecked();
+    }
+
+    @Override
+    public boolean categoriesFilterChecked() {
+        //Need to implement something next time
+        return false;
+    }
+
+    @Override
+    public long getDistanceFilter() {
+        if(distanceFilterSwitch.isChecked()){
+            return Long.parseLong(distanceText.getText().toString());
+        }else{
+            return -1;
+        }
+    }
+
+    //pos 0 has start time filter, pos 1 has end time filter
+    @Override
+    public long[] getTimeFilter() {
+        long[] timeFilter = new long[2];
+        return timeFilter;
+    }
+
+    @Override
+    public HashSet<String> getCatergoriesFilter() {
+        HashSet<String> hashSet = new HashSet<>();
+        return hashSet;
+    }
+
     private class GroupPagerAdapter extends FragmentStatePagerAdapter {
         public GroupPagerAdapter(FragmentManager fm) {
             super(fm);
@@ -237,5 +289,6 @@ public class MainActivity extends AppCompatActivity {
             return getString(R.string.MainActivityTab2Name);
         }
     }
+
 
 }
