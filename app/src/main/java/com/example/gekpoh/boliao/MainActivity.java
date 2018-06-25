@@ -244,7 +244,7 @@ public class MainActivity extends AppCompatActivity implements SearchGroupFragme
 
     @Override
     public long getDistanceFilter() {
-        if(distanceFilterSwitch.isChecked()){
+        if(distanceFilterSwitch.isChecked() && !distanceText.getText().toString().equals("")){
             return Long.parseLong(distanceText.getText().toString());
         }else{
             return -1;

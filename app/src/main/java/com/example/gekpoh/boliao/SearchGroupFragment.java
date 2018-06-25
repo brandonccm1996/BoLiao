@@ -56,6 +56,8 @@ public class SearchGroupFragment extends Fragment implements GroupRecyclerAdapte
     private boolean signedIn = false;
     private long reloadTimer = 0;
     private LatLng lastKnownLatLng;
+    private boolean stillLoading = false;
+    private HashSet<String> loadingList = new HashSet<>();
 
     public static SearchGroupFragment getInstance() {
         if (sgFragment == null) {
@@ -150,6 +152,10 @@ public class SearchGroupFragment extends Fragment implements GroupRecyclerAdapte
                         Group group = dataSnapshot.getValue(Group.class);
                         //Need to implement extra filters here for both time and categories etc.
                         searchedgroups.add(group);
+                        loadingList.remove(dataSnapshot.getKey());
+                        if(loadingList.isEmpty() && !stillLoading){
+                            adapter.notifyDataSetChanged();
+                        }
                     }
 
                     @Override
@@ -163,8 +169,11 @@ public class SearchGroupFragment extends Fragment implements GroupRecyclerAdapte
             geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
                 @Override
                 public void onKeyEntered(String key, GeoLocation location) {
+                    stillLoading = true;
                     if (JoinedGroupFragment.alreadyJoinedGroup(key)) return;
+                    Log.v(TAG, "fOUND A LOCATION");
                     mDatabaseReference.child(key).addListenerForSingleValueEvent(mGetLocationSingleValueEventListener);
+                    loadingList.add(key);
                 }
 
                 @Override
@@ -179,7 +188,10 @@ public class SearchGroupFragment extends Fragment implements GroupRecyclerAdapte
 
                 @Override
                 public void onGeoQueryReady() {
-                    adapter.notifyDataSetChanged();
+                    stillLoading = false;
+                    if(loadingList.isEmpty() && !stillLoading){
+                        adapter.notifyDataSetChanged();
+                    }
                     geoQuery.removeAllListeners();
                 }
 
@@ -243,7 +255,7 @@ public class SearchGroupFragment extends Fragment implements GroupRecyclerAdapte
         public int scrollVerticallyBy(int dy, RecyclerView.Recycler recycler, RecyclerView.State state) {
             int scrollRange = super.scrollVerticallyBy(dy, recycler, state);
             int overscroll = dy - scrollRange;
-            if (overscroll < -150) {//any value lesser than 0 is overscroll
+            if (overscroll < -20) {//any value lesser than 0 is overscroll
                 // top overscroll
                 reloadList();
             }
