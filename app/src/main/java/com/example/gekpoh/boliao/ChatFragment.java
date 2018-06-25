@@ -1,5 +1,7 @@
 package com.example.gekpoh.boliao;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -15,13 +17,21 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.Toast;
 
+import com.google.android.gms.tasks.Continuation;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ServerValue;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,6 +39,7 @@ import java.util.Map;
 
 public class ChatFragment extends Fragment {
     private static final int MAX_MESSAGE_LENGTH = 140;
+    private static final int RC_PHOTO_PICKER = 1;
     private final String TAG = "ChatFragment";
     private boolean moveToEndAllowed = true;
     private RecyclerView chatRecyclerView;
@@ -37,7 +48,9 @@ public class ChatFragment extends Fragment {
     private ChatRecyclerAdapter adapter;
     private EditText editText;
     private Button sendButton;
+    private ImageButton photoPickerButton;
     private DatabaseReference mDatabaseReference;
+    private StorageReference mChatPhotoStorageReference;
     private ChildEventListener mChildEventListener;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -63,6 +76,16 @@ public class ChatFragment extends Fragment {
                 map.put("timeStamp", ServerValue.TIMESTAMP);
                 mDatabaseReference.child(key).setValue(map);
                 editText.setText("");
+            }
+        });
+        photoPickerButton = getView().findViewById(R.id.photoPickerButton);
+        photoPickerButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                intent.setType("image/jpeg");
+                intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
+                startActivityForResult(Intent.createChooser(intent, "Complete action using"), RC_PHOTO_PICKER);
             }
         });
         editText.addTextChangedListener(new TextWatcher() {
@@ -104,6 +127,7 @@ public class ChatFragment extends Fragment {
             }
         });
         String chatKey = getArguments().getString(getString(R.string.groupIdKey));
+        mChatPhotoStorageReference = FirebaseStorage.getInstance().getReference().child(chatKey);
         mDatabaseReference = FirebaseDatabaseUtils.getDatabase().getReference().child("chats").child(chatKey);
         mChildEventListener = new ChildEventListener() {
             @Override
@@ -134,6 +158,48 @@ public class ChatFragment extends Fragment {
             }
         };
         mDatabaseReference.addChildEventListener(mChildEventListener);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == RC_PHOTO_PICKER && resultCode == getActivity().RESULT_OK){
+            Uri selectedImageUri = data.getData();
+            final StorageReference photoRef = mChatPhotoStorageReference.child(selectedImageUri.getLastPathSegment());
+            photoRef.putFile(selectedImageUri).continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
+                @Override
+                public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
+                    if (!task.isSuccessful()) {
+                        throw task.getException();
+                    }
+                    // Continue with the task to get the download URL
+                    return photoRef.getDownloadUrl();
+                }
+            }).addOnCompleteListener(new OnCompleteListener<Uri>() {
+                @Override
+                public void onComplete(@NonNull Task<Uri> task) {
+                    if (task.isSuccessful()) {
+                        Uri downloadUri = task.getResult();
+                        String key = mDatabaseReference.push().getKey();
+                        if(key != null) {
+                            Map<String, Object> map = new HashMap<>();
+                            map.put("uid", MainActivity.userUid);
+                            map.put("text", editText.getText().toString());
+                            map.put("photoUrl", downloadUri.toString());
+                            map.put("timeStamp", ServerValue.TIMESTAMP);
+                            mDatabaseReference.child(key).setValue(map);
+                            editText.setText("");
+                        }else{
+                            Log.e(TAG,"failed to send message");
+                        }
+                    } else {
+                        // Handle failures
+                        Toast.makeText(getActivity(),"Unable to send image", Toast.LENGTH_SHORT).show();
+                        editText.setText("");
+                    }
+                }
+            });
+        }
     }
 
     @Override

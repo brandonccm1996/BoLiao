@@ -103,7 +103,7 @@ public class CreateNewEventActivity extends AppCompatActivity implements CreateN
 
                     //Create chat in database
                     String key = mChatsDatabaseReference.child(chatId).push().getKey();
-                    mChatsDatabaseReference.child(chatId).child(key).setValue(new ChatMessage("Welcome to activity chat", "",0)); // just some dummy values
+                    mChatsDatabaseReference.child(chatId).child(key).setValue(new ChatMessage("Welcome to activity chat", "","",0)); // just some dummy values
 
                     //add this group to list of joinedgroups for this user
                     mJoinedListsReference.child(MainActivity.userUid).child(chatId).setValue("true");
