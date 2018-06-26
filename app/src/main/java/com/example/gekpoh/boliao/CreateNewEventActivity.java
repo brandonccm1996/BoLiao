@@ -21,6 +21,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -79,12 +80,21 @@ public class CreateNewEventActivity extends AppCompatActivity implements CreateN
                     Map mapToUpload = new HashMap();
                     Map mapToUpload2 = new HashMap();
                     Map mapToUpload3 = new HashMap();
-
+                    long startTimeStamp, endTimeStamp;
+                    String startDateTime = fragment1.sendSDate() + " " + fragment1.sendSTime();
+                    String endDateTime = fragment1.sendEDate() + " " + fragment1.sendETime();
+                    try {
+                        startTimeStamp = Group.groupDateFormatter.parse(startDateTime).getTime();
+                        endTimeStamp = Group.groupDateFormatter.parse(endDateTime).getTime();
+                    }catch(ParseException e){
+                        Toast.makeText(CreateNewEventActivity.this, "Failed to create activity due to parsing error", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
                     //Create group in database with relevant information
                     mapToUpload.put("names", fragment1.sendName());
                     mapToUpload.put("location", fragment1.sendLocation());
-                    mapToUpload.put("startDateTime", fragment1.sendSDate() + " " + fragment1.sendSTime());
-                    mapToUpload.put("endDateTime", fragment1.sendEDate() + " " + fragment1.sendETime());
+                    mapToUpload.put("startDateTime", startTimeStamp);
+                    mapToUpload.put("endDateTime", endTimeStamp);
                     mapToUpload.put("maxParticipants", Integer.parseInt(fragment2.sendNumPeople()));
                     mapToUpload.put("description", fragment2.sendDescription());
                     mapToUpload.put("placeId", fragment3.sendPlaceId());
@@ -92,8 +102,7 @@ public class CreateNewEventActivity extends AppCompatActivity implements CreateN
                     mapToUpload.put("chatId", chatId);
                     mapToUpload.put("organizerId", MainActivity.userUid);
 
-                    if (fragment2.sendPhotoUri() == null) mapToUpload.put("photoUrl", "");
-                    else mapToUpload.put("photoUrl", fragment2.sendPhotoUri());
+                    if (fragment2.sendPhotoUri() != null) mapToUpload.put("photoUrl", fragment2.sendPhotoUri());
                     mGroupsDatabaseReference.child(chatId).setValue(mapToUpload);
 
                     //Create lists of users for this group
@@ -103,7 +112,7 @@ public class CreateNewEventActivity extends AppCompatActivity implements CreateN
 
                     //Create chat in database
                     String key = mChatsDatabaseReference.child(chatId).push().getKey();
-                    mChatsDatabaseReference.child(chatId).child(key).setValue(new ChatMessage("Welcome to activity chat", "","",0)); // just some dummy values
+                    mChatsDatabaseReference.child(chatId).child(key).setValue(new ChatMessage("Welcome to activity chat", "",null,0)); // just some dummy values
 
                     //add this group to list of joinedgroups for this user
                     mJoinedListsReference.child(MainActivity.userUid).child(chatId).setValue("true");

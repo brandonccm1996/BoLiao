@@ -127,11 +127,12 @@ public class ChatFragment extends Fragment {
             }
         });
         String chatKey = getArguments().getString(getString(R.string.groupIdKey));
-        mChatPhotoStorageReference = FirebaseStorage.getInstance().getReference().child(chatKey);
+        mChatPhotoStorageReference = FirebaseStorage.getInstance().getReference().child("chats").child(chatKey);
         mDatabaseReference = FirebaseDatabaseUtils.getDatabase().getReference().child("chats").child(chatKey);
         mChildEventListener = new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                Log.v(TAG, "child added");
                 chatMessageList.add(dataSnapshot.getValue(ChatMessage.class));
                 adapter.notifyDataSetChanged();
                 if(moveToEndAllowed) chatRecyclerView.scrollToPosition(chatMessageList.size() - 1);
@@ -189,6 +190,7 @@ public class ChatFragment extends Fragment {
                             map.put("timeStamp", ServerValue.TIMESTAMP);
                             mDatabaseReference.child(key).setValue(map);
                             editText.setText("");
+                            Log.v(TAG,"Sending picture");
                         }else{
                             Log.e(TAG,"failed to send message");
                         }

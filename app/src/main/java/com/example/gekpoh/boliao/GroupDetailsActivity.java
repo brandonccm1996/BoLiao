@@ -87,8 +87,8 @@ public class GroupDetailsActivity extends AppCompatActivity implements OnMapRead
                     args2.putBoolean(getString(R.string.InActivityKey), inEvent);
                     args2.putString(getString(R.string.groupNameKey), mGroup.getNames());
                     args2.putString(getString(R.string.groupPlaceKey), mGroup.getLocation());
-                    args2.putString(getString(R.string.groupStartKey), mGroup.getStartDateTime());
-                    args2.putString(getString(R.string.groupEndKey), mGroup.getEndDateTime());
+                    args2.putString(getString(R.string.groupStartKey), mGroup.getStartDateTimeString());
+                    args2.putString(getString(R.string.groupEndKey), mGroup.getEndDateTimeString());
                     args2.putString(getString(R.string.groupPhotoUrlKey), mGroup.getPhotoUrl());
                     args2.putString(getString(R.string.groupDescriptionKey), mGroup.getDescription());
                     args2.putInt(getString(R.string.groupCurrentSizeKey), mGroup.getNumParticipants());

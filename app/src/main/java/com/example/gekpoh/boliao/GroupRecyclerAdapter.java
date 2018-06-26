@@ -11,6 +11,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+
 import java.util.ArrayList;
 
 public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdapter.GroupViewHolder> {
@@ -34,9 +36,14 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdap
         final int mPosition = position;
         String groupName = group.getNames();
         holder.mGroupName.setText(groupName.length() > 10? groupName.substring(0,9) + "...":groupName);
-        holder.mGroupDate.setText(group.getStartDateTime());//Possible Improvement: Indicate how much time left until the activity, Happening now, Over
+        holder.mGroupDate.setText(group.getStartDateTimeString());//Possible Improvement: Indicate how much time left until the activity, Happening now, Over
         String placeName = group.getLocation();
         holder.mGroupPlace.setText(placeName.length() > 10? placeName.substring(0,9) + "...":placeName);
+        if(group.getPhotoUrl() != null){
+            Glide.with(holder.mImageView.getContext())
+                    .load(group.getPhotoUrl())
+                    .into(holder.mImageView);
+        }
         holder.mCardView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

@@ -17,31 +17,16 @@ import java.util.ArrayList;
 import java.util.Date;
 
 public class Group implements Parcelable,Comparable<Group>{
-    private static final SimpleDateFormat groupDateFormatter = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+    public static final SimpleDateFormat groupDateFormatter = new SimpleDateFormat("dd/MM/yyyy HH:mm");
     private static final String TAG = "GROUP";
     private String chatId;//mGroupId is to indicate the reference to the database for this group. groupid is also used as chatid
     private String names, location, placeId, photoUrl, description;
-    private String startDateTime, endDateTime;//timestamp
+    private long startDateTime, endDateTime;//timestamp
     private int maxParticipants, numParticipants;
     private String organizerId;
 
     public Group(){
 
-    }
-
-    //Constructor for creating new Activity
-    public Group(String groupid, String name, String placename, String placeid, String photourl, String description ,String startdate, String enddate, int currentsize, int maxsize, String organizerId) {
-        this.chatId = groupid;
-        this.names = name;
-        this.location = placename;
-        this.placeId = placeid;
-        this.photoUrl = photourl;
-        this.description = description;
-        this.startDateTime = startdate;
-        this.endDateTime = enddate;
-        this.numParticipants = currentsize;
-        this.maxParticipants = maxsize;
-        this.organizerId = organizerId;
     }
     private Group(Parcel in) {
         names = in.readString();
@@ -50,8 +35,8 @@ public class Group implements Parcelable,Comparable<Group>{
         chatId = in.readString();
         photoUrl = in.readString();
         description = in.readString();
-        startDateTime = in.readString();
-        endDateTime = in.readString();
+        startDateTime = in.readLong();
+        endDateTime = in.readLong();
         numParticipants = in.readInt();
         maxParticipants = in.readInt();
         organizerId = in.readString();
@@ -80,17 +65,24 @@ public class Group implements Parcelable,Comparable<Group>{
     public String getPhotoUrl() {
         return photoUrl;
     }
-    public String getStartDateTime(){
+    public Long getStartDateTime(){
         return startDateTime;
     }
-    public String getEndDateTime(){ return endDateTime; }
+    public Long getEndDateTime(){ return endDateTime; }
     public int getMaxParticipants(){ return maxParticipants; }
     public int getNumParticipants(){ return numParticipants; }
     public String getChatId(){
         return chatId;
     }
     public String getOrganizerId() { return organizerId; }
-
+    public String getStartDateTimeString() {
+        Date date = new Date(startDateTime);
+        return groupDateFormatter.format(date);
+    }
+    public String getEndDateTimeString() {
+        Date date = new Date(endDateTime);
+        return groupDateFormatter.format(date);
+    }
     @Override
     public int describeContents() {
         return 0;
@@ -104,8 +96,8 @@ public class Group implements Parcelable,Comparable<Group>{
         dest.writeString(chatId);
         dest.writeString(photoUrl);
         dest.writeString(description);
-        dest.writeString(startDateTime);//Converting it to long is better than writeSerializable
-        dest.writeString(endDateTime);
+        dest.writeLong(startDateTime);//Converting it to long is better than writeSerializable
+        dest.writeLong(endDateTime);
         dest.writeInt(numParticipants);
         dest.writeInt(maxParticipants);
         dest.writeString(organizerId);
@@ -114,14 +106,6 @@ public class Group implements Parcelable,Comparable<Group>{
     //Sort by date
     @Override
     public int compareTo(@NonNull Group o) {
-        Long date1, date2;
-        try {
-            date1 = groupDateFormatter.parse(startDateTime).getTime();
-            date2 = groupDateFormatter.parse(o.getStartDateTime()).getTime();
-        }catch (ParseException e){
-            Log.e(TAG,"Date parsing failed failed");
-            return 0;
-        }
-        return date1<date2?-1:date1>date2?1:0;
+        return startDateTime<o.startDateTime?-1:startDateTime>o.startDateTime?1:0;
     }
 }
