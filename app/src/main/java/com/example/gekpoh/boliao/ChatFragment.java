@@ -37,6 +37,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import static android.app.Activity.RESULT_OK;
+
 public class ChatFragment extends Fragment {
     private static final int MAX_MESSAGE_LENGTH = 140;
     private static final int RC_PHOTO_PICKER = 1;
@@ -164,7 +166,7 @@ public class ChatFragment extends Fragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == RC_PHOTO_PICKER && resultCode == getActivity().RESULT_OK){
+        if (requestCode == RC_PHOTO_PICKER && resultCode == RESULT_OK){
             Uri selectedImageUri = data.getData();
             final StorageReference photoRef = mChatPhotoStorageReference.child(selectedImageUri.getLastPathSegment());
             photoRef.putFile(selectedImageUri).continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
@@ -211,5 +213,42 @@ public class ChatFragment extends Fragment {
             mChildEventListener = null;
         }
         super.onPause();
+    }
+    @Override
+    public void onResume() {
+        if(mChildEventListener == null) {
+            mChildEventListener = new ChildEventListener() {
+                @Override
+                public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                    Log.v(TAG, "child added");
+                    chatMessageList.add(dataSnapshot.getValue(ChatMessage.class));
+                    adapter.notifyDataSetChanged();
+                    if (moveToEndAllowed)
+                        chatRecyclerView.scrollToPosition(chatMessageList.size() - 1);
+                }
+
+                @Override
+                public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+                }
+
+                @Override
+                public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
+
+                }
+
+                @Override
+                public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                }
+            };
+            mDatabaseReference.addChildEventListener(mChildEventListener);
+        }
+        super.onResume();
     }
 }

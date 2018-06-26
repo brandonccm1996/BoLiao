@@ -48,7 +48,7 @@ public class EventInfoFragment extends Fragment {
         Bundle args = getArguments();
         ImageView picView = getView().findViewById(R.id.groupPicView);
         String photoUrl = args.getString(getString(R.string.groupPhotoUrlKey));
-        if (photoUrl.equals("")) {
+        if (photoUrl == null) {
             picView.setImageResource(R.drawable.profilepic);
         }
         else {
