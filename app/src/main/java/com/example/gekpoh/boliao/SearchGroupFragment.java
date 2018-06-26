@@ -138,11 +138,16 @@ public class SearchGroupFragment extends Fragment implements GroupRecyclerAdapte
             Toast.makeText(mContext, "Offline searching not available. Please check your internet connection", Toast.LENGTH_SHORT).show();
             return;
         }
+        boolean distanceFilter = mReloadInterface.distanceFilterChecked();
+        final boolean timeFilter = mReloadInterface.timeFilterChecked();
+        final long[] timefilters = mReloadInterface.getTimeFilter();
+        boolean categoriesFilter = mReloadInterface.categoriesFilterChecked();
+        if (timeFilter && (timefilters[0] == -1 || timefilters[1] == -1)) {
+            Toast.makeText(mContext, "Please set an appropriate date in time filter", Toast.LENGTH_SHORT).show();
+            return;
+        }
         searchedgroups.clear();
         getDeviceLocation();
-        boolean distanceFilter = mReloadInterface.distanceFilterChecked();
-        boolean timeFilter = mReloadInterface.timeFilterChecked();
-        boolean categoriesFilter = mReloadInterface.categoriesFilterChecked();
         if (distanceFilter && locationPermissionGranted) {
             long distance = mReloadInterface.getDistanceFilter();
             if (mGetLocationSingleValueEventListener == null) {
@@ -151,9 +156,12 @@ public class SearchGroupFragment extends Fragment implements GroupRecyclerAdapte
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                         Group group = dataSnapshot.getValue(Group.class);
                         //Need to implement extra filters here for both time and categories etc.
-                        searchedgroups.add(group);
-                        loadingList.remove(dataSnapshot.getKey());
-                        if(loadingList.isEmpty() && !stillLoading){
+
+                        if (!timeFilter || (group.getStartDateTime() >= timefilters[0] && group.getEndDateTime() <= timefilters[1])) {
+                            searchedgroups.add(group);
+                            loadingList.remove(dataSnapshot.getKey());
+                        }
+                        if (loadingList.isEmpty() && !stillLoading) {
                             adapter.notifyDataSetChanged();
                         }
                     }
@@ -189,7 +197,7 @@ public class SearchGroupFragment extends Fragment implements GroupRecyclerAdapte
                 @Override
                 public void onGeoQueryReady() {
                     stillLoading = false;
-                    if(loadingList.isEmpty() && !stillLoading){
+                    if (loadingList.isEmpty() && !stillLoading) {
                         adapter.notifyDataSetChanged();
                     }
                     geoQuery.removeAllListeners();
@@ -207,10 +215,9 @@ public class SearchGroupFragment extends Fragment implements GroupRecyclerAdapte
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                         for (DataSnapshot data : dataSnapshot.getChildren()) {
                             if (JoinedGroupFragment.alreadyJoinedGroup(data.getKey())) continue;
-                            Log.v(TAG, "NEW GROUP ADDED");
-                            //Need to implement extra filters for categories here etc.
+                            //Need to implement extra filters for categories and end timehere etc.
                             Group group = data.getValue(Group.class);
-                            searchedgroups.add(group);
+                            if(!timeFilter || group.getEndDateTime() <= timefilters[1]) searchedgroups.add(group);
                         }
                         adapter.notifyDataSetChanged();
                     }
@@ -221,8 +228,12 @@ public class SearchGroupFragment extends Fragment implements GroupRecyclerAdapte
                     }
                 };
             }
-            //Need to implement extra filters for time here
-            mDatabaseReference.addListenerForSingleValueEvent(mValueEventListener);
+            //Need to implement extra filters for starttime here
+            if (timeFilter) {
+                mDatabaseReference.orderByChild("startDateTime").startAt(timefilters[0]).endAt(timefilters[1]).addListenerForSingleValueEvent(mValueEventListener);
+            } else {
+                mDatabaseReference.addListenerForSingleValueEvent(mValueEventListener);
+            }
         }
     }
 

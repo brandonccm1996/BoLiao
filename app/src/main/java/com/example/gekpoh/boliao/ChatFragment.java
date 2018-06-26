@@ -137,7 +137,7 @@ public class ChatFragment extends Fragment {
                 Log.v(TAG, "child added");
                 chatMessageList.add(dataSnapshot.getValue(ChatMessage.class));
                 adapter.notifyDataSetChanged();
-                if(moveToEndAllowed) chatRecyclerView.scrollToPosition(chatMessageList.size() - 1);
+                if(moveToEndAllowed) chatRecyclerView.smoothScrollToPosition(chatMessageList.size() - 1);
             }
 
             @Override
@@ -223,8 +223,7 @@ public class ChatFragment extends Fragment {
                     Log.v(TAG, "child added");
                     chatMessageList.add(dataSnapshot.getValue(ChatMessage.class));
                     adapter.notifyDataSetChanged();
-                    if (moveToEndAllowed)
-                        chatRecyclerView.scrollToPosition(chatMessageList.size() - 1);
+                    if (moveToEndAllowed) chatRecyclerView.smoothScrollToPosition(chatMessageList.size() - 1);
                 }
 
                 @Override

@@ -50,7 +50,6 @@ public class ChatRecyclerAdapter extends RecyclerView.Adapter<ChatRecyclerAdapte
         }
         holder.messageTime.setText(chatDateFormatter.format(new Date(chatMessage.getTimeStamp())));
         holder.messageOwner.setText(GroupUsersInformation.getNamefromId(chatMessage.getUid()));
-
     }
 
     @Override

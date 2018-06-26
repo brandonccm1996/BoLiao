@@ -1,5 +1,7 @@
 package com.example.gekpoh.boliao;
 
+import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -22,9 +24,12 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.CompoundButton;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.Switch;
+import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.firebase.ui.auth.AuthUI;
@@ -37,10 +42,12 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.text.ParseException;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.HashSet;
 
-public class MainActivity extends AppCompatActivity implements SearchGroupFragment.reloadFilterInterface{
+public class MainActivity extends AppCompatActivity implements SearchGroupFragment.reloadFilterInterface {
     public static String userDisplayName;
     public static String userUid;
     private FirebaseAuth mFirebaseAuth;
@@ -54,6 +61,8 @@ public class MainActivity extends AppCompatActivity implements SearchGroupFragme
     private static final String TAG = "MAINACTIVITY";
     private static final int NUM_PAGES = 2;
     private static final int RC_SIGN_IN = 1;
+    String dateTimeString;
+    private int startyear = -1,endyear = -1, startmonth, endmonth, startday, endday, starthour = 0, endhour = 0, startmin = 0, endmin = 0;
 
     //private int pointerID;
     //GestureDetector mDetector;
@@ -131,9 +140,9 @@ public class MainActivity extends AppCompatActivity implements SearchGroupFragme
         distanceFilterSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if(isChecked){
+                if (isChecked) {
                     distanceText.setEnabled(true);
-                }else{
+                } else {
                     distanceText.setEnabled(false);
                 }
             }
@@ -141,13 +150,78 @@ public class MainActivity extends AppCompatActivity implements SearchGroupFragme
         timeFilterSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if(isChecked){
+                if (isChecked) {
                     startDateText.setEnabled(true);
                     endDateText.setEnabled(true);
-                }else{
+                } else {
                     startDateText.setEnabled(false);
                     endDateText.setEnabled(false);
                 }
+            }
+        });
+        startDateText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (startyear == -1) {
+                    Calendar calendar = Calendar.getInstance();
+                    startyear = calendar.get(Calendar.YEAR);
+                    startmonth = calendar.get(Calendar.MONTH);
+                    startday = calendar.get(Calendar.DAY_OF_MONTH);
+
+                }
+
+                DatePickerDialog mDatePickerDialog = new DatePickerDialog(MainActivity.this, new DatePickerDialog.OnDateSetListener() {
+                    @Override
+                    public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+                        startyear = year;
+                        startmonth = month;
+                        startday = dayOfMonth;
+                        dateTimeString = dayOfMonth + "/" + (month + 1) + "/" + year;
+                        final TimePickerDialog mTimePickerDialog = new TimePickerDialog(MainActivity.this, new TimePickerDialog.OnTimeSetListener() {
+                            @Override
+                            public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+                                starthour = hourOfDay;
+                                startmin = minute;
+                                dateTimeString = dateTimeString + " " + String.format("%02d:%02d", hourOfDay, minute);
+                                startDateText.setText(dateTimeString);
+                            }
+                        }, starthour, startmin, false);
+                        mTimePickerDialog.show();
+                    }
+                }, startyear, startmonth, startday);
+                mDatePickerDialog.show();
+            }
+        });
+        endDateText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (endyear == -1) {
+                    Calendar calendar = Calendar.getInstance();
+                    endyear = calendar.get(Calendar.YEAR);
+                    endmonth = calendar.get(Calendar.MONTH);
+                    endday = calendar.get(Calendar.DAY_OF_MONTH);
+
+                }
+                DatePickerDialog mDatePickerDialog = new DatePickerDialog(MainActivity.this, new DatePickerDialog.OnDateSetListener() {
+                    @Override
+                    public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+                        endyear = year;
+                        endmonth = month;
+                        endday = dayOfMonth;
+                        dateTimeString = dayOfMonth + "/" + (month + 1) + "/" + year;
+                        final TimePickerDialog mTimePickerDialog = new TimePickerDialog(MainActivity.this, new TimePickerDialog.OnTimeSetListener() {
+                            @Override
+                            public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+                                endhour = hourOfDay;
+                                endmin = minute;
+                                dateTimeString = dateTimeString + " " + String.format("%02d:%02d", hourOfDay, minute);
+                                endDateText.setText(dateTimeString);
+                            }
+                        }, endhour, endmin, false);
+                        mTimePickerDialog.show();
+                    }
+                }, endyear, endmonth, endday);
+                mDatePickerDialog.show();
             }
         });
     }
@@ -167,7 +241,7 @@ public class MainActivity extends AppCompatActivity implements SearchGroupFragme
                 startActivity(startEditProfileActivityIntent);
                 return true;
             case R.id.create_new_act:
-                if(!FirebaseDatabaseUtils.connectedToDatabase()){
+                if (!FirebaseDatabaseUtils.connectedToDatabase()) {
                     Toast.makeText(this, "Please make sure that you have an internet connection before trying to create a new activity", Toast.LENGTH_LONG).show();
                     return true;
                 }
@@ -190,11 +264,11 @@ public class MainActivity extends AppCompatActivity implements SearchGroupFragme
         super.onPause();
         mFirebaseAuth.removeAuthStateListener(mAuthStateListener);
         LatLng latLng = SearchGroupFragment.getInstance().getLastKnownLatLng();
-        if(latLng != null) {
+        if (latLng != null) {
             SharedPreferences prefs = getPreferences(Context.MODE_PRIVATE);
             SharedPreferences.Editor editor = prefs.edit();
-            editor.putFloat(getString(R.string.sharedprefs_lastknownlatitudekey), (float)latLng.latitude);
-            editor.putFloat(getString(R.string.sharedprefs_lastknownlongitudekey), (float)latLng.longitude);
+            editor.putFloat(getString(R.string.sharedprefs_lastknownlatitudekey), (float) latLng.latitude);
+            editor.putFloat(getString(R.string.sharedprefs_lastknownlongitudekey), (float) latLng.longitude);
             editor.commit();
         }
     }
@@ -244,9 +318,9 @@ public class MainActivity extends AppCompatActivity implements SearchGroupFragme
 
     @Override
     public long getDistanceFilter() {
-        if(distanceFilterSwitch.isChecked() && !distanceText.getText().toString().equals("")){
+        if (distanceFilterSwitch.isChecked() && !distanceText.getText().toString().equals("")) {
             return Long.parseLong(distanceText.getText().toString());
-        }else{
+        } else {
             return -1;
         }
     }
@@ -254,7 +328,15 @@ public class MainActivity extends AppCompatActivity implements SearchGroupFragme
     //pos 0 has start time filter, pos 1 has end time filter
     @Override
     public long[] getTimeFilter() {
-        long[] timeFilter = new long[2];
+        long[] timeFilter = {-1,-1};
+        if(timeFilterSwitch.isChecked()){
+            try{
+                timeFilter[0] = Group.groupDateFormatter.parse(startDateText.getText().toString()).getTime();
+                timeFilter[1] = Group.groupDateFormatter.parse(endDateText.getText().toString()).getTime();
+            }catch(ParseException e){
+                Log.e(TAG, "Failed to parse");
+            }
+        }
         return timeFilter;
     }
 
