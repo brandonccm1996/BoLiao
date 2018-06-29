@@ -163,7 +163,6 @@ public class CreateNewEventFragment2 extends Fragment {
         super.onDestroy();
         if (photoUri != null && activityCreated == false) {   // in case user exits app after uploading photo but not creating activity
             deletePic();
-            imageViewActivityPic.setImageResource(R.drawable.profilepic);
         }
     }
 

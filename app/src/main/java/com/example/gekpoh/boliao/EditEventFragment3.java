@@ -59,7 +59,7 @@ public class EditEventFragment3 extends Fragment implements OnMapReadyCallback, 
     private final LatLng mDefaultLocation = new LatLng(1.3521, 103.8198);   // LatLng of Singapore
     private static final LatLngBounds LAT_LNG_BOUNDS = new LatLngBounds(new LatLng(-40, -168), new LatLng(71, 136));
     private Marker marker;
-    private String placeIdToSave = null;
+    private String placeIdToSave;
 
     private static final String FINE_LOCATION = android.Manifest.permission.ACCESS_FINE_LOCATION;
     private static final String[] FINE_LOCATION_ARRAY = {FINE_LOCATION};
@@ -67,15 +67,13 @@ public class EditEventFragment3 extends Fragment implements OnMapReadyCallback, 
     private AutoCompleteTextView searchBar;
     private ImageView imageViewGps;
     private PlaceAutoCompleteAdapter mPlaceAutoCompleteAdapter;
-    private CreateNewEventFragment3.fragment3CallBack mCallback;
-
-    private String groupId;
+    private EditEventFragment3.fragment3CallBack mCallback;
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
         try{
-            mCallback = (CreateNewEventFragment3.fragment3CallBack)context;
+            mCallback = (EditEventFragment3.fragment3CallBack)context;
         }catch(ClassCastException e){
             e.printStackTrace();
         }
@@ -89,6 +87,7 @@ public class EditEventFragment3 extends Fragment implements OnMapReadyCallback, 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         Bundle args = getArguments();
+        placeIdToSave = args.getString("placeId");
 
         getLocationPermission();
 
@@ -151,7 +150,23 @@ public class EditEventFragment3 extends Fragment implements OnMapReadyCallback, 
         mMap = googleMap;
 
         if (mLocationPermissionsGranted) {
-            getDeviceLocation();
+
+            mGeoDataClient.getPlaceById(placeIdToSave).addOnCompleteListener(new OnCompleteListener<PlaceBufferResponse>() {
+                @Override
+                public void onComplete(@NonNull Task<PlaceBufferResponse> task) {
+                    if (task.isSuccessful()) {
+                        PlaceBufferResponse places = task.getResult();
+                        Place myPlace = places.get(0);
+                        moveCamera(myPlace.getLatLng(), DEFAULT_ZOOM, myPlace.getName().toString());
+                        mCallback.setLatLng(myPlace.getLatLng());
+                        Toast.makeText(getActivity(), "Activity location marked at: " + myPlace.getName().toString(), Toast.LENGTH_LONG).show();
+                        places.release();
+                    } else {
+                        Log.e("EditEventMapAct", "Place not found.");
+                    }
+                }
+            });
+
             if (ActivityCompat.checkSelfPermission(getActivity(), android.Manifest.permission.ACCESS_FINE_LOCATION)
                     != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(),
                     Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -180,7 +195,7 @@ public class EditEventFragment3 extends Fragment implements OnMapReadyCallback, 
             });
         }
         catch (SecurityException e) {
-            Log.e("CreateNewEventMap", "getDeviceLocation: SecurityException: " + e.getMessage());
+            Log.e("EditEventMap", "getDeviceLocation: SecurityException: " + e.getMessage());
         }
     }
 
@@ -203,7 +218,7 @@ public class EditEventFragment3 extends Fragment implements OnMapReadyCallback, 
             list = geocoder.getFromLocationName(searchString, 1);
         }
         catch (IOException e) {
-            Log.e("CreateNewEventMap", "geoLocate: geolocating");
+            Log.e("EditEventMap", "geoLocate: geolocating");
         }
 
         if (list.size() > 0) {
@@ -231,7 +246,7 @@ public class EditEventFragment3 extends Fragment implements OnMapReadyCallback, 
                         Toast.makeText(getActivity(), "Activity location marked at: " + myPlace.getName().toString(), Toast.LENGTH_LONG).show();
                         places.release();
                     } else {
-                        Log.e("CreateNewEventMapAct", "Place not found.");
+                        Log.e("EditEventMapAct", "Place not found.");
                     }
                 }
             });

@@ -132,8 +132,6 @@ public class CreateNewEventActivity extends AppCompatActivity implements CreateN
         });
     }
 
-
-
     private class CreateNewEventAdapter extends FragmentStatePagerAdapter {
         public CreateNewEventAdapter(FragmentManager fm) {
             super(fm);

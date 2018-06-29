@@ -65,6 +65,14 @@ public class EditEventFragment1 extends Fragment {
 
         editTextName.setText(args.getString("eventname"));
         editTextLocation.setText(args.getString("eventplace"));
+        String SDateTime = args.getString("eventstart");
+        String[] SplitSDateTime = SDateTime.split(" ");
+        editTextSDate.setText(SplitSDateTime[0]);
+        editTextSTime.setText(SplitSDateTime[1]);
+        String EDateTime = args.getString("eventend");
+        String[] SplitEDateTime = EDateTime.split(" ");
+        editTextEDate.setText(SplitEDateTime[0]);
+        editTextETime.setText(SplitEDateTime[1]);
 
         editTextSDate.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -2,7 +2,7 @@
     <string name="app_name">BoLiao</string>
     <string name="MainActivityTab1Name">Your Activities</string>
     <string name="MainActivityTab2Name">Search</string>
-    <string name="GroupDetailsActivityTab1Name">Event Info.</string>
+    <string name="GroupDetailsActivityTab1Name">Event Info</string>
     <string name="GroupDetailsActivityTab2Name">Location</string>
     <string name="GroupDetailsActivityTab3Name">Group Chat</string>
     <string name="chatFragmentSendButtonLabel">Send</string>

@@ -34,7 +34,6 @@ import static android.app.Activity.RESULT_OK;
 public class EditEventFragment2 extends Fragment {
 
     private static final int RC_PHOTO_PICKER = 1;
-    private String tempId;
     private Uri photoUri;
     private boolean activityCreated = false;
 
@@ -47,7 +46,7 @@ public class EditEventFragment2 extends Fragment {
     private FirebaseStorage mFirebaseStorage;
     private StorageReference mProfilePicStorageReference;
 
-    private String groupId;
+    private Bundle args;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -56,10 +55,10 @@ public class EditEventFragment2 extends Fragment {
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        Bundle args = getArguments();
+        args = getArguments();
 
         mFirebaseDatabase = FirebaseDatabaseUtils.getDatabase();
-        mGroupsDatabaseReference = mFirebaseDatabase.getReference().child("groups").child("temppics");
+        mGroupsDatabaseReference = mFirebaseDatabase.getReference().child("groups").child(args.getString("groupId"));
         mFirebaseStorage = FirebaseStorage.getInstance();
         mProfilePicStorageReference = mFirebaseStorage.getReference().child("groupprofilepics");
 
@@ -69,6 +68,13 @@ public class EditEventFragment2 extends Fragment {
 
         editTextNumPeople.setText(Long.toString(args.getInt("eventmaxsize")));
         editTextDescription.setText(args.getString("eventdescription"));
+        if (args.getString("eventphotourl") == null) photoUri = null;
+        else {
+            photoUri = Uri.parse(args.getString("eventphotourl"));
+            Glide.with(imageViewActivityPic.getContext())
+                    .load(photoUri.toString())
+                    .into(imageViewActivityPic);
+        }
 
         imageViewActivityPic.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -76,7 +82,7 @@ public class EditEventFragment2 extends Fragment {
                 final PopupMenu popupMenu = new PopupMenu(getActivity(), v);
                 popupMenu.getMenuInflater().inflate(R.menu.menu_editprofilepic, popupMenu.getMenu());
 
-                if (tempId == null) {
+                if (photoUri == null) {
                     Menu menu = popupMenu.getMenu();
                     menu.findItem(R.id.remove_pic).setEnabled(false);
                 }
@@ -113,7 +119,7 @@ public class EditEventFragment2 extends Fragment {
             if (resultCode == RESULT_OK) {
 
                 // Delete previous file in Firebase Storage
-                if (tempId != null) {
+                if (photoUri != null) {
                     deletePic();
                 }
 
@@ -137,8 +143,6 @@ public class EditEventFragment2 extends Fragment {
                     public void onComplete(@NonNull Task<Uri> task) {
                         if (task.isSuccessful()) {
                             photoUri = task.getResult();
-                            tempId = mGroupsDatabaseReference.push().getKey();
-                            mGroupsDatabaseReference.child(tempId).setValue(photoUri.toString());
                             Toast.makeText(getActivity(), "Activity pic updated", Toast.LENGTH_SHORT).show();
 
                             Glide.with(imageViewActivityPic.getContext())
@@ -155,8 +159,9 @@ public class EditEventFragment2 extends Fragment {
     }
 
     private void deletePic() {
-        // Delete Firebase Database entry
-        mGroupsDatabaseReference.child(tempId).removeValue();
+        // don't delete the photo if the photo is the one being used currently
+
+        if (photoUri.toString().equals(args.getString("eventphotourl"))) return;
 
         // Delete Firebase Storage entry
         final StorageReference photoDeleteRef = mFirebaseStorage.getReferenceFromUrl(photoUri.toString());
@@ -173,24 +178,38 @@ public class EditEventFragment2 extends Fragment {
             }
         });
 
-        tempId = null;
+        photoUri = null;
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (tempId != null && activityCreated == false) {   // in case user exits app after uploading photo but not creating activity
+        if (photoUri != null && activityCreated == false) {   // in case user exits app after uploading photo but not creating activity
             deletePic();
-            imageViewActivityPic.setImageResource(R.drawable.profilepic);
         }
     }
 
     public String sendNumPeople() {return editTextNumPeople.getText().toString(); }
     public String sendDescription() { return editTextDescription.getText().toString(); }
     public String sendPhotoUri() {
-        if (tempId == null) return null;
+
+        // Delete Firebase Storage entry for picture being used currently
+        final StorageReference photoDeleteRef = mFirebaseStorage.getReferenceFromUrl(args.getString("eventphotourl"));
+
+        photoDeleteRef.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception exception) {
+
+            }
+        });
+
+        if (photoUri == null) return null;
         else {
-            mGroupsDatabaseReference.child(tempId).removeValue();   // delete the temp entry
             activityCreated = true;  // so that storage ref won't be deleted thru onDestroy
             return photoUri.toString();
         }

@@ -19,7 +19,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-public class EditEventActivity extends AppCompatActivity{
+public class EditEventActivity extends AppCompatActivity implements EditEventFragment3.fragment3CallBack{
 
     private static final int NUM_PAGES = 3;
 
@@ -50,6 +50,7 @@ public class EditEventActivity extends AppCompatActivity{
         getSupportActionBar().setDisplayUseLogoEnabled(true);
 
         Bundle extras = getIntent().getExtras().getBundle("intentBundle");
+        Log.d("EditEventAct", extras.getString("placeId"));
         fragment1 = new EditEventFragment1();
         fragment1.setArguments(extras);
         fragment2 = new EditEventFragment2();
