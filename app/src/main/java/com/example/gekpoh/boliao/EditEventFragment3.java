@@ -89,8 +89,7 @@ public class EditEventFragment3 extends Fragment implements OnMapReadyCallback, 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         Bundle args = getArguments();
-        groupId = args.getString("groupId");
-        
+
         getLocationPermission();
 
         imageViewGps = getView().findViewById(R.id.imageViewGps);

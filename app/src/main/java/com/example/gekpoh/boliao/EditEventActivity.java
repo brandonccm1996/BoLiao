@@ -1,20 +1,25 @@
 package com.example.gekpoh.boliao;
 
-import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
+import android.util.Log;
 import android.view.ViewGroup;
 import android.widget.Button;
 
 import com.google.android.gms.maps.model.LatLng;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
-public class EditEventActivity extends AppCompatActivity {
+public class EditEventActivity extends AppCompatActivity{
 
     private static final int NUM_PAGES = 3;
 
@@ -34,9 +39,7 @@ public class EditEventActivity extends AppCompatActivity {
     private String chatId;
     private LatLng mLatLng;
 
-    private EditEventFragment1 editEventFragment1;
-    private EditEventFragment2 editEventFragment2;
-    private EditEventFragment3 editEventFragment3;
+    private Group currentGroup;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,14 +49,13 @@ public class EditEventActivity extends AppCompatActivity {
         getSupportActionBar().setLogo(R.drawable.common_google_signin_btn_icon_dark);
         getSupportActionBar().setDisplayUseLogoEnabled(true);
 
-        Bundle extras = getIntent().getExtras();
-        String groupId = extras.getString("groupId");
-        editEventFragment1 = new EditEventFragment1();
-        editEventFragment1.setArguments(extras);
-        editEventFragment2 = new EditEventFragment2();
-        editEventFragment2.setArguments(extras);
-        editEventFragment3 = new EditEventFragment3();
-        editEventFragment3.setArguments(extras);
+        Bundle extras = getIntent().getExtras().getBundle("intentBundle");
+        fragment1 = new EditEventFragment1();
+        fragment1.setArguments(extras);
+        fragment2 = new EditEventFragment2();
+        fragment2.setArguments(extras);
+        fragment3 = new EditEventFragment3();
+        fragment3.setArguments(extras);
 
         mFirebaseDatabase = FirebaseDatabaseUtils.getDatabase();
         mGroupsDatabaseReference = mFirebaseDatabase.getReference().child("groups");
@@ -77,9 +79,9 @@ public class EditEventActivity extends AppCompatActivity {
 
         @Override
         public Fragment getItem (int position) {
-            if (position == 0) return new EditEventFragment1();
-            else if (position == 1) return new EditEventFragment2();
-            else if (position == 2) return new EditEventFragment3();
+            if (position == 0) return fragment1;
+            else if (position == 1) return fragment2;
+            else if (position == 2) return fragment3;
             else return null;
         }
 

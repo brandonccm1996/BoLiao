@@ -57,7 +57,7 @@ public class EventInfoFragment extends Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        Bundle args = getArguments();
+        final Bundle args = getArguments();
         groupId = args.getString("groupId");
 
         mFirebaseDatabase = FirebaseDatabaseUtils.getDatabase();
@@ -115,8 +115,8 @@ public class EventInfoFragment extends Fragment {
         buttonEdit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent startEditActivityIntent = new Intent(getActivity(), CreateNewEventActivity.class);
-                startEditActivityIntent.putExtra("groupId", groupId);
+                Intent startEditActivityIntent = new Intent(getActivity(), EditEventActivity.class);
+                startEditActivityIntent.putExtra("intentBundle", args);
                 startActivity(startEditActivityIntent);
             }
         });

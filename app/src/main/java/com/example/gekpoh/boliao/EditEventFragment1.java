@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -44,7 +45,7 @@ public class EditEventFragment1 extends Fragment {
     private FirebaseDatabase mFirebaseDatabase;
     private DatabaseReference mGroupsDatabaseReference;
 
-    private String groupId;
+    private Group currentGroup;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -54,7 +55,6 @@ public class EditEventFragment1 extends Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         Bundle args = getArguments();
-        groupId = args.getString("groupId");
 
         editTextName = getView().findViewById(R.id.editTextName);
         editTextSDate = getView().findViewById(R.id.editTextSDate);
@@ -63,20 +63,8 @@ public class EditEventFragment1 extends Fragment {
         editTextETime = getView().findViewById(R.id.editTextETime);
         editTextLocation = getView().findViewById(R.id.editTextLocation);
 
-        mFirebaseDatabase = FirebaseDatabaseUtils.getDatabase();
-        mGroupsDatabaseReference = mFirebaseDatabase.getReference().child("groups");
-
-        mGroupsDatabaseReference.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
+        editTextName.setText(args.getString("eventname"));
+        editTextLocation.setText(args.getString("eventplace"));
 
         editTextSDate.setOnClickListener(new View.OnClickListener() {
             @Override

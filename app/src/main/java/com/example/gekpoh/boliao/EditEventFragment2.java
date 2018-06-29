@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -56,7 +57,6 @@ public class EditEventFragment2 extends Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         Bundle args = getArguments();
-        groupId = args.getString("groupId");
 
         mFirebaseDatabase = FirebaseDatabaseUtils.getDatabase();
         mGroupsDatabaseReference = mFirebaseDatabase.getReference().child("groups").child("temppics");
@@ -66,6 +66,9 @@ public class EditEventFragment2 extends Fragment {
         imageViewActivityPic = getView().findViewById(R.id.imageViewActivityPic);
         editTextNumPeople = getView().findViewById(R.id.editTextNumPeople);
         editTextDescription = getView().findViewById(R.id.editTextDescription);
+
+        editTextNumPeople.setText(Long.toString(args.getInt("eventmaxsize")));
+        editTextDescription.setText(args.getString("eventdescription"));
 
         imageViewActivityPic.setOnClickListener(new View.OnClickListener() {
             @Override
