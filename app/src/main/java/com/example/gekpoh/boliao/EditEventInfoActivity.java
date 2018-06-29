@@ -2,16 +2,31 @@ package com.example.gekpoh.boliao;
 
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.PopupMenu;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.google.android.gms.tasks.Continuation;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 import java.text.ParseException;
 import java.util.Calendar;
@@ -19,11 +34,16 @@ import java.util.Date;
 
 public class EditEventInfoActivity extends AppCompatActivity {
     private Group mGroup;
+    private static final int RC_PHOTO_PICKER = 1;
     private EditText editname, editplace, editstart, editend, editdescription, editsize;
     private Button cancelbutton, okbutton;
+    private ImageView profilePicView;
     private DatabaseReference mDatabaseReference;
+    private StorageReference mStorageReference;
     private Date startDate, endDate;
     private String dateTimeString;
+    private boolean hasPhoto = false, changedPhotos = false;
+    private Uri selectedImageUri;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -35,6 +55,7 @@ public class EditEventInfoActivity extends AppCompatActivity {
             finish();
         }
         mDatabaseReference = FirebaseDatabaseUtils.getDatabase().getReference().child("groups").child(mGroup.getChatId());
+        mStorageReference = FirebaseStorage.getInstance().getReference().child("groupprofilepics");
         editname = findViewById(R.id.editEventNameView);
         editname.setText(mGroup.getNames());
         editplace = findViewById(R.id.editEventPlaceView);
@@ -104,6 +125,48 @@ public class EditEventInfoActivity extends AppCompatActivity {
         });
         editdescription = findViewById(R.id.editEventDescriptionView);
         editdescription.setText(mGroup.getDescription());
+        profilePicView = findViewById(R.id.editGroupPicView);
+        if (mGroup.getPhotoUrl() != null) {
+            hasPhoto = true;
+            Glide.with(this)
+                    .load(mGroup.getPhotoUrl())
+                    .into(profilePicView);
+        }
+        profilePicView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final PopupMenu popupMenu = new PopupMenu(EditEventInfoActivity.this, v);
+                popupMenu.getMenuInflater().inflate(R.menu.menu_editprofilepic, popupMenu.getMenu());
+                if (!hasPhoto) {
+                    Menu menu = popupMenu.getMenu();
+                    menu.findItem(R.id.remove_pic).setEnabled(false);
+                }
+
+                popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
+                        switch (item.getItemId()) {
+                            case R.id.remove_pic:
+                                hasPhoto = false;
+                                changedPhotos = true;
+                                Toast.makeText(EditEventInfoActivity.this, "Activity pic removed", Toast.LENGTH_SHORT).show();
+                                profilePicView.setImageResource(R.drawable.profilepic);
+                                return true;
+                            case R.id.update_pic:
+                                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                                intent.setType("image/jpeg");
+                                intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
+                                startActivityForResult(Intent.createChooser(intent, "Complete action using"), RC_PHOTO_PICKER);
+                                return true;
+                            default:
+                                return false;
+                        }
+                    }
+                });
+
+                popupMenu.show();
+            }
+        });
         cancelbutton = findViewById(R.id.cancelbutton);
         cancelbutton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -117,6 +180,33 @@ public class EditEventInfoActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 setResult(RESULT_OK);
+                if(changedPhotos) {
+                    if (hasPhoto) {
+                        final StorageReference photoRef = mStorageReference.child(selectedImageUri.getLastPathSegment());
+                        UploadTask uploadTask = photoRef.putFile(selectedImageUri);
+                        Task<Uri> urlTask = uploadTask.continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
+                            @Override
+                            public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
+                                if (!task.isSuccessful()) {
+                                    throw task.getException();
+                                }
+
+                                // Continue with the task to get the download URL
+                                return photoRef.getDownloadUrl();
+                            }
+                        }).addOnCompleteListener(new OnCompleteListener<Uri>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Uri> task) {
+                                if (task.isSuccessful()) {
+                                    Uri photoUri = task.getResult();
+                                    mDatabaseReference.child("photoUrl").setValue(photoUri.toString());
+                                }
+                            }
+                        });
+                    } else {
+                        mDatabaseReference.child("photoUrl").setValue(null);
+                    }
+                }
                 mDatabaseReference.child("names").setValue(editname.getText().toString());
                 mDatabaseReference.child("description").setValue(editdescription.getText().toString());
                 mDatabaseReference.child("location").setValue(editplace.getText().toString());
@@ -127,5 +217,20 @@ public class EditEventInfoActivity extends AppCompatActivity {
                 finish();
             }
         });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == RC_PHOTO_PICKER) {
+            if (resultCode == RESULT_OK) {
+                selectedImageUri = data.getData();
+                Glide.with(this)
+                        .load(selectedImageUri)
+                        .into(profilePicView);
+                hasPhoto = true;
+                changedPhotos = true;
+            }
+        }
     }
 }
