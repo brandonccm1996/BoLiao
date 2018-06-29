@@ -9,15 +9,23 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.Toast;
 
+import com.firebase.geofire.GeoFire;
+import com.firebase.geofire.GeoLocation;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+
+import java.text.ParseException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class EditEventActivity extends AppCompatActivity implements EditEventFragment3.fragment3CallBack{
 
@@ -32,14 +40,10 @@ public class EditEventActivity extends AppCompatActivity implements EditEventFra
     private EditEventFragment3 fragment3;
 
     private FirebaseDatabase mFirebaseDatabase;
-    private DatabaseReference mGroupsDatabaseReference;
-    private DatabaseReference mChatsDatabaseReference;
-    private DatabaseReference mUserListsDatabaseReference;
-    private DatabaseReference mJoinedListsReference;
-    private String chatId;
+    private DatabaseReference mGroupDatabaseReference;
     private LatLng mLatLng;
 
-    private Group currentGroup;
+    private Bundle extras;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,8 +53,7 @@ public class EditEventActivity extends AppCompatActivity implements EditEventFra
         getSupportActionBar().setLogo(R.drawable.common_google_signin_btn_icon_dark);
         getSupportActionBar().setDisplayUseLogoEnabled(true);
 
-        Bundle extras = getIntent().getExtras().getBundle("intentBundle");
-        Log.d("EditEventAct", extras.getString("placeId"));
+        extras = getIntent().getExtras().getBundle("intentBundle");
         fragment1 = new EditEventFragment1();
         fragment1.setArguments(extras);
         fragment2 = new EditEventFragment2();
@@ -59,10 +62,7 @@ public class EditEventActivity extends AppCompatActivity implements EditEventFra
         fragment3.setArguments(extras);
 
         mFirebaseDatabase = FirebaseDatabaseUtils.getDatabase();
-        mGroupsDatabaseReference = mFirebaseDatabase.getReference().child("groups");
-        mChatsDatabaseReference = mFirebaseDatabase.getReference().child("chats");
-        mUserListsDatabaseReference = mFirebaseDatabase.getReference().child("userlists");
-        mJoinedListsReference = mFirebaseDatabase.getReference().child("joinedlists");
+        mGroupDatabaseReference = mFirebaseDatabase.getReference().child("groups").child(extras.getString("groupId"));
         buttonSubmit = findViewById(R.id.buttonSubmit);
 
         mViewPager = findViewById(R.id.view_pager_create_new_event);
@@ -71,6 +71,64 @@ public class EditEventActivity extends AppCompatActivity implements EditEventFra
         mViewPager.setAdapter(adapter);
         mTabLayout = findViewById(R.id.tab_layout_create_new_event);
         mTabLayout.setupWithViewPager(mViewPager);
+
+        buttonSubmit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (fragment1.sendName().equals("") || fragment1.sendLocation().equals("") || fragment1.sendSDate().equals("") ||
+                        fragment1.sendSTime().equals("") || fragment1.sendEDate().equals("") || fragment1.sendETime().equals("") ||
+                        fragment2.sendDescription().equals("") || fragment2.sendNumPeople().equals("") || fragment3.sendPlaceId() == null)
+                    Toast.makeText(EditEventActivity.this, "Please fill in all fields", Toast.LENGTH_SHORT).show();
+                else {
+                    Map mapToUpload = new HashMap();
+                    long startTimeStamp, endTimeStamp;
+                    String startDateTime = fragment1.sendSDate() + " " + fragment1.sendSTime();
+                    String endDateTime = fragment1.sendEDate() + " " + fragment1.sendETime();
+                    try {
+                        startTimeStamp = Group.groupDateFormatter.parse(startDateTime).getTime();
+                        endTimeStamp = Group.groupDateFormatter.parse(endDateTime).getTime();
+                    }catch(ParseException e){
+                        Toast.makeText(EditEventActivity.this, "Failed to create activity due to parsing error", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+//                    //Create group in database with relevant information
+//                    mapToUpload.put("names", fragment1.sendName());
+//                    mapToUpload.put("location", fragment1.sendLocation());
+//                    mapToUpload.put("startDateTime", startTimeStamp);
+//                    mapToUpload.put("endDateTime", endTimeStamp);
+//                    mapToUpload.put("maxParticipants", Integer.parseInt(fragment2.sendNumPeople()));
+//                    mapToUpload.put("description", fragment2.sendDescription());
+//                    mapToUpload.put("placeId", fragment3.sendPlaceId());
+//                    mapToUpload.put("numParticipants", 1);
+//                    mapToUpload.put("chatId", extras.getString("groupId"));
+//                    mapToUpload.put("organizerId", MainActivity.userUid);
+//
+//                    if (fragment2.sendPhotoUri() != null) mapToUpload.put("photoUrl", fragment2.sendPhotoUri());
+//                    mGroupsDatabaseReference.child(extras.getString("groupId")).setValue(mapToUpload);
+
+                    mGroupDatabaseReference.child("names").setValue(fragment1.sendName());
+                    mGroupDatabaseReference.child("location").setValue(fragment1.sendLocation());
+                    mGroupDatabaseReference.child("startDateTime").setValue(startTimeStamp);
+                    mGroupDatabaseReference.child("endDateTime").setValue(endTimeStamp);
+                    mGroupDatabaseReference.child("maxParticipants").setValue(Integer.parseInt(fragment2.sendNumPeople()));
+                    mGroupDatabaseReference.child("description").setValue(fragment2.sendDescription());
+                    mGroupDatabaseReference.child("placeId").setValue(fragment3.sendPlaceId());
+                    mGroupDatabaseReference.child("photoUrl").setValue(fragment2.sendPhotoUri());
+
+                    //DatabaseReference ref = mFirebaseDatabase.getReference().child("geoFireObjects");
+                    GeoFire geoFire = FirebaseDatabaseUtils.getGeoFireInstance();
+                    geoFire.setLocation(extras.getString("groupId"), new GeoLocation(mLatLng.latitude, mLatLng.longitude), new GeoFire.CompletionListener() {
+                        @Override
+                        public void onComplete(String key, DatabaseError error) {
+                            if(error != null){
+                                Toast.makeText(EditEventActivity.this, "Error in setting location in geofire", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    });
+                    finish();
+                }
+            }
+        });
     }
 
     private class CreateNewEventAdapter extends FragmentStatePagerAdapter {

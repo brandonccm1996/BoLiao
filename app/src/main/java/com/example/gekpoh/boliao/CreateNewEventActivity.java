@@ -101,8 +101,7 @@ public class CreateNewEventActivity extends AppCompatActivity implements CreateN
                     mapToUpload.put("numParticipants", 1);
                     mapToUpload.put("chatId", chatId);
                     mapToUpload.put("organizerId", MainActivity.userUid);
-
-                    if (fragment2.sendPhotoUri() != null) mapToUpload.put("photoUrl", fragment2.sendPhotoUri());
+                    mapToUpload.put("photoUrl", fragment2.sendPhotoUri());
                     mGroupsDatabaseReference.child(chatId).setValue(mapToUpload);
 
                     //Create lists of users for this group

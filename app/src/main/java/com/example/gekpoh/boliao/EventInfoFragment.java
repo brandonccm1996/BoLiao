@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.google.firebase.database.DataSnapshot;
@@ -115,9 +116,14 @@ public class EventInfoFragment extends Fragment {
         buttonEdit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent startEditActivityIntent = new Intent(getActivity(), EditEventActivity.class);
-                startEditActivityIntent.putExtra("intentBundle", args);
-                startActivity(startEditActivityIntent);
+                if (!FirebaseDatabaseUtils.connectedToDatabase()) {
+                    Toast.makeText(getActivity(), "Please make sure that you have an internet connection", Toast.LENGTH_LONG).show();
+                }
+                else {
+                    Intent startEditActivityIntent = new Intent(getActivity(), EditEventActivity.class);
+                    startEditActivityIntent.putExtra("intentBundle", args);
+                    startActivity(startEditActivityIntent);
+                }
             }
         });
 
