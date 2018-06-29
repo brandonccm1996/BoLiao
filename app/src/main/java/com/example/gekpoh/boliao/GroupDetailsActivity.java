@@ -1,8 +1,8 @@
 package com.example.gekpoh.boliao;
 
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
@@ -35,13 +35,13 @@ import com.google.firebase.database.Transaction;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.HashMap;
-import java.util.Map;
 
 public class GroupDetailsActivity extends AppCompatActivity implements OnMapReadyCallback, EventInfoFragment.eventInfoCallBack {
     private static boolean instanceCreated = false;
     private boolean inEvent;
     private static final String TAG = "GroupDetailsActivity";
     private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
+    private static final int EDIT_ACTIVITY_REQUEST_CODE = 4;
     private static int JOIN_NUM_PAGES = 3;
     private static int NOT_JOIN_NUM_PAGES = 2;
     private static final int DEFAULT_ZOOM = 15;
@@ -230,6 +230,18 @@ public class GroupDetailsActivity extends AppCompatActivity implements OnMapRead
         }
     }
 
+    @Override
+    public boolean isUserOrganizer() {
+        return mGroup.getOrganizerId().equals(MainActivity.userUid);
+    }
+
+    @Override
+    public void clickEditActivity() {
+        Intent intent = new Intent(this, EditEventInfoActivity.class);
+        intent.putExtra(getString(R.string.groupKey), mGroup);
+        startActivityForResult(intent,EDIT_ACTIVITY_REQUEST_CODE);
+    }
+
 
     @Override
     protected void onDestroy() {
@@ -325,6 +337,18 @@ public class GroupDetailsActivity extends AppCompatActivity implements OnMapRead
             joinedlistref.setValue("true");
             SearchGroupFragment.getInstance().removeFromList(id);
             GroupDetailsActivity.this.finish();
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == EDIT_ACTIVITY_REQUEST_CODE) {
+            if (resultCode == RESULT_OK) {
+                //Bundle bundle = data.getBundleExtra(getString(R.string.editGroupActivityResultsKey));
+            } else if (resultCode == RESULT_CANCELED) {
+                //Toast.makeText(this,"Cancelled", Toast.LENGTH_SHORT).show();
+            }
         }
     }
 }

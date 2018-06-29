@@ -25,6 +25,7 @@
     <string name="groupIdKey">eventcurrentsize</string>
     <string name="InActivityKey">inevent</string>
     <string name="TapPositionKey">tapposition</string>
+    <string name="editGroupActivityResultsKey">editgroupresults</string>
     <string name="sharedprefs_lastknownlatitudekey">lastknownloc</string>
     <string name="sharedprefs_lastknownlongitudekey">lastknownlongitude</string>
 </resources>

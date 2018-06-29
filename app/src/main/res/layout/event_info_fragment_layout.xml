@@ -111,6 +111,7 @@
         app:layout_constraintTop_toBottomOf="@+id/textView7" />
 
     <ScrollView
+        android:id="@+id/scrollView2"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginBottom="8dp"
@@ -128,8 +129,8 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_margin="4dp">
+            android:layout_margin="4dp"
+            android:orientation="vertical">
 
             <TextView
                 android:id="@+id/eventDescriptionView"
@@ -165,5 +166,17 @@
         app:layout_constraintBaseline_toBaselineOf="@+id/eventNameView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/eventNameView" />
+
+    <ImageButton
+        android:id="@+id/editDetailsButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="24dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginRight="24dp"
+        android:background="@android:color/transparent"
+        app:layout_constraintBottom_toTopOf="@+id/scrollView2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:srcCompat="@drawable/baseline_edit_black_18dp" />
 
 </android.support.constraint.ConstraintLayout>

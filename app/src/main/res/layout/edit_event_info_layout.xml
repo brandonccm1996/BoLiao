@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ImageView
+        android:id="@+id/editGroupPicView"
+        android:layout_width="84dp"
+        android:layout_height="85dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:minHeight="0dp"
+        android:minWidth="0dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/profilepic" />
+
+    <TextView
+        android:id="@+id/edittextView3"
+        android:layout_width="wrap_content"
+        android:layout_height="21dp"
+        android:layout_marginTop="8dp"
+        android:text="End:"
+        app:layout_constraintStart_toStartOf="@+id/edittextView4"
+        app:layout_constraintTop_toBottomOf="@+id/edittextView4" />
+
+    <TextView
+        android:id="@+id/edittextView4"
+        android:layout_width="wrap_content"
+        android:layout_height="21dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginLeft="24dp"
+        android:layout_marginStart="24dp"
+        android:text="Start:"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/editGroupPicView"
+
+        />
+
+    <EditText
+        android:id="@+id/editEventStartDateView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
+        android:layout_marginStart="8dp"
+        android:minHeight="0dp"
+        android:minWidth="0dp"
+        android:textSize="14sp"
+        android:focusable="false"
+        app:layout_constraintBaseline_toBaselineOf="@+id/edittextView4"
+        app:layout_constraintStart_toEndOf="@+id/edittextView4" />
+
+    <EditText
+        android:id="@+id/editEventEndDateView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:minHeight="0dp"
+        android:minWidth="0dp"
+        android:textSize="14sp"
+        android:focusable="false"
+        app:layout_constraintBaseline_toBaselineOf="@+id/edittextView3"
+        app:layout_constraintStart_toStartOf="@+id/editEventStartDateView" />
+
+    <TextView
+        android:id="@+id/edittextView7"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Place:"
+        app:layout_constraintStart_toStartOf="@+id/edittextView3"
+        app:layout_constraintTop_toBottomOf="@+id/edittextView3" />
+
+    <EditText
+        android:id="@+id/editEventPlaceView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
+        android:layout_marginStart="8dp"
+        android:minHeight="0dp"
+        android:minWidth="0dp"
+        android:textSize="14sp"
+        app:layout_constraintBaseline_toBaselineOf="@+id/edittextView7"
+        app:layout_constraintStart_toEndOf="@+id/edittextView7" />
+
+    <TextView
+        android:id="@+id/edittextView9"
+        android:layout_width="wrap_content"
+        android:layout_height="19dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:text="Name:"
+        app:layout_constraintBottom_toBottomOf="@+id/editGroupPicView"
+        app:layout_constraintStart_toEndOf="@+id/editGroupPicView"
+        app:layout_constraintTop_toTopOf="@+id/editGroupPicView" />
+
+    <EditText
+        android:id="@+id/editEventNameView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
+        android:layout_marginStart="8dp"
+        android:minHeight="0dp"
+        android:minWidth="0dp"
+        android:textSize="14sp"
+        app:layout_constraintBaseline_toBaselineOf="@+id/edittextView9"
+        app:layout_constraintStart_toEndOf="@+id/edittextView9" />
+
+    <TextView
+        android:id="@+id/edittextView11"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginBottom="8dp"
+        android:text="Description:"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/edittextView7" />
+
+    <ScrollView
+        android:id="@+id/editScrollView2"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/stroke_bg"
+        app:layout_constraintBottom_toTopOf="@+id/okbutton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/edittextView11"
+        app:layout_constraintTop_toBottomOf="@+id/edittextView11"
+        app:layout_constraintVertical_bias="0.2">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="4dp"
+            android:orientation="vertical">
+
+            <EditText
+                android:id="@+id/editEventDescriptionView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:text="Description not loaded"
+                android:textSize="12sp" />
+        </LinearLayout>
+    </ScrollView>
+
+    <EditText
+        android:id="@+id/editEventSizeView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
+        android:layout_marginStart="8dp"
+        android:inputType="number"
+        android:minHeight="0dp"
+        android:minWidth="0dp"
+        android:textSize="12sp"
+        app:layout_constraintBaseline_toBaselineOf="@+id/textView6"
+        app:layout_constraintStart_toEndOf="@+id/textView6" />
+
+    <TextView
+        android:id="@+id/textView6"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginTop="8dp"
+        android:text="Max Size:"
+        app:layout_constraintBottom_toTopOf="@+id/editEventStartDateView"
+        app:layout_constraintStart_toStartOf="@+id/edittextView9"
+        app:layout_constraintTop_toBottomOf="@+id/edittextView9" />
+
+    <Button
+        android:id="@+id/okbutton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginStart="8dp"
+        android:minHeight="20dp"
+        android:minWidth="20dp"
+        android:text="OK"
+        android:textSize="10sp"
+        app:layout_constraintTop_toBottomOf="@+id/editScrollView2"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/cancelbutton" />
+
+    <Button
+        android:id="@+id/cancelbutton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="138dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="138dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:minHeight="20dp"
+        android:minWidth="20dp"
+        android:text="@android:string/cancel"
+        android:textSize="10sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/okbutton"
+        app:layout_constraintStart_toEndOf="@+id/okbutton"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/editScrollView2" />
+
+</android.support.constraint.ConstraintLayout>

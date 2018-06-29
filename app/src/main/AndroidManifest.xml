@@ -42,6 +42,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".EditProfileActivity" />
+        <activity android:name=".EditEventInfoActivity" />
         <activity
             android:name=".EditNameActivity"
             android:windowSoftInputMode="adjustPan" />
