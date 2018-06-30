@@ -39,6 +39,8 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class SearchGroupFragment extends Fragment implements GroupRecyclerAdapter.GroupTouchCallBack {
     private Context mContext;
@@ -106,7 +108,6 @@ public class SearchGroupFragment extends Fragment implements GroupRecyclerAdapte
         signedIn = true;
         mDatabaseReference = FirebaseDatabaseUtils.getDatabase().getReference().child("groups");
         mDatabaseReference.keepSynced(true);
-        //reloadList();
     }
 
     public void onSignOut() {
@@ -128,7 +129,7 @@ public class SearchGroupFragment extends Fragment implements GroupRecyclerAdapte
         startActivity(intent);
     }
 
-    public void reloadList() {
+    public void reloadList(String quer) {
         //Add other filters here
         if (SystemClock.elapsedRealtime() - reloadTimer < 2000)
             return;//Can only reload once every 2 second
@@ -146,32 +147,39 @@ public class SearchGroupFragment extends Fragment implements GroupRecyclerAdapte
             Toast.makeText(mContext, "Please set an appropriate date in time filter", Toast.LENGTH_SHORT).show();
             return;
         }
+        final String query = quer.toLowerCase();
+        Log.v(TAG, query);
         searchedgroups.clear();
         getDeviceLocation();
         if (distanceFilter && locationPermissionGranted) {
             long distance = mReloadInterface.getDistanceFilter();
-            if (mGetLocationSingleValueEventListener == null) {
-                mGetLocationSingleValueEventListener = new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        Group group = dataSnapshot.getValue(Group.class);
-                        //Need to implement extra filters here for both time and categories etc.
-
-                        if (!timeFilter || (group.getStartDateTime() >= timefilters[0] && group.getEndDateTime() <= timefilters[1])) {
-                            searchedgroups.add(group);
-                            loadingList.remove(dataSnapshot.getKey());
-                        }
+            mGetLocationSingleValueEventListener = new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    Group group = dataSnapshot.getValue(Group.class);
+                    //Need to implement extra filters here for both time and categories etc.
+                    loadingList.remove(dataSnapshot.getKey());
+                    if(group == null){
                         if (loadingList.isEmpty() && !stillLoading) {
                             adapter.notifyDataSetChanged();
                         }
+                        return;
                     }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError databaseError) {
-
+                    if (group.getNames().toLowerCase().contains(query) || group.getDescription().toLowerCase().contains(query) || group.getLocation().toLowerCase().contains(query)) {
+                        if (!timeFilter || (group.getStartDateTime() >= timefilters[0] && group.getEndDateTime() <= timefilters[1])) {
+                            searchedgroups.add(group);
+                        }
                     }
-                };
-            }
+                    if (loadingList.isEmpty() && !stillLoading) {
+                        adapter.notifyDataSetChanged();
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                }
+            };
             GeoFire geoFire = FirebaseDatabaseUtils.getGeoFireInstance();
             final GeoQuery geoQuery = geoFire.queryAtLocation(new GeoLocation(lastKnownLatLng.latitude, lastKnownLatLng.longitude), distance);
             geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
@@ -179,7 +187,6 @@ public class SearchGroupFragment extends Fragment implements GroupRecyclerAdapte
                 public void onKeyEntered(String key, GeoLocation location) {
                     stillLoading = true;
                     if (JoinedGroupFragment.alreadyJoinedGroup(key)) return;
-                    Log.v(TAG, "fOUND A LOCATION");
                     mDatabaseReference.child(key).addListenerForSingleValueEvent(mGetLocationSingleValueEventListener);
                     loadingList.add(key);
                 }
@@ -209,29 +216,34 @@ public class SearchGroupFragment extends Fragment implements GroupRecyclerAdapte
                 }
             });
         } else {
-            if (mValueEventListener == null) {
-                mValueEventListener = new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        for (DataSnapshot data : dataSnapshot.getChildren()) {
-                            if (JoinedGroupFragment.alreadyJoinedGroup(data.getKey())) continue;
-                            //Need to implement extra filters for categories and end timehere etc.
-                            Group group = data.getValue(Group.class);
-                            if(!timeFilter || group.getEndDateTime() <= timefilters[1]) searchedgroups.add(group);
+            mValueEventListener = new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    for (DataSnapshot data : dataSnapshot.getChildren()) {
+                        if (JoinedGroupFragment.alreadyJoinedGroup(data.getKey())) continue;
+                        //Need to implement extra filters for categories and end timehere etc.
+                        Group group = data.getValue(Group.class);
+                        if(group == null){
+                            continue;
+                        }else if (group.getNames().toLowerCase().contains(query) || group.getDescription().toLowerCase().contains(query) || group.getLocation().toLowerCase().contains(query)) {
+                            Log.v(TAG, "Pass Filter");
+                            if (!timeFilter || group.getEndDateTime() <= timefilters[1])
+                                searchedgroups.add(group);
                         }
-                        adapter.notifyDataSetChanged();
                     }
+                    adapter.notifyDataSetChanged();
+                }
 
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError databaseError) {
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
 
-                    }
-                };
-            }
+                }
+            };
             //Need to implement extra filters for starttime here
             if (timeFilter) {
                 mDatabaseReference.orderByChild("startDateTime").startAt(timefilters[0]).endAt(timefilters[1]).addListenerForSingleValueEvent(mValueEventListener);
             } else {
+                Log.v(TAG, "adding no location, no time filter listener");
                 mDatabaseReference.addListenerForSingleValueEvent(mValueEventListener);
             }
         }
@@ -266,10 +278,10 @@ public class SearchGroupFragment extends Fragment implements GroupRecyclerAdapte
         public int scrollVerticallyBy(int dy, RecyclerView.Recycler recycler, RecyclerView.State state) {
             int scrollRange = super.scrollVerticallyBy(dy, recycler, state);
             int overscroll = dy - scrollRange;
-            if (overscroll < -20) {//any value lesser than 0 is overscroll
+            /*if (overscroll < -20) {//any value lesser than 0 is overscroll
                 // top overscroll
-                reloadList();
-            }
+                reloadList("");
+            }*/
             return scrollRange;
         }
     }

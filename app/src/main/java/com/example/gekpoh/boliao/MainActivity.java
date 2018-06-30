@@ -270,6 +270,19 @@ public class MainActivity extends AppCompatActivity implements SearchGroupFragme
             }
         });
         SearchView mSearchView = (SearchView) searchItem.getActionView();
+        mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                Log.v(TAG, "Query submitted");
+                SearchGroupFragment.getInstance().reloadList(query);
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                return false;
+            }
+        });
         return true;
     }
 

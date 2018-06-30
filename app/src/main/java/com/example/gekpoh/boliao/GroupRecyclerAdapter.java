@@ -43,6 +43,8 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdap
             Glide.with(holder.mImageView.getContext())
                     .load(group.getPhotoUrl())
                     .into(holder.mImageView);
+        }else{
+            holder.mImageView.setImageResource(R.drawable.profilepic);
         }
         holder.mCardView.setOnClickListener(new View.OnClickListener() {
             @Override
