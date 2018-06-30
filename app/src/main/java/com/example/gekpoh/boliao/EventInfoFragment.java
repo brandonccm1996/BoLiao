@@ -63,7 +63,7 @@ public class EventInfoFragment extends Fragment {
 
         mFirebaseDatabase = FirebaseDatabaseUtils.getDatabase();
         mUserListsDatabaseReference = mFirebaseDatabase.getReference().child("userlists").child(groupId);
-
+        mUserListsDatabaseReference.keepSynced(true);
         ImageView picView = getView().findViewById(R.id.groupPicView);
         String photoUrl = args.getString(getString(R.string.groupPhotoUrlKey));
         if (photoUrl == null) {
@@ -102,7 +102,12 @@ public class EventInfoFragment extends Fragment {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 UserLists userList = dataSnapshot.child(MainActivity.userUid).getValue(UserLists.class);
-                isAdmin = userList.getIsAdmin();
+                if(userList != null) {
+                    isAdmin = userList.getIsAdmin();
+                }else{
+                    //if user is not in the group yet, we will not find its info
+                    isAdmin = false;
+                }
                 if (isAdmin) buttonEdit.setVisibility(View.VISIBLE);
                 else buttonEdit.setVisibility(View.INVISIBLE);
             }
