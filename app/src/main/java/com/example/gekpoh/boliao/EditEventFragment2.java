@@ -159,9 +159,11 @@ public class EditEventFragment2 extends Fragment {
     }
 
     private void deletePic() {
-        // don't delete the photo if the photo is the one being used currently
-
-        if (photoUri.toString().equals(args.getString("eventphotourl"))) return;
+        // don't delete the photo from storage if the photo is the one being used currently
+        if (photoUri.toString().equals(args.getString("eventphotourl"))) {
+            photoUri = null;
+            return;
+        }
 
         // Delete Firebase Storage entry
         final StorageReference photoDeleteRef = mFirebaseStorage.getReferenceFromUrl(photoUri.toString());
@@ -193,20 +195,23 @@ public class EditEventFragment2 extends Fragment {
     public String sendDescription() { return editTextDescription.getText().toString(); }
     public String sendPhotoUri() {
 
-        // Delete Firebase Storage entry for picture being used currently
-        final StorageReference photoDeleteRef = mFirebaseStorage.getReferenceFromUrl(args.getString("eventphotourl"));
+        // attempt to delete if there was a photo originally
+        if (args.getString("eventphotourl") != null) {
+            // Delete Firebase Storage entry for picture being used currently
+            final StorageReference photoDeleteRef = mFirebaseStorage.getReferenceFromUrl(args.getString("eventphotourl"));
 
-        photoDeleteRef.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void aVoid) {
+            photoDeleteRef.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
 
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception exception) {
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception exception) {
 
-            }
-        });
+                }
+            });
+        }
 
         if (photoUri == null) return null;
         else {
