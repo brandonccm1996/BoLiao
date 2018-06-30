@@ -31,16 +31,17 @@
         </android.support.v4.view.ViewPager>
 
     </android.support.constraint.ConstraintLayout>
-
     <LinearLayout
+        android:id="@+id/filter_drawer"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="end"
-        android:id="@+id/filter_drawer"
         android:background="@android:color/background_light"
+        android:clickable="true"
         android:fitsSystemWindows="true"
-        android:clickable="true">
-        <include layout="@layout/filter_layout"/>
+        android:gravity="end">
+
+        <include layout="@layout/filter_layout" />
 
     </LinearLayout>
 </android.support.v4.widget.DrawerLayout>

@@ -13,6 +13,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.GravityCompat;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.ViewPager;
 import android.support.annotation.NonNull;
 import android.support.v4.widget.DrawerLayout;
@@ -28,6 +29,7 @@ import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.SearchView;
 import android.widget.Switch;
 import android.widget.TimePicker;
 import android.widget.Toast;
@@ -57,13 +59,14 @@ public class MainActivity extends AppCompatActivity implements SearchGroupFragme
     private DrawerLayout mDrawerLayout;
     private EditText distanceText, startDateText, endDateText;
     private Switch distanceFilterSwitch, timeFilterSwitch;
+    private MenuItem searchItem;
     //private ViewPager mViewPager;
     private static final String TAG = "MAINACTIVITY";
     private static final int NUM_PAGES = 2;
     private static final int RC_SIGN_IN = 1;
     String dateTimeString;
     private int startyear = -1,endyear = -1, startmonth, endmonth, startday, endday, starthour = 0, endhour = 0, startmin = 0, endmin = 0;
-
+    private float currentOffset;
     //private int pointerID;
     //GestureDetector mDetector;
 
@@ -76,7 +79,30 @@ public class MainActivity extends AppCompatActivity implements SearchGroupFragme
         getSupportActionBar().setLogo(R.drawable.common_google_signin_btn_icon_dark);
         getSupportActionBar().setDisplayUseLogoEnabled(true);
         mDrawerLayout = findViewById(R.id.drawer_layout);
+        mDrawerLayout.addDrawerListener(new DrawerLayout.DrawerListener() {
+            @Override
+            public void onDrawerSlide(@NonNull View drawerView, float slideOffset) {
+                if(currentOffset > slideOffset){
+                    searchItem.collapseActionView();
+                    currentOffset = 0;
+                }
+            }
 
+            @Override
+            public void onDrawerOpened(@NonNull View drawerView) {
+                currentOffset = 1;
+            }
+
+            @Override
+            public void onDrawerClosed(@NonNull View drawerView) {
+                currentOffset = 0;
+            }
+
+            @Override
+            public void onDrawerStateChanged(int newState) {
+
+            }
+        });
         mFirebaseDatabase = FirebaseDatabaseUtils.getDatabase();
         FirebaseDatabaseUtils.setUpConnectionListener();
         mUsersDatabaseReference = mFirebaseDatabase.getReference().child("users");
@@ -230,6 +256,20 @@ public class MainActivity extends AppCompatActivity implements SearchGroupFragme
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_main, menu);
+        searchItem = menu.findItem(R.id.filter);
+        searchItem.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
+            @Override
+            public boolean onMenuItemActionExpand(MenuItem item) {
+                return true;
+            }
+
+            @Override
+            public boolean onMenuItemActionCollapse(MenuItem item) {
+                mDrawerLayout.closeDrawers();
+                return true;
+            }
+        });
+        SearchView mSearchView = (SearchView) searchItem.getActionView();
         return true;
     }
 
@@ -285,7 +325,7 @@ public class MainActivity extends AppCompatActivity implements SearchGroupFragme
 
     @Override
     public void onBackPressed() {
-        if (mDrawerLayout.isDrawerVisible(R.id.filter_drawer)) {
+        if (mDrawerLayout.isDrawerVisible(findViewById(R.id.filter_drawer))) {
             mDrawerLayout.closeDrawers();
         }
         super.onBackPressed();
