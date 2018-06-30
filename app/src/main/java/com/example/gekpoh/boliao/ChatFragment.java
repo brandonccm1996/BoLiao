@@ -131,6 +131,7 @@ public class ChatFragment extends Fragment {
         String chatKey = getArguments().getString(getString(R.string.groupIdKey));
         mChatPhotoStorageReference = FirebaseStorage.getInstance().getReference().child("chats").child(chatKey);
         mDatabaseReference = FirebaseDatabaseUtils.getDatabase().getReference().child("chats").child(chatKey);
+        mDatabaseReference.keepSynced(true);
         mChildEventListener = new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {

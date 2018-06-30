@@ -71,6 +71,7 @@ public class JoinedGroupFragment extends Fragment implements GroupRecyclerAdapte
         if (signedIn) return;
         signedIn = true;
         mJoinedListDatabaseReference = FirebaseDatabase.getInstance().getReference().child("joinedlists").child(MainActivity.userUid);
+        mJoinedListDatabaseReference.keepSynced(true);
         mGroupDatabaseReference = FirebaseDatabase.getInstance().getReference().child("groups");
         mValueEventListener = new ValueEventListener() {
             @Override
@@ -93,6 +94,7 @@ public class JoinedGroupFragment extends Fragment implements GroupRecyclerAdapte
                 if(((String)dataSnapshot.getValue()).equals("true")) {
                     joinedgroupIds.add(dataSnapshot.getKey());
                     DatabaseReference ref = mGroupDatabaseReference.child(dataSnapshot.getKey());
+                    ref.keepSynced(true);
                     ref.addListenerForSingleValueEvent(mValueEventListener);
                 }
             }
