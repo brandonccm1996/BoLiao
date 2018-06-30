@@ -82,8 +82,6 @@ public class SearchGroupFragment extends Fragment implements GroupRecyclerAdapte
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
-        Log.v(TAG, "Attaching View");
         return inflater.inflate(R.layout.groups_fragment_layout, container, false);
     }
 
@@ -140,6 +138,12 @@ public class SearchGroupFragment extends Fragment implements GroupRecyclerAdapte
             return;
         }
         boolean distanceFilter = mReloadInterface.distanceFilterChecked();
+        long distance = mReloadInterface.getDistanceFilter();
+        if(distanceFilter && distance == -1){
+            Toast.makeText(mContext, "Please set the distance filter", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         final boolean timeFilter = mReloadInterface.timeFilterChecked();
         final long[] timefilters = mReloadInterface.getTimeFilter();
         boolean categoriesFilter = mReloadInterface.categoriesFilterChecked();
@@ -148,11 +152,9 @@ public class SearchGroupFragment extends Fragment implements GroupRecyclerAdapte
             return;
         }
         final String query = quer.toLowerCase();
-        Log.v(TAG, query);
         searchedgroups.clear();
         getDeviceLocation();
         if (distanceFilter && locationPermissionGranted) {
-            long distance = mReloadInterface.getDistanceFilter();
             mGetLocationSingleValueEventListener = new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -167,6 +169,7 @@ public class SearchGroupFragment extends Fragment implements GroupRecyclerAdapte
                     }
                     if (group.getNames().toLowerCase().contains(query) || group.getDescription().toLowerCase().contains(query) || group.getLocation().toLowerCase().contains(query)) {
                         if (!timeFilter || (group.getStartDateTime() >= timefilters[0] && group.getEndDateTime() <= timefilters[1])) {
+                            Log.v(TAG, "group added");
                             searchedgroups.add(group);
                         }
                     }
@@ -187,8 +190,8 @@ public class SearchGroupFragment extends Fragment implements GroupRecyclerAdapte
                 public void onKeyEntered(String key, GeoLocation location) {
                     stillLoading = true;
                     if (JoinedGroupFragment.alreadyJoinedGroup(key)) return;
-                    mDatabaseReference.child(key).addListenerForSingleValueEvent(mGetLocationSingleValueEventListener);
                     loadingList.add(key);
+                    mDatabaseReference.child(key).addListenerForSingleValueEvent(mGetLocationSingleValueEventListener);
                 }
 
                 @Override
@@ -226,7 +229,6 @@ public class SearchGroupFragment extends Fragment implements GroupRecyclerAdapte
                         if(group == null){
                             continue;
                         }else if (group.getNames().toLowerCase().contains(query) || group.getDescription().toLowerCase().contains(query) || group.getLocation().toLowerCase().contains(query)) {
-                            Log.v(TAG, "Pass Filter");
                             if (!timeFilter || group.getEndDateTime() <= timefilters[1])
                                 searchedgroups.add(group);
                         }
@@ -243,7 +245,6 @@ public class SearchGroupFragment extends Fragment implements GroupRecyclerAdapte
             if (timeFilter) {
                 mDatabaseReference.orderByChild("startDateTime").startAt(timefilters[0]).endAt(timefilters[1]).addListenerForSingleValueEvent(mValueEventListener);
             } else {
-                Log.v(TAG, "adding no location, no time filter listener");
                 mDatabaseReference.addListenerForSingleValueEvent(mValueEventListener);
             }
         }
