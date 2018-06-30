@@ -129,8 +129,7 @@ public class SearchGroupFragment extends Fragment implements GroupRecyclerAdapte
 
     public void reloadList(String quer) {
         //Add other filters here
-        if (SystemClock.elapsedRealtime() - reloadTimer < 2000)
-            return;//Can only reload once every 2 second
+        if (SystemClock.elapsedRealtime() - reloadTimer < 2000) return;//Can only reload once every 2 second
         reloadTimer = SystemClock.elapsedRealtime();
 
         if (!FirebaseDatabaseUtils.connectedToDatabase()) {
@@ -210,7 +209,7 @@ public class SearchGroupFragment extends Fragment implements GroupRecyclerAdapte
                     if (loadingList.isEmpty() && !stillLoading) {
                         adapter.notifyDataSetChanged();
                     }
-                    geoQuery.removeAllListeners();
+                    geoQuery.removeGeoQueryEventListener(this);
                 }
 
                 @Override
