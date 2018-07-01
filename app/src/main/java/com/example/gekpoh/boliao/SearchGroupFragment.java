@@ -267,6 +267,8 @@ public class SearchGroupFragment extends Fragment implements GroupRecyclerAdapte
             Toast.makeText(mContext, "For some reason, this activity has been deleted.", Toast.LENGTH_SHORT).show();
             searchedgroups.remove(pos);
         }
+
+        adapter.notifyDataSetChanged();
     }
 
     private class reloadLayoutManager extends LinearLayoutManager {

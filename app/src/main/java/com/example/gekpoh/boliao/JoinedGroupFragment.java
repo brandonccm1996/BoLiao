@@ -73,6 +73,9 @@ public class JoinedGroupFragment extends Fragment implements GroupRecyclerAdapte
         mJoinedListDatabaseReference = FirebaseDatabase.getInstance().getReference().child("joinedlists").child(MainActivity.userUid);
         mJoinedListDatabaseReference.keepSynced(true);
         mGroupDatabaseReference = FirebaseDatabase.getInstance().getReference().child("groups");
+
+        Log.d("JGFrag", "OnSignIn");
+
         mValueEventListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -101,7 +104,6 @@ public class JoinedGroupFragment extends Fragment implements GroupRecyclerAdapte
 
             @Override
             public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
             }
 
             @Override
@@ -163,5 +165,7 @@ public class JoinedGroupFragment extends Fragment implements GroupRecyclerAdapte
             Toast.makeText(mContext,"For some reason, this activity has been deleted.", Toast.LENGTH_SHORT).show();
             joinedgroups.remove(pos);
         }
+
+        adapter.notifyDataSetChanged();
     }
 }

@@ -51,6 +51,7 @@ public class FirebaseDatabaseUtils {
     public static GeoFire getGeoFireInstance(){
         FirebaseDatabase database = getDatabase();
         DatabaseReference geofireref = database.getReference().child("geoFireObjects");
+        geofireref.keepSynced(true);
         return new GeoFire(geofireref);
     }
 }

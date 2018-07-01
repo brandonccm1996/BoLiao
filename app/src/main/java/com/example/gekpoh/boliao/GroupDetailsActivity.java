@@ -57,6 +57,8 @@ public class GroupDetailsActivity extends AppCompatActivity implements OnMapRead
     private Place place;
     //Client to get data from placeid
     private GeoDataClient mGeoDataClient;
+    private DatabaseReference ref;
+    private ValueEventListener listener;
 
     // Client to get current Location
     //private FusedLocationProviderClient mFusedLocationProviderClient;
@@ -69,50 +71,7 @@ public class GroupDetailsActivity extends AppCompatActivity implements OnMapRead
         groupId = getIntent().getStringExtra(getString(R.string.groupKey));
         inEvent = getIntent().getBooleanExtra(getString(R.string.InActivityKey), false);
         mFirebaseDatabase = FirebaseDatabaseUtils.getDatabase();
-        DatabaseReference ref = mFirebaseDatabase.getReference().child("groups").child(groupId);
-        ValueEventListener listener = new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                mGroup = dataSnapshot.getValue(Group.class);
-                if (inEvent) {
-                    JoinedGroupFragment.getInstance().updateGroupDetails(mGroup, getIntent().getIntExtra(getString(R.string.TapPositionKey), -1));
-                } else {
-                    SearchGroupFragment.getInstance().updateGroupDetails(mGroup, getIntent().getIntExtra(getString(R.string.TapPositionKey), -1));
-                }
-                if(mGroup != null) {
-                    mapFragment = SupportMapFragment.newInstance();
-                    mapFragment.getMapAsync(GroupDetailsActivity.this);
-                    eventInfoFragment = new EventInfoFragment();
-                    Bundle args2 = new Bundle();
-                    args2.putBoolean(getString(R.string.InActivityKey), inEvent);
-                    args2.putString(getString(R.string.groupNameKey), mGroup.getNames());
-                    args2.putString(getString(R.string.groupPlaceKey), mGroup.getLocation());
-                    args2.putString(getString(R.string.groupStartKey), mGroup.getStartDateTimeString());
-                    args2.putString(getString(R.string.groupEndKey), mGroup.getEndDateTimeString());
-                    args2.putString(getString(R.string.groupPhotoUrlKey), mGroup.getPhotoUrl());
-                    args2.putString(getString(R.string.groupDescriptionKey), mGroup.getDescription());
-                    args2.putString("groupId", groupId);
-                    args2.putString("placeId", mGroup.getPlaceId());
-                    args2.putInt(getString(R.string.groupCurrentSizeKey), mGroup.getNumParticipants());
-                    args2.putInt(getString(R.string.groupMaxSizeKey), mGroup.getMaxParticipants());
-                    eventInfoFragment.setArguments(args2);
-
-                    ViewPager detailsPager = findViewById(R.id.groupDetailsPager);
-                    detailsPager.setAdapter(new GroupDetailsPagerAdapter(getSupportFragmentManager()));
-                    TabLayout tabLayout = findViewById(R.id.detailsTabLayout);
-                    tabLayout.setupWithViewPager(detailsPager);
-                    mGeoDataClient = Places.getGeoDataClient(GroupDetailsActivity.this);
-                }else{
-                    finish();
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                Toast.makeText(GroupDetailsActivity.this, "Activity not found", Toast.LENGTH_SHORT).show();
-            }
-        };
-        ref.addListenerForSingleValueEvent(listener);
+        //reloadGroupDetails();
 
         mGroupUsersInformation = new GroupUsersInformation(groupId);
 
@@ -125,6 +84,12 @@ public class GroupDetailsActivity extends AppCompatActivity implements OnMapRead
 
 
         //mGroup = getIntent().getParcelableExtra(getString(R.string.groupKey));//Need to pass on group details before starting this activity
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        reloadGroupDetails();
     }
 
     private void checkRequestLocationPermission() {
@@ -152,7 +117,7 @@ public class GroupDetailsActivity extends AppCompatActivity implements OnMapRead
                     googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(place.getLatLng(), DEFAULT_ZOOM));
                     places.release();
                 } else {
-                    Toast.makeText(GroupDetailsActivity.this, "Place not found", Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(GroupDetailsActivity.this, "Place not found", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -190,8 +155,8 @@ public class GroupDetailsActivity extends AppCompatActivity implements OnMapRead
 
     @Override
     public void onJoinLeaveClick() {
-        if(!FirebaseDatabaseUtils.connectedToDatabase()){
-            Toast.makeText(this,"Please check your internet connection", Toast.LENGTH_SHORT).show();
+        if (!FirebaseDatabaseUtils.connectedToDatabase()) {
+            Toast.makeText(this, "Please check your internet connection", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -328,5 +293,54 @@ public class GroupDetailsActivity extends AppCompatActivity implements OnMapRead
             SearchGroupFragment.getInstance().removeFromList(id);
             GroupDetailsActivity.this.finish();
         }
+    }
+
+    public void reloadGroupDetails() {
+        if (ref == null) ref = mFirebaseDatabase.getReference().child("groups").child(groupId);
+        if (listener == null) {
+            listener = new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    mGroup = dataSnapshot.getValue(Group.class);
+                    if (inEvent) {
+                        JoinedGroupFragment.getInstance().updateGroupDetails(mGroup, getIntent().getIntExtra(getString(R.string.TapPositionKey), -1));
+                    } else {
+                        SearchGroupFragment.getInstance().updateGroupDetails(mGroup, getIntent().getIntExtra(getString(R.string.TapPositionKey), -1));
+                    }
+                    if (mGroup != null) {
+                        mapFragment = SupportMapFragment.newInstance();
+                        mapFragment.getMapAsync(GroupDetailsActivity.this);
+                        eventInfoFragment = new EventInfoFragment();
+                        Bundle args2 = new Bundle();
+                        args2.putBoolean(getString(R.string.InActivityKey), inEvent);
+                        args2.putString(getString(R.string.groupNameKey), mGroup.getNames());
+                        args2.putString(getString(R.string.groupPlaceKey), mGroup.getLocation());
+                        args2.putString(getString(R.string.groupStartKey), mGroup.getStartDateTimeString());
+                        args2.putString(getString(R.string.groupEndKey), mGroup.getEndDateTimeString());
+                        args2.putString(getString(R.string.groupPhotoUrlKey), mGroup.getPhotoUrl());
+                        args2.putString(getString(R.string.groupDescriptionKey), mGroup.getDescription());
+                        args2.putString("groupId", groupId);
+                        args2.putString("placeId", mGroup.getPlaceId());
+                        args2.putInt(getString(R.string.groupCurrentSizeKey), mGroup.getNumParticipants());
+                        args2.putInt(getString(R.string.groupMaxSizeKey), mGroup.getMaxParticipants());
+                        eventInfoFragment.setArguments(args2);
+
+                        ViewPager detailsPager = findViewById(R.id.groupDetailsPager);
+                        detailsPager.setAdapter(new GroupDetailsPagerAdapter(getSupportFragmentManager()));
+                        TabLayout tabLayout = findViewById(R.id.detailsTabLayout);
+                        tabLayout.setupWithViewPager(detailsPager);
+                        mGeoDataClient = Places.getGeoDataClient(GroupDetailsActivity.this);
+                    } else {
+                        finish();
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+                    Toast.makeText(GroupDetailsActivity.this, "Activity not found", Toast.LENGTH_SHORT).show();
+                }
+            };
+        }
+        ref.addListenerForSingleValueEvent(listener);
     }
 }

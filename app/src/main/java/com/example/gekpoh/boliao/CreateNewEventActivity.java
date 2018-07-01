@@ -110,8 +110,8 @@ public class CreateNewEventActivity extends AppCompatActivity implements CreateN
                     mUserListsDatabaseReference.child(chatId).setValue(mapToUpload2);
 
                     //Create chat in database
-                    String key = mChatsDatabaseReference.child(chatId).push().getKey();
-                    mChatsDatabaseReference.child(chatId).child(key).setValue(new ChatMessage("Welcome to activity chat", "",null,0)); // just some dummy values
+                    //String key = mChatsDatabaseReference.child(chatId).push().getKey();
+                    //mChatsDatabaseReference.child(chatId).child(key).setValue(new ChatMessage("Welcome to activity chat", "",null,0)); // just some dummy values
 
                     //add this group to list of joinedgroups for this user
                     mJoinedListsReference.child(MainActivity.userUid).child(chatId).setValue("true");

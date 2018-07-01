@@ -108,8 +108,8 @@ public class EventInfoFragment extends Fragment {
                     //if user is not in the group yet, we will not find its info
                     isAdmin = false;
                 }
+                buttonEdit.setVisibility(View.INVISIBLE);
                 if (isAdmin) buttonEdit.setVisibility(View.VISIBLE);
-                else buttonEdit.setVisibility(View.INVISIBLE);
             }
 
             @Override
