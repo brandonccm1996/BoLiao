@@ -43,6 +43,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.iid.FirebaseInstanceId;
 
 import java.text.ParseException;
 import java.util.Arrays;
@@ -130,6 +131,10 @@ public class MainActivity extends AppCompatActivity implements SearchGroupFragme
 
                         }
                     });
+
+                    String deviceToken = FirebaseInstanceId.getInstance().getToken();
+                    mUsersDatabaseReference.child(userUid).child("devicetoken").setValue(deviceToken);
+
                     JoinedGroupFragment jg = JoinedGroupFragment.getInstance();
                     jg.onSignIn();
                     SearchGroupFragment sg = SearchGroupFragment.getInstance();

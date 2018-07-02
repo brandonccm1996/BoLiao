@@ -24,6 +24,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -41,6 +42,8 @@ public class EditEventActivity extends AppCompatActivity implements EditEventFra
 
     private FirebaseDatabase mFirebaseDatabase;
     private DatabaseReference mGroupDatabaseReference;
+    private DatabaseReference mNotifDatabaseReference;
+    private DatabaseReference mUserListsDatabaseReference;
     private LatLng mLatLng;
 
     private Bundle extras;
@@ -63,6 +66,8 @@ public class EditEventActivity extends AppCompatActivity implements EditEventFra
 
         mFirebaseDatabase = FirebaseDatabaseUtils.getDatabase();
         mGroupDatabaseReference = mFirebaseDatabase.getReference().child("groups").child(extras.getString("groupId"));
+        mNotifDatabaseReference = mFirebaseDatabase.getReference().child("notifications").child(extras.getString("groupId"));
+        mUserListsDatabaseReference = mFirebaseDatabase.getReference().child("userlists").child(extras.getString("groupId"));
         buttonSubmit = findViewById(R.id.buttonSubmit);
 
         mViewPager = findViewById(R.id.view_pager_create_new_event);
@@ -125,6 +130,30 @@ public class EditEventActivity extends AppCompatActivity implements EditEventFra
                             }
                         }
                     });
+
+                    // create notification object
+                    final String notifId = mNotifDatabaseReference.push().getKey();
+                    mNotifDatabaseReference.child(notifId).child("groupname").setValue(extras.getString("eventname"));
+
+                    mUserListsDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                            Map userList = new HashMap();
+                            for (DataSnapshot childSnapshot : dataSnapshot.getChildren()) {
+                                // don't send notification to the person editing event
+//                                if (!childSnapshot.getKey().equals(MainActivity.userUid)) userList.put(childSnapshot.getKey(), true);
+                                Log.d("EditEventAct", childSnapshot.getKey());
+                                userList.put(childSnapshot.getKey(), true);
+                            }
+                            mNotifDatabaseReference.child(notifId).child("userList").setValue(userList);
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                        }
+                    });
+
                     finish();
                 }
             }
