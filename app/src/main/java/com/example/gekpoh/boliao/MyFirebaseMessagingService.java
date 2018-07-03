@@ -1,5 +1,10 @@
 package com.example.gekpoh.boliao;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.content.Context;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
 
 import com.google.firebase.messaging.FirebaseMessagingService;
@@ -9,8 +14,26 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
 
-        // TODO(developer): Handle FCM messages here.
-        // Not getting messages here? See why this may be: https://goo.gl/39bRNJ
+        NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel("default", "channel_update", NotificationManager.IMPORTANCE_DEFAULT);
+            channel.setDescription("Update Event Details");
+            mNotificationManager.createNotificationChannel(channel);
+        }
+
+        String notificationTitle = remoteMessage.getNotification().getTitle();
+        String notificationMessage = remoteMessage.getNotification().getBody();
+
+        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this, "default")
+                .setSmallIcon(R.drawable.common_google_signin_btn_icon_light)   // to change
+                .setContentTitle(notificationTitle)
+                .setContentText(notificationMessage)
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+
+//        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
+        mNotificationManager.notify((int)System.currentTimeMillis(), mBuilder.build());
+
         Log.d("FirebaseMessaging", "From: " + remoteMessage.getFrom());
 
         // Check if message contains a data payload.

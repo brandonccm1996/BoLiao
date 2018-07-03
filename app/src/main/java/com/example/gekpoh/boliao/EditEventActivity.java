@@ -133,7 +133,6 @@ public class EditEventActivity extends AppCompatActivity implements EditEventFra
 
                     // create notification object
                     final String notifId = mNotifDatabaseReference.push().getKey();
-                    mNotifDatabaseReference.child(notifId).child("groupname").setValue(extras.getString("eventname"));
 
                     mUserListsDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
@@ -141,9 +140,7 @@ public class EditEventActivity extends AppCompatActivity implements EditEventFra
                             Map userList = new HashMap();
                             for (DataSnapshot childSnapshot : dataSnapshot.getChildren()) {
                                 // don't send notification to the person editing event
-//                                if (!childSnapshot.getKey().equals(MainActivity.userUid)) userList.put(childSnapshot.getKey(), true);
-                                Log.d("EditEventAct", childSnapshot.getKey());
-                                userList.put(childSnapshot.getKey(), true);
+                                if (!childSnapshot.getKey().equals(MainActivity.userUid)) userList.put(childSnapshot.getKey(), true);
                             }
                             mNotifDatabaseReference.child(notifId).child("userList").setValue(userList);
                         }
