@@ -1,12 +1,14 @@
 package com.example.gekpoh.boliao;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -38,6 +40,13 @@ public class EventInfoFragment extends Fragment {
 
     private FirebaseDatabase mFirebaseDatabase;
     private DatabaseReference mUserListsDatabaseReference;
+    private DatabaseReference mGroupsDatabaseReference;
+    private DatabaseReference mGeofireDatabaseReference;
+    private DatabaseReference mJoinedListsDatabaseReference;
+    private DatabaseReference mChatsDatabaseReference;
+
+    private Button buttonEdit;
+    private Button buttonDelete;
 
     @Override
     public void onAttach(Context context) {
@@ -64,6 +73,16 @@ public class EventInfoFragment extends Fragment {
         mFirebaseDatabase = FirebaseDatabaseUtils.getDatabase();
         mUserListsDatabaseReference = mFirebaseDatabase.getReference().child("userlists").child(groupId);
         mUserListsDatabaseReference.keepSynced(true);
+        mGroupsDatabaseReference = mFirebaseDatabase.getReference().child("groups").child(groupId);
+        mGeofireDatabaseReference = mFirebaseDatabase.getReference().child("geoFireObjects").child(groupId);
+        mChatsDatabaseReference = mFirebaseDatabase.getReference().child("chats").child(groupId);
+        mJoinedListsDatabaseReference = mFirebaseDatabase.getReference().child("joinedlists");
+
+        buttonEdit = getView().findViewById(R.id.btnEditInfo);
+        buttonDelete = getView().findViewById(R.id.btnDelete);
+        buttonEdit.setVisibility(View.INVISIBLE);
+        buttonDelete.setVisibility(View.INVISIBLE);
+
         ImageView picView = getView().findViewById(R.id.groupPicView);
         String photoUrl = args.getString(getString(R.string.groupPhotoUrlKey));
         if (photoUrl == null) {
@@ -97,19 +116,22 @@ public class EventInfoFragment extends Fragment {
             }
         });
 
-        final Button buttonEdit = getView().findViewById(R.id.btnEditInfo);
         mUserListsDatabaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 UserLists userList = dataSnapshot.child(MainActivity.userUid).getValue(UserLists.class);
                 if(userList != null) {
                     isAdmin = userList.getIsAdmin();
-                }else{
+                }
+                else{
                     //if user is not in the group yet, we will not find its info
                     isAdmin = false;
                 }
-                buttonEdit.setVisibility(View.INVISIBLE);
-                if (isAdmin) buttonEdit.setVisibility(View.VISIBLE);
+
+                if (isAdmin) {
+                    buttonEdit.setVisibility(View.VISIBLE);
+                    buttonDelete.setVisibility(View.VISIBLE);
+                }
             }
 
             @Override
@@ -129,6 +151,51 @@ public class EventInfoFragment extends Fragment {
                     startEditActivityIntent.putExtra("intentBundle", args);
                     startActivity(startEditActivityIntent);
                 }
+            }
+        });
+
+        buttonDelete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
+                        .setCancelable(true)
+                        .setTitle("Deleting activity")
+                        .setMessage("Are you sure you want to delete this activity? Activity deletion is not reversible.")
+                        .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                mChatsDatabaseReference.removeValue();
+                                mGeofireDatabaseReference.removeValue();
+                                mUserListsDatabaseReference.addValueEventListener(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                        for (DataSnapshot childSnapshot : dataSnapshot.getChildren()) {
+                                            String memberId = childSnapshot.getKey();
+                                            Log.d("EventInfoFrag", memberId);
+                                            mJoinedListsDatabaseReference.child(memberId).child(groupId).removeValue();
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                                    }
+                                });
+                                mUserListsDatabaseReference.removeValue();
+                                mGroupsDatabaseReference.removeValue();
+
+                                getActivity().onBackPressed();
+                            }
+                        })
+                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+
+                            }
+                        });
+
+                AlertDialog dialog = builder.create();
+                dialog.show();
             }
         });
 
