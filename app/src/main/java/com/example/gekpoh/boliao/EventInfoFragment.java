@@ -29,6 +29,8 @@ import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 public class EventInfoFragment extends Fragment {
     private final String TAG = "EVENTINFOfragment";
@@ -44,9 +46,12 @@ public class EventInfoFragment extends Fragment {
     private DatabaseReference mGeofireDatabaseReference;
     private DatabaseReference mJoinedListsDatabaseReference;
     private DatabaseReference mChatsDatabaseReference;
+    private DatabaseReference mDeleteEventNotifDatabaseReference;
 
     private Button buttonEdit;
     private Button buttonDelete;
+
+    private ArrayList<String> members;
 
     @Override
     public void onAttach(Context context) {
@@ -77,6 +82,7 @@ public class EventInfoFragment extends Fragment {
         mGeofireDatabaseReference = mFirebaseDatabase.getReference().child("geoFireObjects").child(groupId);
         mChatsDatabaseReference = mFirebaseDatabase.getReference().child("chats").child(groupId);
         mJoinedListsDatabaseReference = mFirebaseDatabase.getReference().child("joinedlists");
+        mDeleteEventNotifDatabaseReference = mFirebaseDatabase.getReference().child("deleteEventNotif").child(groupId).child(args.getString("eventname"));
 
         buttonEdit = getView().findViewById(R.id.btnEditInfo);
         buttonDelete = getView().findViewById(R.id.btnDelete);
@@ -157,33 +163,44 @@ public class EventInfoFragment extends Fragment {
         buttonDelete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                members = new ArrayList<>();
+                mUserListsDatabaseReference.addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        for (DataSnapshot childSnapshot : dataSnapshot.getChildren()) {
+                            members.add(childSnapshot.getKey());
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                    }
+                });
+
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
                         .setCancelable(true)
                         .setTitle("Deleting activity")
                         .setMessage("Are you sure you want to delete this activity? Activity deletion is not reversible.")
                         .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+
+                            final String notifId = mDeleteEventNotifDatabaseReference.push().getKey();
+
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
+
+                                Map userList = new HashMap();
+
+                                for (String memberId : members) {
+                                    if (!memberId.equals(MainActivity.userUid)) userList.put(memberId, true); // don't send notification to the person deleting event
+                                    mJoinedListsDatabaseReference.child(memberId).child(groupId).removeValue();
+                                    Log.d("EventInfoFrag", memberId);
+                                }
+                                mDeleteEventNotifDatabaseReference.child(notifId).setValue(userList);
                                 mChatsDatabaseReference.removeValue();
                                 mGeofireDatabaseReference.removeValue();
-                                mUserListsDatabaseReference.addValueEventListener(new ValueEventListener() {
-                                    @Override
-                                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                        for (DataSnapshot childSnapshot : dataSnapshot.getChildren()) {
-                                            String memberId = childSnapshot.getKey();
-                                            Log.d("EventInfoFrag", memberId);
-                                            mJoinedListsDatabaseReference.child(memberId).child(groupId).removeValue();
-                                        }
-                                    }
-
-                                    @Override
-                                    public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                                    }
-                                });
                                 mUserListsDatabaseReference.removeValue();
                                 mGroupsDatabaseReference.removeValue();
-
                                 getActivity().onBackPressed();
                             }
                         })

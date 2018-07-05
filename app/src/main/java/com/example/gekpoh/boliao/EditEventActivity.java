@@ -42,7 +42,7 @@ public class EditEventActivity extends AppCompatActivity implements EditEventFra
 
     private FirebaseDatabase mFirebaseDatabase;
     private DatabaseReference mGroupDatabaseReference;
-    private DatabaseReference mNotifDatabaseReference;
+    private DatabaseReference mEditEventNotifDatabaseReference;
     private DatabaseReference mUserListsDatabaseReference;
     private LatLng mLatLng;
 
@@ -66,7 +66,7 @@ public class EditEventActivity extends AppCompatActivity implements EditEventFra
 
         mFirebaseDatabase = FirebaseDatabaseUtils.getDatabase();
         mGroupDatabaseReference = mFirebaseDatabase.getReference().child("groups").child(extras.getString("groupId"));
-        mNotifDatabaseReference = mFirebaseDatabase.getReference().child("notifications").child(extras.getString("groupId"));
+        mEditEventNotifDatabaseReference = mFirebaseDatabase.getReference().child("editEventNotif").child(extras.getString("groupId"));
         mUserListsDatabaseReference = mFirebaseDatabase.getReference().child("userlists").child(extras.getString("groupId"));
         buttonSubmit = findViewById(R.id.buttonSubmit);
 
@@ -132,7 +132,7 @@ public class EditEventActivity extends AppCompatActivity implements EditEventFra
                     });
 
                     // create notification object
-                    final String notifId = mNotifDatabaseReference.push().getKey();
+                    final String notifId = mEditEventNotifDatabaseReference.push().getKey();
 
                     mUserListsDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
@@ -142,7 +142,7 @@ public class EditEventActivity extends AppCompatActivity implements EditEventFra
                                 // don't send notification to the person editing event
                                 if (!childSnapshot.getKey().equals(MainActivity.userUid)) userList.put(childSnapshot.getKey(), true);
                             }
-                            mNotifDatabaseReference.child(notifId).child("userList").setValue(userList);
+                            mEditEventNotifDatabaseReference.child(notifId).setValue(userList);
                         }
 
                         @Override
