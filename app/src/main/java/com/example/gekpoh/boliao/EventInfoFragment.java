@@ -19,11 +19,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import org.w3c.dom.Text;
 
@@ -47,6 +50,8 @@ public class EventInfoFragment extends Fragment {
     private DatabaseReference mJoinedListsDatabaseReference;
     private DatabaseReference mChatsDatabaseReference;
     private DatabaseReference mDeleteEventNotifDatabaseReference;
+
+    private FirebaseStorage mFirebaseStorage;
 
     private Button buttonEdit;
     private Button buttonDelete;
@@ -83,6 +88,7 @@ public class EventInfoFragment extends Fragment {
         mChatsDatabaseReference = mFirebaseDatabase.getReference().child("chats").child(groupId);
         mJoinedListsDatabaseReference = mFirebaseDatabase.getReference().child("joinedlists");
         mDeleteEventNotifDatabaseReference = mFirebaseDatabase.getReference().child("deleteEventNotif").child(groupId).child(args.getString("eventname"));
+        mFirebaseStorage = FirebaseStorage.getInstance();
 
         buttonEdit = getView().findViewById(R.id.btnEditInfo);
         buttonDelete = getView().findViewById(R.id.btnDelete);
@@ -90,7 +96,7 @@ public class EventInfoFragment extends Fragment {
         buttonDelete.setVisibility(View.INVISIBLE);
 
         ImageView picView = getView().findViewById(R.id.groupPicView);
-        String photoUrl = args.getString(getString(R.string.groupPhotoUrlKey));
+        final String photoUrl = args.getString(getString(R.string.groupPhotoUrlKey));
         if (photoUrl == null) {
             picView.setImageResource(R.drawable.profilepic);
         }
@@ -189,18 +195,64 @@ public class EventInfoFragment extends Fragment {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
 
+                                // notification
                                 Map userList = new HashMap();
-
                                 for (String memberId : members) {
                                     if (!memberId.equals(MainActivity.userUid)) userList.put(memberId, true); // don't send notification to the person deleting event
                                     mJoinedListsDatabaseReference.child(memberId).child(groupId).removeValue();
                                     Log.d("EventInfoFrag", memberId);
                                 }
                                 mDeleteEventNotifDatabaseReference.child(notifId).setValue(userList);
+
+                                // delete chat photos
+                                mChatsDatabaseReference.addValueEventListener(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                        for (DataSnapshot childSnapshot : dataSnapshot.getChildren()) {
+                                            if (childSnapshot.hasChild("photoUrl")) {
+                                                StorageReference photoDeleteRef = mFirebaseStorage.getReferenceFromUrl(childSnapshot.child("photoUrl").getValue().toString());
+                                                photoDeleteRef.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                    @Override
+                                                    public void onSuccess(Void aVoid) {
+                                                        Log.d("EventInfoFrag", "Deletion working");
+                                                    }
+                                                });
+                                            }
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                                    }
+                                });
+
+                                // delete group photo
+                                mGroupsDatabaseReference.addValueEventListener(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                        if (dataSnapshot.hasChild("photoUrl")) {
+                                            StorageReference photoDeleteRef2 = mFirebaseStorage.getReferenceFromUrl(dataSnapshot.child("photoUrl").getValue().toString());
+                                            photoDeleteRef2.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                @Override
+                                                public void onSuccess(Void aVoid) {
+                                                    Log.d("EventInfoFrag2", "Deletion working 2");
+                                                }
+                                            });
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                                    }
+                                });
+
                                 mChatsDatabaseReference.removeValue();
                                 mGeofireDatabaseReference.removeValue();
                                 mUserListsDatabaseReference.removeValue();
                                 mGroupsDatabaseReference.removeValue();
+                                Toast.makeText(getActivity(), "Activity deleted", Toast.LENGTH_LONG).show();
                                 getActivity().onBackPressed();
                             }
                         })

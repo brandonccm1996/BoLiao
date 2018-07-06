@@ -126,6 +126,8 @@ public class CreateNewEventActivity extends AppCompatActivity implements CreateN
                         }
                     });
                     TimeNotificationScheduler.setNewReminder(CreateNewEventActivity.this, chatId, fragment1.sendName(), startTimeStamp, -1);
+
+                    Toast.makeText(getApplicationContext(), "Activity created", Toast.LENGTH_LONG).show();
                     finish();
                 }
             }
