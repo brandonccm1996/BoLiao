@@ -71,17 +71,18 @@ public class TimeNotificationScheduler {
             channel.setDescription("Events Time Notification");
             notificationManager.createNotificationChannel(channel);
         }
+        final int _id = (int) System.currentTimeMillis();
         Intent notificationIntent = new Intent(context, cls);
-        notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
-        TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
-        stackBuilder.addParentStack(cls);
+
+        /*TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
         stackBuilder.addNextIntent(notificationIntent);
 
-        final int _id = (int) System.currentTimeMillis();
         PendingIntent pendingIntent = stackBuilder.getPendingIntent(
                 _id,PendingIntent.FLAG_UPDATE_CURRENT);
-
+         */
+        PendingIntent pendingIntent = PendingIntent.getActivity(context,1,notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, channelid);
         Notification notification = builder.setContentTitle(title)
                 .setContentText(content).setAutoCancel(true)

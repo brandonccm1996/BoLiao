@@ -433,6 +433,4 @@ public class MainActivity extends AppCompatActivity implements SearchGroupFragme
             return getString(R.string.MainActivityTab2Name);
         }
     }
-
-
 }
