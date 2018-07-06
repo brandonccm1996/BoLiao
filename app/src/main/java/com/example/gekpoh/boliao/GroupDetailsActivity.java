@@ -170,6 +170,7 @@ public class GroupDetailsActivity extends AppCompatActivity implements OnMapRead
                 return;
             }
             //update userlist and join list
+            TimeNotificationScheduler.cancelReminder(this,mGroup.getChatId());
             joinedlistref.removeValue();
             userlistref.removeValue();
             //update num of participants
@@ -290,6 +291,7 @@ public class GroupDetailsActivity extends AppCompatActivity implements OnMapRead
             map.put("isAdmin", false);
             userlistref.setValue(map);
             joinedlistref.setValue("true");
+            TimeNotificationScheduler.setNewReminder(GroupDetailsActivity.this,mGroup.getChatId(),mGroup.getNames(),mGroup.getStartDateTime(), -1);
             SearchGroupFragment.getInstance().removeFromList(id);
             GroupDetailsActivity.this.finish();
         }
