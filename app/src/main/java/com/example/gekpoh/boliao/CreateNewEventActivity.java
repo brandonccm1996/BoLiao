@@ -74,6 +74,9 @@ public class CreateNewEventActivity extends AppCompatActivity implements CreateN
                         fragment1.sendSTime().equals("") || fragment1.sendEDate().equals("") || fragment1.sendETime().equals("") ||
                         fragment2.sendDescription().equals("") || fragment2.sendNumPeople().equals("") || fragment3.sendPlaceId() == null)
                     Toast.makeText(CreateNewEventActivity.this, "Please fill in all fields", Toast.LENGTH_SHORT).show();
+                else if (Integer.parseInt(fragment2.sendNumPeople()) < 1 ) {
+                    Toast.makeText(CreateNewEventActivity.this, "Number of participants must be at least 1", Toast.LENGTH_SHORT).show();
+                }
                 else {
                     chatId = mChatsDatabaseReference.push().getKey();
 

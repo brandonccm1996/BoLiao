@@ -84,6 +84,9 @@ public class EditEventActivity extends AppCompatActivity implements EditEventFra
                         fragment1.sendSTime().equals("") || fragment1.sendEDate().equals("") || fragment1.sendETime().equals("") ||
                         fragment2.sendDescription().equals("") || fragment2.sendNumPeople().equals("") || fragment3.sendPlaceId() == null)
                     Toast.makeText(EditEventActivity.this, "Please fill in all fields", Toast.LENGTH_SHORT).show();
+                else if (Integer.parseInt(fragment2.sendNumPeople()) < extras.getInt("eventcurrentsize")) {
+                    Toast.makeText(EditEventActivity.this, "You have too many participants. Please remove some participants before reducing the max number of participants.", Toast.LENGTH_LONG).show();
+                }
                 else {
                     Map mapToUpload = new HashMap();
                     long startTimeStamp, endTimeStamp;
