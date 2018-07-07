@@ -22,11 +22,16 @@ public class TimeNotificationScheduler {
     private static final String TAG = "TimeNotificationSched";
     public static final int DELAY_2HRS = 7200000;
 
+    //Set reminders for notifications that  already exist in the database
     public static void setExistingReminder(Context context, TimeNotification notification) {
-        Log.v(TAG, "Creating New Reminders");
 
         long activatetime = notification.activityTime - notification.notificationDelay;
-        if(activatetime < System.currentTimeMillis()) return;
+        if(activatetime < System.currentTimeMillis()){
+            //Already missed the time for the notification, remove the notification from database
+            new RemoveReminderTask(context,notification.groupId).execute();
+            return;
+        }
+        Log.v(TAG, "Creating New Reminders");
         // Enable a receiver
         ComponentName receiver = new ComponentName(context, TimeNotificationReceiver.class);
         PackageManager pm = context.getPackageManager();
@@ -44,6 +49,7 @@ public class TimeNotificationScheduler {
         am.set(AlarmManager.RTC, activatetime, pendingIntent);
     }
 
+    //Set reminders for notifications that does not exist in the database
     public static void setNewReminder(Context context, String groupId, String activityName, long activityTimeStamp, long delayTimeStamp) {
         //Create new reminder then insert into database
         if(System.currentTimeMillis() > activityTimeStamp + delayTimeStamp) return;
@@ -59,9 +65,11 @@ public class TimeNotificationScheduler {
         setExistingReminder(context, notification);
     }
 
+    //Remove notification from database + remove pending intent from alarm manager
     public static void cancelReminder(Context context, String groupId) {
         new CancelReminderTask(context, groupId).execute();
     }
+
 
     public static void showNotification(Context context, Class<?> cls, String groupId, String title, String content, String channelid) {
         new RemoveReminderTask(context, groupId).execute();
@@ -75,13 +83,6 @@ public class TimeNotificationScheduler {
         Intent notificationIntent = new Intent(context, cls);
         notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
-
-        /*TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
-        stackBuilder.addNextIntent(notificationIntent);
-
-        PendingIntent pendingIntent = stackBuilder.getPendingIntent(
-                _id,PendingIntent.FLAG_UPDATE_CURRENT);
-         */
         PendingIntent pendingIntent = PendingIntent.getActivity(context,1,notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, channelid);
         Notification notification = builder.setContentTitle(title)
@@ -93,10 +94,8 @@ public class TimeNotificationScheduler {
                 .build();
 
         notificationManager.notify(_id, notification);
-
         Log.v(TAG, "Time Notification Showing");
     }
-
 
 
     private static class InsertNewReminderTask extends AsyncTask<Void, Void, Void>{

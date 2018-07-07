@@ -17,7 +17,8 @@ public class TimeNotificationReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         if (intent.getAction() != null && context != null) {
             if (intent.getAction().equalsIgnoreCase(Intent.ACTION_BOOT_COMPLETED)) {
-                new RebootSetupTask(context).execute();
+                Intent serviceIntent = new Intent(context, RebootSetUpService.class);
+                context.startService(serviceIntent);
                 return;
             }
         }
@@ -28,28 +29,4 @@ public class TimeNotificationReceiver extends BroadcastReceiver {
         TimeNotificationScheduler.showNotification(context, MainActivity.class, groupId,"You have an event to attend soon!", name + " is happening at " + time, TIME_ID);
     }
 
-    private class RebootSetupTask extends AsyncTask<Void, Void, List<TimeNotification>>{
-
-        private Context mContextRef;
-
-        private RebootSetupTask(Context context) {
-            mContextRef = context;
-        }
-        @Override
-        protected List<TimeNotification> doInBackground(Void... voids) {
-            TimeNotificationDatabase db = TimeNotificationDatabase.getTimeNotificationDatabase(mContextRef);
-            return db.timeNotificationDao().getAllNotification();
-        }
-
-        @Override
-        protected void onPostExecute(List<TimeNotification> timeNotifications) {
-            if(timeNotifications != null && timeNotifications.size()>0){
-                for(TimeNotification notification: timeNotifications){
-                    Log.v(TAG,"Reboot: Loading notifications from database");
-                    TimeNotificationScheduler.setExistingReminder(mContextRef, notification);
-                }
-            }
-            super.onPostExecute(timeNotifications);
-        }
-    }
 }
