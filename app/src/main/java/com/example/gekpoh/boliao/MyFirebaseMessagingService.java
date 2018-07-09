@@ -6,6 +6,7 @@ import android.content.Context;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
@@ -22,23 +23,9 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             mNotificationManager.createNotificationChannel(channel);
         }
 
-        String notificationTitle = remoteMessage.getNotification().getTitle();
-        String notificationMessage = remoteMessage.getNotification().getBody();
-
-        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this, "default")
-                .setSmallIcon(R.drawable.common_google_signin_btn_icon_light)   // to change
-                .setContentTitle(notificationTitle)
-                .setContentText(notificationMessage)
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
-
-//        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
-        mNotificationManager.notify((int)System.currentTimeMillis(), mBuilder.build());
-
-        Log.d("FirebaseMessaging", "From: " + remoteMessage.getFrom());
-
         // Check if message contains a data payload.
         if (remoteMessage.getData().size() > 0) {
-            Log.d("FirebaseMessaging", "Message data payload: " + remoteMessage.getData());
+            Log.d("FbMessagingService", "newStartDateTime: " + remoteMessage.getData().get("body"));
 
             if (/* Check if data needs to be processed by long running job */ true) {
                 // For long-running tasks (10 seconds or more) use Firebase Job Dispatcher.
@@ -50,7 +37,17 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         // Check if message contains a notification payload.
         if (remoteMessage.getNotification() != null) {
-            Log.d("FirebaseMessaging", "Message Notification Body: " + remoteMessage.getNotification().getBody());
+            String notificationTitle = remoteMessage.getNotification().getTitle();
+            String notificationMessage = remoteMessage.getNotification().getBody();
+
+            NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this, "default")
+                    .setSmallIcon(R.drawable.common_google_signin_btn_icon_light)   // to change
+                    .setContentTitle(notificationTitle)
+                    .setContentText(notificationMessage)
+                    .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+
+//        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
+            mNotificationManager.notify((int) System.currentTimeMillis(), mBuilder.build());
         }
 
         // Also if you intend on generating your own notifications as a result of a received FCM
