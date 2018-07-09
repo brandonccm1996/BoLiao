@@ -61,7 +61,7 @@ public class MainActivity extends AppCompatActivity implements SearchGroupFragme
     private EditText distanceText, startDateText, endDateText;
     private Switch distanceFilterSwitch, timeFilterSwitch;
     private MenuItem searchItem;
-    //private ViewPager mViewPager;
+    private ViewPager mViewPager;
     private static final String TAG = "MAINACTIVITY";
     private static final int NUM_PAGES = 2;
     private static final int RC_SIGN_IN = 1;
@@ -134,7 +134,7 @@ public class MainActivity extends AppCompatActivity implements SearchGroupFragme
 
                     String deviceToken = FirebaseInstanceId.getInstance().getToken();
                     mUsersDatabaseReference.child(userUid).child("devicetoken").setValue(deviceToken);
-
+                    Settings.loadSettings(MainActivity.this);
                     JoinedGroupFragment jg = JoinedGroupFragment.getInstance();
                     jg.onSignIn();
                     SearchGroupFragment sg = SearchGroupFragment.getInstance();
@@ -156,7 +156,7 @@ public class MainActivity extends AppCompatActivity implements SearchGroupFragme
                 }
             }
         };
-        ViewPager mViewPager = findViewById(R.id.fragmentHolder);
+        mViewPager = findViewById(R.id.fragmentHolder);
         mViewPager.setAdapter(new GroupPagerAdapter(getSupportFragmentManager()));
         TabLayout tabLayout = findViewById(R.id.tabLayout);
         tabLayout.setupWithViewPager(mViewPager);
@@ -315,6 +315,11 @@ public class MainActivity extends AppCompatActivity implements SearchGroupFragme
                 return true;
             case R.id.filter:
                 mDrawerLayout.openDrawer(GravityCompat.END);
+                mViewPager.setCurrentItem(1);
+                return true;
+            case R.id.settings:
+                Intent intent = new Intent(MainActivity.this,NotificationsSettingsActivity.class);
+                startActivity(intent);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -323,7 +328,6 @@ public class MainActivity extends AppCompatActivity implements SearchGroupFragme
 
     @Override
     protected void onPause() {
-        super.onPause();
         mFirebaseAuth.removeAuthStateListener(mAuthStateListener);
         LatLng latLng = SearchGroupFragment.getInstance().getLastKnownLatLng();
         if (latLng != null) {
@@ -333,6 +337,7 @@ public class MainActivity extends AppCompatActivity implements SearchGroupFragme
             editor.putFloat(getString(R.string.sharedprefs_lastknownlongitudekey), (float) latLng.longitude);
             editor.commit();
         }
+        super.onPause();
     }
 
     @Override

@@ -8,6 +8,7 @@ import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.support.v4.app.NotificationCompat;
@@ -15,6 +16,7 @@ import android.support.v4.app.TaskStackBuilder;
 import android.util.Log;
 
 import java.sql.Time;
+import java.util.List;
 
 import static android.content.Context.ALARM_SERVICE;
 
@@ -70,9 +72,22 @@ public class TimeNotificationScheduler {
         new CancelReminderTask(context, groupId).execute();
     }
 
+    /*
+    public static void disableAllReminder(Context context){
+        new DisableAllRemindersTask(context).execute();
+    }
+
+    public static void enableAllReminder(Context context){
+        new EnableAllRemindersTask(context).execute();
+    }*/
 
     public static void showNotification(Context context, Class<?> cls, String groupId, String title, String content, String channelid) {
         new RemoveReminderTask(context, groupId).execute();
+
+        SharedPreferences prefs = context.getSharedPreferences(context.getResources().getString(R.string.settings_sharedprefs_dir),Context.MODE_PRIVATE);
+        boolean timeNotificationsEnabled = prefs.getBoolean(context.getResources().getString(R.string.time_settings_key), false);
+        if(!timeNotificationsEnabled) return;
+
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
             NotificationChannel channel = new NotificationChannel("default", "Time Notification", NotificationManager.IMPORTANCE_DEFAULT);
@@ -97,7 +112,6 @@ public class TimeNotificationScheduler {
         Log.v(TAG, "Time Notification Showing");
     }
 
-
     private static class InsertNewReminderTask extends AsyncTask<Void, Void, Void>{
         private Context mContext;
         private TimeNotification notification;
@@ -114,6 +128,7 @@ public class TimeNotificationScheduler {
             return null;
         }
     }
+
     //This class is used to remove the reminder from the database
     private static class RemoveReminderTask extends AsyncTask<Void, Void, Void>{
         private Context mContext;
@@ -129,6 +144,12 @@ public class TimeNotificationScheduler {
             db.timeNotificationDao().deleteById(groupId);
             Log.v(TAG, "removing notification from database");
             return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            Log.v(TAG, "notification is removed from database");
+            super.onPostExecute(aVoid);
         }
     }
 
@@ -165,4 +186,60 @@ public class TimeNotificationScheduler {
             super.onPostExecute(notification);
         }
     }
+    /*
+    //This class is used to disable all reminders without removing them from the database
+    private static class DisableAllRemindersTask extends AsyncTask<Void, Void, List<TimeNotification>> {
+        private Context mContext;
+
+        private DisableAllRemindersTask(Context context) {
+            mContext = context;
+        }
+        @Override
+        protected List<TimeNotification> doInBackground(Void... voids) {
+            TimeNotificationDatabase db = TimeNotificationDatabase.getTimeNotificationDatabase(mContext);
+            return db.timeNotificationDao().getAllNotification();
+        }
+
+        @Override
+        protected void onPostExecute(List<TimeNotification> timeNotifications) {
+            if(timeNotifications != null && timeNotifications.size()>0){
+                for(TimeNotification notification: timeNotifications){
+                    ComponentName receiver = new ComponentName(mContext, TimeNotificationReceiver.class);
+                    PackageManager pm = mContext.getPackageManager();
+                    pm.setComponentEnabledSetting(receiver,
+                            PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+                            PackageManager.DONT_KILL_APP);
+                    Intent intent = new Intent(mContext, TimeNotificationReceiver.class);
+                    PendingIntent pendingIntent = PendingIntent.getBroadcast(mContext, notification.id, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+                    AlarmManager am = (AlarmManager) mContext.getSystemService(ALARM_SERVICE);
+                    am.cancel(pendingIntent);
+                    Log.v(TAG, "Post disabling notification for:" + notification.activityName);
+                }
+            }
+        }
+    }
+
+    //This class is used to enable all reminders that is already in the database
+    private static class EnableAllRemindersTask extends AsyncTask<Void, Void, List<TimeNotification>> {
+        private Context mContext;
+
+        private EnableAllRemindersTask(Context context) {
+            mContext = context;
+        }
+        @Override
+        protected List<TimeNotification> doInBackground(Void... voids) {
+            TimeNotificationDatabase db = TimeNotificationDatabase.getTimeNotificationDatabase(mContext);
+            return db.timeNotificationDao().getAllNotification();
+        }
+
+        @Override
+        protected void onPostExecute(List<TimeNotification> timeNotifications) {
+            if(timeNotifications != null && timeNotifications.size()>0){
+                for(TimeNotification notification: timeNotifications){
+                    TimeNotificationScheduler.setExistingReminder(mContext, notification);
+                }
+            }
+        }
+    }
+    */
 }

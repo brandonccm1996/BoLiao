@@ -13,9 +13,15 @@
         app:showAsAction="never"/>
 
     <item
+        android:id="@+id/settings"
+        android:title="Settings"
+        app:showAsAction="never"/>
+
+    <item
         android:id="@+id/signout"
         android:title="Sign Out"
         app:showAsAction="never"/>
+
 
     <item
         android:id="@+id/filter"

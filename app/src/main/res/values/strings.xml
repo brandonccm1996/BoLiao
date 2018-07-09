@@ -29,4 +29,11 @@
     <string name="EventNotificationTimeKey">notifytime</string>
     <string name="sharedprefs_lastknownlatitudekey">lastknownloc</string>
     <string name="sharedprefs_lastknownlongitudekey">lastknownlongitude</string>
+
+    <string name = "settings_sharedprefs_dir">com.example.gekpoh.boliao.SETTINGS</string>
+    <string name = "time_settings_key">timenotificationsetting</string>
+    <string name = "update_settings_key">updatenotificationsetting</string>
+
+    <string name="time_notifications_settings_text">By enabling time notifications, you will be notified whenever an activity you have join is happening soon.</string>
+    <string name="update_notifications_settings_text">By enabling update notifications, you will be notified whenever there is a new update in an activity you have join</string>
 </resources>

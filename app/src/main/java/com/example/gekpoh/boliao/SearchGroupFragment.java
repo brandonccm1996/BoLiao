@@ -2,16 +2,19 @@ package com.example.gekpoh.boliao;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Paint;
 import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -24,10 +27,16 @@ import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
 import com.firebase.geofire.GeoQuery;
 import com.firebase.geofire.GeoQueryEventListener;
+import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.LocationSettingsRequest;
+import com.google.android.gms.location.LocationSettingsResponse;
+import com.google.android.gms.location.SettingsClient;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.ChildEventListener;
@@ -46,6 +55,7 @@ public class SearchGroupFragment extends Fragment implements GroupRecyclerAdapte
     private Context mContext;
     private reloadFilterInterface mReloadInterface;
     private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 3;
+    private static final int LOCATION_SETTINGS_RC = 6;
     private boolean locationPermissionGranted = false;
     private FusedLocationProviderClient mFusedLocationProviderClient;
     private RecyclerView groupView;
@@ -129,7 +139,8 @@ public class SearchGroupFragment extends Fragment implements GroupRecyclerAdapte
 
     public void reloadList(String quer) {
         //Add other filters here
-        if (SystemClock.elapsedRealtime() - reloadTimer < 2000) return;//Can only reload once every 2 second
+        if (SystemClock.elapsedRealtime() - reloadTimer < 2000)
+            return;//Can only reload once every 2 second
         reloadTimer = SystemClock.elapsedRealtime();
 
         if (!FirebaseDatabaseUtils.connectedToDatabase()) {
@@ -138,7 +149,7 @@ public class SearchGroupFragment extends Fragment implements GroupRecyclerAdapte
         }
         boolean distanceFilter = mReloadInterface.distanceFilterChecked();
         long distance = mReloadInterface.getDistanceFilter();
-        if(distanceFilter && distance == -1){
+        if (distanceFilter && distance == -1) {
             Toast.makeText(mContext, "Please set the distance filter", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -154,13 +165,14 @@ public class SearchGroupFragment extends Fragment implements GroupRecyclerAdapte
         searchedgroups.clear();
         getDeviceLocation();
         if (distanceFilter && locationPermissionGranted) {
+            changeLocationSettings();
             mGetLocationSingleValueEventListener = new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     Group group = dataSnapshot.getValue(Group.class);
                     //Need to implement extra filters here for both time and categories etc.
                     loadingList.remove(dataSnapshot.getKey());
-                    if(group == null){
+                    if (group == null) {
                         if (loadingList.isEmpty() && !stillLoading) {
                             adapter.notifyDataSetChanged();
                         }
@@ -225,9 +237,9 @@ public class SearchGroupFragment extends Fragment implements GroupRecyclerAdapte
                         if (JoinedGroupFragment.alreadyJoinedGroup(data.getKey())) continue;
                         //Need to implement extra filters for categories and end timehere etc.
                         Group group = data.getValue(Group.class);
-                        if(group == null){
+                        if (group == null) {
                             continue;
-                        }else if (group.getNames().toLowerCase().contains(query) || group.getDescription().toLowerCase().contains(query) || group.getLocation().toLowerCase().contains(query)) {
+                        } else if (group.getNames().toLowerCase().contains(query) || group.getDescription().toLowerCase().contains(query) || group.getLocation().toLowerCase().contains(query)) {
                             if (!timeFilter || group.getEndDateTime() <= timefilters[1])
                                 searchedgroups.add(group);
                         }
@@ -347,5 +359,59 @@ public class SearchGroupFragment extends Fragment implements GroupRecyclerAdapte
 
     public LatLng getLastKnownLatLng() {
         return lastKnownLatLng;
+    }
+
+    public void changeLocationSettings() {
+
+        LocationRequest mLocationRequest = new LocationRequest();
+        mLocationRequest.setInterval(10000);
+        mLocationRequest.setFastestInterval(5000);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
+                .addLocationRequest(mLocationRequest);
+        SettingsClient client = LocationServices.getSettingsClient(getActivity());
+        Task<LocationSettingsResponse> task = client.checkLocationSettings(builder.build());
+        task.addOnFailureListener(getActivity(), new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                if (e instanceof ResolvableApiException) {
+                    // Location settings are not satisfied, but this can be fixed
+                    // by showing the user a dialog.
+                    try {
+                        // Show the dialog by calling startResolutionForResult(),
+                        // and check the result in onActivityResult().
+                        ResolvableApiException resolvable = (ResolvableApiException) e;
+                        resolvable.startResolutionForResult(getActivity(),
+                                LOCATION_SETTINGS_RC);
+                    } catch (IntentSender.SendIntentException sendEx) {
+                        // Ignore the error.
+                    }
+                }
+            }
+        });
+        /*LocationManager lm = (LocationManager)getActivity().getSystemService(Context.LOCATION_SERVICE);
+        boolean gps_enabled = false;
+        boolean network_enabled = false;
+
+        try {
+            gps_enabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        } catch(Exception ex) {}
+
+        try {
+            network_enabled = lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+        } catch(Exception ex) {}
+
+        if(!gps_enabled && !network_enabled) {
+            // notify user
+            AlertDialog.Builder dialog = new AlertDialog.Builder(mContext);
+            dialog.setMessage("Please enable GPS to utilize the distance filter");
+            dialog.show();
+        }
+        return gps_enabled||network_enabled;*/
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if(requestCode == LOCATION_SETTINGS_RC);
     }
 }
