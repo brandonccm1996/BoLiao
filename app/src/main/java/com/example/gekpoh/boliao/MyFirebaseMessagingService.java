@@ -25,14 +25,14 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         // Check if message contains a data payload.
         if (remoteMessage.getData().size() > 0) {
-            Log.d("FbMessagingService", "newStartDateTime: " + remoteMessage.getData().get("body"));
+            Log.d("FbMessagingService", "groupId: " + remoteMessage.getData().get("groupId"));
+            Log.d("FbMessagingService", "newStartDateTime: " + remoteMessage.getData().get("newDateTime"));
 
             if (/* Check if data needs to be processed by long running job */ true) {
                 // For long-running tasks (10 seconds or more) use Firebase Job Dispatcher.
             } else {
                 // Handle message within 10 seconds
             }
-
         }
 
         // Check if message contains a notification payload.
