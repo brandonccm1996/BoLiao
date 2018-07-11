@@ -4,7 +4,8 @@
     <string name="MainActivityTab2Name">Search</string>
     <string name="GroupDetailsActivityTab1Name">Event Info</string>
     <string name="GroupDetailsActivityTab2Name">Location</string>
-    <string name="GroupDetailsActivityTab3Name">Group Chat</string>
+    <string name="GroupDetailsActivityTab3Name">Members</string>
+    <string name="GroupDetailsActivityTab4Name">Group Chat</string>
     <string name="chatFragmentSendButtonLabel">Send</string>
     <string name="JoinButtonLabel">Join</string>
     <string name="LeaveButtonLabel">Leave</string>

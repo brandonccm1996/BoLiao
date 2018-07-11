@@ -42,8 +42,8 @@ public class GroupDetailsActivity extends AppCompatActivity implements OnMapRead
     private boolean inEvent;
     private static final String TAG = "GroupDetailsActivity";
     private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
-    private static int JOIN_NUM_PAGES = 3;
-    private static int NOT_JOIN_NUM_PAGES = 2;
+    private static int JOIN_NUM_PAGES = 4;
+    private static int NOT_JOIN_NUM_PAGES = 3;
     private static final int DEFAULT_ZOOM = 15;
     private boolean locationPermissionGranted = false;
     private String groupId;
@@ -53,6 +53,7 @@ public class GroupDetailsActivity extends AppCompatActivity implements OnMapRead
     private ChatFragment chatFragment;
     private EventInfoFragment eventInfoFragment;
     private SupportMapFragment mapFragment;
+    private MembersFragment membersFragment;
     private GoogleMap googleMap;
     private Place place;
     //Client to get data from placeid
@@ -222,6 +223,8 @@ public class GroupDetailsActivity extends AppCompatActivity implements OnMapRead
                 case 1:
                     return mapFragment;
                 case 2:
+                    return membersFragment;
+                case 3:
                     return chatFragment;
                 default:
                     return null;
@@ -243,6 +246,8 @@ public class GroupDetailsActivity extends AppCompatActivity implements OnMapRead
                     return getString(R.string.GroupDetailsActivityTab2Name);
                 case 2:
                     return getString(R.string.GroupDetailsActivityTab3Name);
+                case 3:
+                    return getString(R.string.GroupDetailsActivityTab4Name);
                 default:
                     return null;
             }
@@ -313,6 +318,7 @@ public class GroupDetailsActivity extends AppCompatActivity implements OnMapRead
                         mapFragment = SupportMapFragment.newInstance();
                         mapFragment.getMapAsync(GroupDetailsActivity.this);
                         eventInfoFragment = new EventInfoFragment();
+                        membersFragment = new MembersFragment();
                         Bundle args2 = new Bundle();
                         args2.putBoolean(getString(R.string.InActivityKey), inEvent);
                         args2.putString(getString(R.string.groupNameKey), mGroup.getNames());
