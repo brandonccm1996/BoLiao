@@ -5,22 +5,21 @@ import android.content.Intent;
 import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.graphics.Paint;
 import android.location.Location;
-import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.firebase.geofire.GeoFire;
@@ -37,19 +36,14 @@ import com.google.android.gms.location.SettingsClient;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class SearchGroupFragment extends Fragment implements GroupRecyclerAdapter.GroupTouchCallBack {
     private Context mContext;
@@ -60,6 +54,8 @@ public class SearchGroupFragment extends Fragment implements GroupRecyclerAdapte
     private FusedLocationProviderClient mFusedLocationProviderClient;
     private RecyclerView groupView;
     private GroupRecyclerAdapter adapter;
+    private TextView searchTextView, noActivitiesTextView;
+    private ImageButton initialSearchButton;
     private static SearchGroupFragment sgFragment;
     private final ArrayList<Group> searchedgroups = new ArrayList<>();
     private DatabaseReference mDatabaseReference;
@@ -107,8 +103,19 @@ public class SearchGroupFragment extends Fragment implements GroupRecyclerAdapte
         //groupList = getArguments().getParcelableArrayList(getResources().getString(R.string.searched_groups));
         adapter = new GroupRecyclerAdapter(this, searchedgroups);
         groupView = getView().findViewById(R.id.groupList);
+        noActivitiesTextView = getView().findViewById(R.id.noActivitiesTextView);
+        searchTextView = getView().findViewById(R.id.SearchActivitiesTextView);
+        noActivitiesTextView.setVisibility(View.INVISIBLE);
+        initialSearchButton = getView().findViewById(R.id.initialSearchButton);
+        initialSearchButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mReloadInterface.startSearch();
+            }
+        });
         groupView.setLayoutManager(new reloadLayoutManager(getActivity()));
         groupView.setAdapter(adapter);
+        groupView.setVisibility(View.GONE);
     }
 
     public void onSignIn() {
@@ -186,6 +193,11 @@ public class SearchGroupFragment extends Fragment implements GroupRecyclerAdapte
                     }
                     if (loadingList.isEmpty() && !stillLoading) {
                         adapter.notifyDataSetChanged();
+                        if(searchedgroups.isEmpty()){
+                            displayActivitiesNotFound();
+                        }else{
+                            displayActivitiesFound();
+                        }
                     }
                 }
 
@@ -245,6 +257,11 @@ public class SearchGroupFragment extends Fragment implements GroupRecyclerAdapte
                         }
                     }
                     adapter.notifyDataSetChanged();
+                    if(searchedgroups.isEmpty()){
+                        displayActivitiesNotFound();
+                    }else{
+                        displayActivitiesFound();
+                    }
                 }
 
                 @Override
@@ -355,6 +372,8 @@ public class SearchGroupFragment extends Fragment implements GroupRecyclerAdapte
         long[] getTimeFilter();
 
         HashSet<String> getCatergoriesFilter();
+
+        void startSearch();
     }
 
     public LatLng getLastKnownLatLng() {
@@ -413,5 +432,21 @@ public class SearchGroupFragment extends Fragment implements GroupRecyclerAdapte
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if(requestCode == LOCATION_SETTINGS_RC);
+    }
+
+    public void displayActivitiesFound(){
+        searchTextView.setVisibility(View.INVISIBLE);
+        initialSearchButton.setVisibility(View.INVISIBLE);
+        initialSearchButton.setEnabled(false);
+        groupView.setVisibility(View.VISIBLE);
+        noActivitiesTextView.setVisibility(View.INVISIBLE);
+    }
+
+    public void displayActivitiesNotFound(){
+        searchTextView.setVisibility(View.INVISIBLE);
+        initialSearchButton.setVisibility(View.INVISIBLE);
+        initialSearchButton.setEnabled(false);
+        groupView.setVisibility(View.GONE);
+        noActivitiesTextView.setVisibility(View.VISIBLE);
     }
 }

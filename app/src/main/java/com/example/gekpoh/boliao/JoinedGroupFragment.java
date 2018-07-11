@@ -13,6 +13,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.database.ChildEventListener;
@@ -30,13 +34,17 @@ public class JoinedGroupFragment extends Fragment implements GroupRecyclerAdapte
     private static JoinedGroupFragment jgFragment;
     private boolean signedIn = false;
     private Context mContext;
+    private SearchInterface searchInterface;
     private RecyclerView groupView;
+    private TextView searchActivityText;
     private GroupRecyclerAdapter adapter;
+    private ImageButton searchButton;
     private DatabaseReference mGroupDatabaseReference, mJoinedListDatabaseReference;
     private ChildEventListener mChildEventListener;
     private ValueEventListener mValueEventListener;
     private final ArrayList<Group> joinedgroups = new ArrayList<>();
     private final String TAG = "JoinedGroupFragment";
+    private boolean viewState = false;
 
     public static JoinedGroupFragment getInstance() {
         if (jgFragment == null) {
@@ -49,6 +57,11 @@ public class JoinedGroupFragment extends Fragment implements GroupRecyclerAdapte
     public void onAttach(Context context) {
         super.onAttach(context);
         mContext = context;
+        try{
+            searchInterface = (SearchInterface)context;
+        }catch(ClassCastException e){
+            Log.e(TAG, "Need to implement search interface");
+        }
     }
 
     @Override
@@ -63,6 +76,17 @@ public class JoinedGroupFragment extends Fragment implements GroupRecyclerAdapte
         super.onViewCreated(view, savedInstanceState);
         adapter = new GroupRecyclerAdapter(this, joinedgroups);
         groupView = getView().findViewById(R.id.groupList);
+        searchActivityText = getView().findViewById(R.id.SearchActivitiesTextView);
+        searchActivityText.setText("Press the Search button to join new activities");
+        TextView noActivityFoundText = getView().findViewById(R.id.noActivitiesTextView);
+        noActivityFoundText.setVisibility(View.INVISIBLE);
+        searchButton = getView().findViewById(R.id.initialSearchButton);
+        searchButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                searchInterface.startSearch();
+            }
+        });
         groupView.setLayoutManager(new LinearLayoutManager(getActivity()));
         groupView.setAdapter(adapter);
     }
@@ -83,6 +107,9 @@ public class JoinedGroupFragment extends Fragment implements GroupRecyclerAdapte
                 if(group == null)return;
                 joinedgroups.add(group);
                 adapter.notifyDataSetChanged();
+                if(!viewState){
+                    displayNonEmptyLayout();
+                }
             }
 
             @Override
@@ -115,6 +142,9 @@ public class JoinedGroupFragment extends Fragment implements GroupRecyclerAdapte
                         adapter.notifyDataSetChanged();
                         break;
                     }
+                }
+                if(joinedgroups.isEmpty()){
+                    displayEmptyLayout();
                 }
                 joinedgroupIds.remove(id);
             }
@@ -167,5 +197,26 @@ public class JoinedGroupFragment extends Fragment implements GroupRecyclerAdapte
         }
 
         adapter.notifyDataSetChanged();
+    }
+
+    public void displayEmptyLayout(){
+        viewState = false;
+        searchButton.setEnabled(true);
+        searchButton.setVisibility(View.VISIBLE);
+        searchActivityText.setVisibility(View.VISIBLE);
+        groupView.setVisibility(View.INVISIBLE);
+    }
+
+
+    public void displayNonEmptyLayout(){
+        viewState = true;
+        searchButton.setEnabled(false);
+        searchButton.setVisibility(View.INVISIBLE);
+        searchActivityText.setVisibility(View.INVISIBLE);
+        groupView.setVisibility(View.VISIBLE);
+    }
+
+    public interface SearchInterface{
+        void startSearch();
     }
 }

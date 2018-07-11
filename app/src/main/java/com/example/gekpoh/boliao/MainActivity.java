@@ -50,7 +50,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashSet;
 
-public class MainActivity extends AppCompatActivity implements SearchGroupFragment.reloadFilterInterface {
+public class MainActivity extends AppCompatActivity implements SearchGroupFragment.reloadFilterInterface,JoinedGroupFragment.SearchInterface {
     public static String userDisplayName;
     public static String userUid;
     private FirebaseAuth mFirebaseAuth;
@@ -80,6 +80,7 @@ public class MainActivity extends AppCompatActivity implements SearchGroupFragme
         getSupportActionBar().setLogo(R.drawable.common_google_signin_btn_icon_dark);
         getSupportActionBar().setDisplayUseLogoEnabled(true);
         mDrawerLayout = findViewById(R.id.drawer_layout);
+        mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
         mDrawerLayout.addDrawerListener(new DrawerLayout.DrawerListener() {
             @Override
             public void onDrawerSlide(@NonNull View drawerView, float slideOffset) {
@@ -411,6 +412,15 @@ public class MainActivity extends AppCompatActivity implements SearchGroupFragme
     public HashSet<String> getCatergoriesFilter() {
         HashSet<String> hashSet = new HashSet<>();
         return hashSet;
+    }
+
+    @Override
+    public void startSearch() {
+        mDrawerLayout.openDrawer(GravityCompat.END);
+        mViewPager.setCurrentItem(1);
+        searchItem.expandActionView();
+        SearchView view = (SearchView) searchItem.getActionView();
+        view.setIconified(false);
     }
 
     private class GroupPagerAdapter extends FragmentStatePagerAdapter {
