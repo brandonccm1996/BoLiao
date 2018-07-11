@@ -28,10 +28,12 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             if (remoteMessage.getData().get("title").equals("Start Time Change Detected")) {
                 Log.d("FbMessagingService", "groupId: " + remoteMessage.getData().get("groupId"));
                 Log.d("FbMessagingService", "newStartDateTime: " + remoteMessage.getData().get("newDateTime"));
+                TimeNotificationScheduler.updateReminder(this,remoteMessage.getData().get("groupId"), null, Long.parseLong(remoteMessage.getData().get("newDateTime")), TimeNotificationScheduler.DELAY_2HRS);
             }
             else if (remoteMessage.getData().get("title").equals("Name Change Detected")) {
                 Log.d("FbMessagingService", "groupId: " + remoteMessage.getData().get("groupId"));
                 Log.d("FbMessagingService", "newName: " + remoteMessage.getData().get("newName"));
+                TimeNotificationScheduler.updateReminder(this,remoteMessage.getData().get("groupId"), remoteMessage.getData().get("newName"), -1, TimeNotificationScheduler.DELAY_2HRS);
             }
 
             if (/* Check if data needs to be processed by long running job */ true) {

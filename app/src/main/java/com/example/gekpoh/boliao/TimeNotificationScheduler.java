@@ -54,7 +54,7 @@ public class TimeNotificationScheduler {
     //Set reminders for notifications that does not exist in the database
     public static void setNewReminder(Context context, String groupId, String activityName, long activityTimeStamp, long delayTimeStamp) {
         //Create new reminder then insert into database
-        if(System.currentTimeMillis() > activityTimeStamp + delayTimeStamp) return;
+        if(System.currentTimeMillis() > activityTimeStamp - delayTimeStamp) return;
         Log.v(TAG, "Creating new TimeNotification object");
         TimeNotification notification = new TimeNotification();
         notification.id = (int) System.currentTimeMillis();
@@ -65,6 +65,11 @@ public class TimeNotificationScheduler {
         new InsertNewReminderTask(context, notification).execute();
 
         setExistingReminder(context, notification);
+    }
+    public static void updateReminder(Context context, String groupId, String activityName, long activityTimeStamp, long delayTimeStamp) {
+        //Create new reminder then insert into database
+        if(System.currentTimeMillis() > activityTimeStamp - delayTimeStamp) return;
+        new UpdateReminderTask(context, groupId, activityName, activityTimeStamp, delayTimeStamp).execute();
     }
 
     //Remove notification from database + remove pending intent from alarm manager
@@ -183,6 +188,47 @@ public class TimeNotificationScheduler {
             AlarmManager am = (AlarmManager) mContext.getSystemService(ALARM_SERVICE);
             am.cancel(pendingIntent);
             Log.v(TAG, "Post cancelling notification for:" + notification.activityName);
+            super.onPostExecute(notification);
+        }
+    }
+
+    private static class UpdateReminderTask extends AsyncTask<Void, Void, TimeNotification>{
+        private Context mContext;
+        private String groupId;
+        String activityName;
+        long timeStamp, timeDelay;
+        private UpdateReminderTask(Context context, String groupId, String activityName, long timeStamp , long timeDelay){
+            mContext = context;
+            this.groupId = groupId;
+            this.activityName = activityName;
+            this.timeStamp = timeStamp;
+            this.timeDelay = timeDelay;
+        }
+
+        @Override
+        protected TimeNotification doInBackground(Void... voids) {
+            TimeNotificationDatabase db = TimeNotificationDatabase.getTimeNotificationDatabase(mContext);
+            TimeNotification noti = db.timeNotificationDao().getNotificationById(groupId);
+            db.timeNotificationDao().deleteById(groupId);
+            return noti;
+        }
+
+        @Override
+        protected void onPostExecute(TimeNotification notification) {
+            if(notification == null) return;
+            if(activityName == null) activityName = notification.activityName;
+            if(timeStamp == -1) timeStamp = notification.activityTime;
+            ComponentName receiver = new ComponentName(mContext, TimeNotificationReceiver.class);
+            PackageManager pm = mContext.getPackageManager();
+            pm.setComponentEnabledSetting(receiver,
+                    PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+                    PackageManager.DONT_KILL_APP);
+            Intent intent = new Intent(mContext, TimeNotificationReceiver.class);
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(mContext, notification.id, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+            AlarmManager am = (AlarmManager) mContext.getSystemService(ALARM_SERVICE);
+            am.cancel(pendingIntent);
+            Log.v(TAG, "Post updating notification for:" + notification.activityName);
+            setNewReminder(mContext, groupId, activityName, timeStamp, timeDelay);
             super.onPostExecute(notification);
         }
     }
