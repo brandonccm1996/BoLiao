@@ -144,21 +144,21 @@ public class SearchGroupFragment extends Fragment implements GroupRecyclerAdapte
         startActivity(intent);
     }
 
-    public void reloadList(String quer) {
+    public boolean reloadList(String quer) {
         //Add other filters here
         if (SystemClock.elapsedRealtime() - reloadTimer < 2000)
-            return;//Can only reload once every 2 second
+            return false;//Can only reload once every 2 second
         reloadTimer = SystemClock.elapsedRealtime();
 
         if (!FirebaseDatabaseUtils.connectedToDatabase()) {
             Toast.makeText(mContext, "Offline searching not available. Please check your internet connection", Toast.LENGTH_SHORT).show();
-            return;
+            return false;
         }
         boolean distanceFilter = mReloadInterface.distanceFilterChecked();
         long distance = mReloadInterface.getDistanceFilter();
         if (distanceFilter && distance == -1) {
             Toast.makeText(mContext, "Please set the distance filter", Toast.LENGTH_SHORT).show();
-            return;
+            return false;
         }
 
         final boolean timeFilter = mReloadInterface.timeFilterChecked();
@@ -166,7 +166,7 @@ public class SearchGroupFragment extends Fragment implements GroupRecyclerAdapte
         boolean categoriesFilter = mReloadInterface.categoriesFilterChecked();
         if (timeFilter && (timefilters[0] == -1 || timefilters[1] == -1)) {
             Toast.makeText(mContext, "Please set an appropriate date in time filter", Toast.LENGTH_SHORT).show();
-            return;
+            return false;
         }
         final String query = quer.toLowerCase();
         searchedgroups.clear();
@@ -276,6 +276,7 @@ public class SearchGroupFragment extends Fragment implements GroupRecyclerAdapte
                 mDatabaseReference.addListenerForSingleValueEvent(mValueEventListener);
             }
         }
+        return true;
     }
 
     public void removeFromList(String id) {

@@ -35,6 +35,10 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.firebase.ui.auth.AuthUI;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapsInitializer;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -49,6 +53,7 @@ import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashSet;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity implements SearchGroupFragment.reloadFilterInterface,JoinedGroupFragment.SearchInterface {
     public static String userDisplayName;
@@ -75,6 +80,16 @@ public class MainActivity extends AppCompatActivity implements SearchGroupFragme
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        //Initialize google map api at the start of the app to reduce lag when users are using group details activity
+        SupportMapFragment dummy = (SupportMapFragment)getSupportFragmentManager().findFragmentById(R.id.dummyMapFragment);
+        dummy.getMapAsync(new OnMapReadyCallback() {
+            @Override
+            public void onMapReady(GoogleMap googleMap) {
+                Log.v(TAG, "dummy map fragment loaded");
+            }
+        });
+        //Initialize google map api at the start of the app to reduce lag when users are using group details activity
+
         // App Logo
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setLogo(R.drawable.common_google_signin_btn_icon_dark);
@@ -263,24 +278,30 @@ public class MainActivity extends AppCompatActivity implements SearchGroupFragme
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_main, menu);
         searchItem = menu.findItem(R.id.filter);
+        final SearchView mSearchView = (SearchView) searchItem.getActionView();
+        mSearchView.setIconifiedByDefault(true);
+        mSearchView.setFocusable(true);
+        mSearchView.requestFocusFromTouch();
         searchItem.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
             @Override
             public boolean onMenuItemActionExpand(MenuItem item) {
+                mSearchView.setIconified(false);
+                mSearchView.requestFocus();
                 return true;
             }
-
             @Override
             public boolean onMenuItemActionCollapse(MenuItem item) {
+                mSearchView.clearFocus();
                 mDrawerLayout.closeDrawers();
                 return true;
             }
         });
-        SearchView mSearchView = (SearchView) searchItem.getActionView();
         mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
                 Log.v(TAG, "Query submitted");
-                SearchGroupFragment.getInstance().reloadList(query);
+                boolean validSearch = SearchGroupFragment.getInstance().reloadList(query);
+                if(validSearch) searchItem.collapseActionView();
                 return true;
             }
 
@@ -349,8 +370,8 @@ public class MainActivity extends AppCompatActivity implements SearchGroupFragme
 
     @Override
     public void onBackPressed() {
-        if (mDrawerLayout.isDrawerVisible(findViewById(R.id.filter_drawer))) {
-            mDrawerLayout.closeDrawers();
+        if(searchItem.isActionViewExpanded()){
+            searchItem.collapseActionView();
         }
         super.onBackPressed();
     }

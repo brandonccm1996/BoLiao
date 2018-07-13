@@ -221,6 +221,7 @@ public class GroupDetailsActivity extends AppCompatActivity implements OnMapRead
                 case 0:
                     return eventInfoFragment;
                 case 1:
+                    mapFragment.getMapAsync(GroupDetailsActivity.this);
                     return mapFragment;
                 case 2:
                     return membersFragment;
@@ -317,6 +318,8 @@ public class GroupDetailsActivity extends AppCompatActivity implements OnMapRead
                     if (mGroup != null) {
                         mapFragment = SupportMapFragment.newInstance();
                         mapFragment.getMapAsync(GroupDetailsActivity.this);
+                        mGeoDataClient = Places.getGeoDataClient(GroupDetailsActivity.this);
+
                         eventInfoFragment = new EventInfoFragment();
                         membersFragment = new MembersFragment();
                         Bundle args2 = new Bundle();
@@ -337,7 +340,6 @@ public class GroupDetailsActivity extends AppCompatActivity implements OnMapRead
                         detailsPager.setAdapter(new GroupDetailsPagerAdapter(getSupportFragmentManager()));
                         TabLayout tabLayout = findViewById(R.id.detailsTabLayout);
                         tabLayout.setupWithViewPager(detailsPager);
-                        mGeoDataClient = Places.getGeoDataClient(GroupDetailsActivity.this);
                     } else {
                         finish();
                     }

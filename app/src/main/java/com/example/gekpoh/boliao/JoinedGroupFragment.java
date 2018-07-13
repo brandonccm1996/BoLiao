@@ -219,4 +219,14 @@ public class JoinedGroupFragment extends Fragment implements GroupRecyclerAdapte
     public interface SearchInterface{
         void startSearch();
     }
+
+    @Override
+    public void onResume() {
+        if(joinedgroups == null || joinedgroups.isEmpty()){
+            displayEmptyLayout();
+        }else{
+            displayNonEmptyLayout();
+        }
+        super.onResume();
+    }
 }
