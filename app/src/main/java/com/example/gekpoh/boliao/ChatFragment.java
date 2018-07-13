@@ -41,7 +41,7 @@ import static android.app.Activity.RESULT_OK;
 
 public class ChatFragment extends Fragment {
     private static final int MAX_MESSAGE_LENGTH = 140;
-    private static final int RC_PHOTO_PICKER = 1;
+    public static final int RC_PHOTO_PICKER = 1;
     private final String TAG = "ChatFragment";
     private boolean moveToEndAllowed = true;
     private RecyclerView chatRecyclerView;
@@ -167,7 +167,6 @@ public class ChatFragment extends Fragment {
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == RC_PHOTO_PICKER && resultCode == RESULT_OK){
             Uri selectedImageUri = data.getData();
             final StorageReference photoRef = mChatPhotoStorageReference.child(selectedImageUri.getLastPathSegment());
@@ -210,10 +209,12 @@ public class ChatFragment extends Fragment {
 
     @Override
     public void onPause() {
+        /*
         if (mDatabaseReference != null && mChildEventListener != null) {
             mDatabaseReference.removeEventListener(mChildEventListener);
             mChildEventListener = null;
         }
+        */
         super.onPause();
     }
     @Override

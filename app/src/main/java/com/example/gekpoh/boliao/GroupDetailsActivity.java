@@ -1,5 +1,7 @@
 package com.example.gekpoh.boliao;
 
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.provider.ContactsContract;
@@ -60,6 +62,7 @@ public class GroupDetailsActivity extends AppCompatActivity implements OnMapRead
     private GeoDataClient mGeoDataClient;
     private DatabaseReference ref;
     private ValueEventListener listener;
+    private ViewPager detailsPager;
 
     // Client to get current Location
     //private FusedLocationProviderClient mFusedLocationProviderClient;
@@ -221,7 +224,6 @@ public class GroupDetailsActivity extends AppCompatActivity implements OnMapRead
                 case 0:
                     return eventInfoFragment;
                 case 1:
-                    mapFragment.getMapAsync(GroupDetailsActivity.this);
                     return mapFragment;
                 case 2:
                     return membersFragment;
@@ -336,10 +338,13 @@ public class GroupDetailsActivity extends AppCompatActivity implements OnMapRead
                         args2.putInt(getString(R.string.groupMaxSizeKey), mGroup.getMaxParticipants());
                         eventInfoFragment.setArguments(args2);
 
-                        ViewPager detailsPager = findViewById(R.id.groupDetailsPager);
-                        detailsPager.setAdapter(new GroupDetailsPagerAdapter(getSupportFragmentManager()));
-                        TabLayout tabLayout = findViewById(R.id.detailsTabLayout);
-                        tabLayout.setupWithViewPager(detailsPager);
+                        if(detailsPager == null) {
+                            detailsPager = findViewById(R.id.groupDetailsPager);
+                            detailsPager.setOffscreenPageLimit(5);
+                            detailsPager.setAdapter(new GroupDetailsPagerAdapter(getSupportFragmentManager()));
+                            TabLayout tabLayout = findViewById(R.id.detailsTabLayout);
+                            tabLayout.setupWithViewPager(detailsPager);
+                        }
                     } else {
                         finish();
                     }
