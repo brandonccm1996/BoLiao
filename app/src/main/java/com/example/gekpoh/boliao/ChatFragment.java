@@ -136,9 +136,10 @@ public class ChatFragment extends Fragment {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                 Log.v(TAG, "child added");
-                chatMessageList.add(dataSnapshot.getValue(ChatMessage.class));
+                ChatMessage chatMessage = dataSnapshot.getValue(ChatMessage.class);
+                chatMessageList.add(chatMessage);
                 adapter.notifyDataSetChanged();
-                if(moveToEndAllowed) chatRecyclerView.smoothScrollToPosition(chatMessageList.size() - 1);
+                if(moveToEndAllowed || chatMessage.getUid() == MainActivity.userUid) chatRecyclerView.smoothScrollToPosition(chatMessageList.size() - 1);
             }
 
             @Override
