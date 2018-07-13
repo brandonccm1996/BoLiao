@@ -337,6 +337,7 @@ public class GroupDetailsActivity extends AppCompatActivity implements OnMapRead
                         args2.putInt(getString(R.string.groupCurrentSizeKey), mGroup.getNumParticipants());
                         args2.putInt(getString(R.string.groupMaxSizeKey), mGroup.getMaxParticipants());
                         eventInfoFragment.setArguments(args2);
+                        membersFragment.setArguments(args2);
 
                         if(detailsPager == null) {
                             detailsPager = findViewById(R.id.groupDetailsPager);

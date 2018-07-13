@@ -126,7 +126,7 @@ public class EditProfileActivity extends AppCompatActivity {
             }
         });
 
-        mUsersDatabaseReference.addValueEventListener(new ValueEventListener() {
+        mUsersDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 

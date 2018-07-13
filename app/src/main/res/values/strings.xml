@@ -3,7 +3,7 @@
     <string name="MainActivityTab1Name">Your Activities</string>
     <string name="MainActivityTab2Name">Search</string>
     <string name="GroupDetailsActivityTab1Name">Event Info</string>
-    <string name="GroupDetailsActivityTab2Name">Location</string>
+    <string name="GroupDetailsActivityTab2Name">Map</string>
     <string name="GroupDetailsActivityTab3Name">Members</string>
     <string name="GroupDetailsActivityTab4Name">Group Chat</string>
     <string name="chatFragmentSendButtonLabel">Send</string>

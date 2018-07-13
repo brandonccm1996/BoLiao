@@ -11,15 +11,17 @@ import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class MembersAdapter extends RecyclerView.Adapter<MembersAdapter.MembersViewHolder>{
 
     private Context mCtx;
-    private ArrayList<UserInformation> membersList;
+    private ArrayList<UserInformation2> membersList;
 
-    public MembersAdapter(Context mCtx, ArrayList<UserInformation> membersList) {
+    public MembersAdapter(Context mCtx, ArrayList<UserInformation2> membersList) {
         this.mCtx = mCtx;
         this.membersList = membersList;
     }
@@ -34,12 +36,15 @@ public class MembersAdapter extends RecyclerView.Adapter<MembersAdapter.MembersV
 
     @Override
     public void onBindViewHolder(@NonNull MembersViewHolder holder, int position) {
-        UserInformation userInformation = membersList.get(position);
+        UserInformation2 userInformation2 = membersList.get(position);
 
-        holder.textViewName.setText(userInformation.getName());
-        if (userInformation.getNumRatings() == 0) holder.ratingBar.setRating(0);
-        else holder.ratingBar.setRating(userInformation.getSumRating() / userInformation.getNumRatings());
-
+        holder.textViewName.setText(userInformation2.getUserInformation().getName());
+        if (userInformation2.getUserInformation().getNumRatings() == 0) holder.ratingBar.setRating(0);
+        else holder.ratingBar.setRating(userInformation2.getUserInformation().getSumRating() / userInformation2.getUserInformation().getNumRatings());
+        if (userInformation2.getUserInformation().getPhotoUrl() == null) holder.imageViewProPic.setImageResource(R.drawable.profilepic);
+        else Glide.with(holder.imageViewProPic.getContext())
+                .load(userInformation2.getUserInformation().getPhotoUrl())
+                .into(holder.imageViewProPic);
     }
 
     @Override
@@ -61,6 +66,20 @@ public class MembersAdapter extends RecyclerView.Adapter<MembersAdapter.MembersV
             ratingBar = itemView.findViewById(R.id.ratingBar);
             buttonRemove = itemView.findViewById(R.id.buttonRemove);
             buttonRate = itemView.findViewById(R.id.buttonRate);
+
+            buttonRate.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                }
+            });
+
+            buttonRemove.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                }
+            });
         }
     }
 }
