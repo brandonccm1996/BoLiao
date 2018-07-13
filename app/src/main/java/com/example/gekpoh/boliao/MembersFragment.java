@@ -64,7 +64,7 @@ public class MembersFragment extends Fragment {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if (dataSnapshot.child(MainActivity.userUid).child("isAdmin").getValue(Boolean.class) == true) userIsAdmin = true;   // if current user is admin
-                else memberInfo2.setIsAdmin(false); // if current user not admin
+                else userIsAdmin = false; // if current user not admin
 
                 for (DataSnapshot childSnapshot : dataSnapshot.getChildren()) {
                     memberId = childSnapshot.getKey();
