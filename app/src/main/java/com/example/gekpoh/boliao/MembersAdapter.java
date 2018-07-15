@@ -1,14 +1,19 @@
 package com.example.gekpoh.boliao;
 
 import android.content.Context;
+import android.content.DialogInterface;
+import android.graphics.drawable.ColorDrawable;
 import android.support.annotation.NonNull;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.PopupWindow;
 import android.widget.RatingBar;
 import android.widget.TextView;
 
@@ -21,10 +26,12 @@ public class MembersAdapter extends RecyclerView.Adapter<MembersAdapter.MembersV
 
     private Context mCtx;
     private ArrayList<UserInformation2> membersList;
+    private MembersFragment membersFragment;
 
-    public MembersAdapter(Context mCtx, ArrayList<UserInformation2> membersList) {
+    public MembersAdapter(Context mCtx, ArrayList<UserInformation2> membersList, MembersFragment membersFragment) {
         this.mCtx = mCtx;
         this.membersList = membersList;
+        this.membersFragment = membersFragment;
     }
 
     @NonNull
@@ -51,6 +58,10 @@ public class MembersAdapter extends RecyclerView.Adapter<MembersAdapter.MembersV
         else holder.buttonRemove.setVisibility(View.INVISIBLE);
         if (userInformation2.getMemberIsAdmin()) holder.textViewAdmin.setVisibility(View.VISIBLE);
         else holder.textViewAdmin.setVisibility(View.INVISIBLE);
+        if (userInformation2.getUserId().equals(MainActivity.userUid)) holder.buttonRate.setVisibility(View.INVISIBLE);
+        else holder.buttonRate.setVisibility(View.VISIBLE);
+
+        holder.textViewDummy.setText(userInformation2.getUserId());
     }
 
     @Override
@@ -65,6 +76,7 @@ public class MembersAdapter extends RecyclerView.Adapter<MembersAdapter.MembersV
         private Button buttonRemove;
         private Button buttonRate;
         private TextView textViewAdmin;
+        private TextView textViewDummy;
 
         public MembersViewHolder(View itemView) {
             super(itemView);
@@ -74,18 +86,22 @@ public class MembersAdapter extends RecyclerView.Adapter<MembersAdapter.MembersV
             textViewAdmin = itemView.findViewById(R.id.textViewAdmin);
             buttonRemove = itemView.findViewById(R.id.buttonRemove);
             buttonRate = itemView.findViewById(R.id.buttonRate);
+            textViewDummy = itemView.findViewById(R.id.textViewDummy);
 
             buttonRate.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-
+                    membersFragment.rateMember(textViewDummy.getText().toString(), textViewName.getText().toString());
+                    Log.d("MembersAdapter", textViewName.getText().toString());
                 }
             });
 
             buttonRemove.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-
+                    membersFragment.removeMember(textViewDummy.getText().toString(), textViewName.getText().toString());
+                    Log.d("MembersAdapter2", textViewDummy.getText().toString());
+                    Log.d("MembersAdapter2", textViewName.getText().toString());
                 }
             });
         }

@@ -1,9 +1,13 @@
 package com.example.gekpoh.boliao;
 
+import android.content.Context;
+import android.content.DialogInterface;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -46,9 +50,61 @@ public class MembersFragment extends Fragment {
         mUsersDatabaseReference = FirebaseDatabaseUtils.getDatabase().getReference().child("users");
         mUserListsDatabaseReference.keepSynced(true);
 
-//        Example
-//        membersList.add(new UserInformation2(new UserInformation("user1", "desc1", "", 5, 2), false, false, "abc"));
-//        membersList.add(new UserInformation2(new UserInformation("user2", "desc2", "", 3, 3), false, false, "abc"));
+        reloadRecycler();
+        membersRecyclerView = getView().findViewById(R.id.membersRecyclerView);
+        membersRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        membersAdapter = new MembersAdapter(getActivity(), membersList, MembersFragment.this);
+        membersRecyclerView.setAdapter(membersAdapter);
+    }
+
+    public void removeMember(String memberId, String memberName) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
+                .setCancelable(true)
+                .setTitle("Removing member")
+                .setMessage("Are you sure you want to remove " + memberName + " from the group? Member removal is not reversible.")
+                .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        reloadRecycler();
+                    }
+                })
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                });
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    public void rateMember(String memberId, String memberName) {
+        LayoutInflater inflater = getActivity().getLayoutInflater();
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
+                .setCancelable(true)
+                .setView(inflater.inflate(R.layout.rate_popup_window, null))
+                .setPositiveButton("Submit", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        reloadRecycler();
+                    }
+                })
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                })
+                .setTitle("Rate " + memberName)
+                .setMessage("Help make a friendly community on BoLiao by rating your fellow group members.");
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    public void reloadRecycler() {
+        membersList.clear();
 
         mUserListsDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -89,10 +145,5 @@ public class MembersFragment extends Fragment {
 
             }
         });
-
-        membersRecyclerView = getView().findViewById(R.id.membersRecyclerView);
-        membersRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        membersAdapter = new MembersAdapter(getActivity(), membersList);
-        membersRecyclerView.setAdapter(membersAdapter);
     }
 }
