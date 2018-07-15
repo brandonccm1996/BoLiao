@@ -1,14 +1,15 @@
 package com.example.gekpoh.boliao;
 
-// UserInformation with isAdmin true/false and userId
 public class UserInformation2 {
     private UserInformation userInformation;
-    private boolean isAdmin;
+    private boolean enableRemove;   // enable/disable remove button
+    private boolean memberIsAdmin;
     private String userId;
 
-    public UserInformation2(UserInformation userInformation, boolean isAdmin, String userId) {
+    public UserInformation2(UserInformation userInformation, boolean enableRemove, boolean memberIsAdmin, String userId) {
         this.userInformation = userInformation;
-        this.isAdmin = isAdmin;
+        this.enableRemove = enableRemove;
+        this.memberIsAdmin = memberIsAdmin;
         this.userId = userId;
     }
 
@@ -18,13 +19,13 @@ public class UserInformation2 {
 
     public void setUserInformation(UserInformation userInformation) { this.userInformation = userInformation; }
 
-    public boolean getIsAdmin() {
-        return isAdmin;
-    }
+    public boolean getEnableRemove() { return enableRemove; }
 
-    public void setIsAdmin(boolean admin) {
-        this.isAdmin = admin;
-    }
+    public void setEnableRemove(boolean enableRemove) { this.enableRemove = enableRemove; }
+
+    public boolean getMemberIsAdmin() { return memberIsAdmin; }
+
+    public void setMemberIsAdmin(boolean memberIsAdmin) { this.memberIsAdmin = memberIsAdmin; }
 
     public String getUserId() { return userId; }
 

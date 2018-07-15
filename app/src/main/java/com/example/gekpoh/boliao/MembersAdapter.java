@@ -3,6 +3,7 @@ package com.example.gekpoh.boliao;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -41,10 +42,15 @@ public class MembersAdapter extends RecyclerView.Adapter<MembersAdapter.MembersV
         holder.textViewName.setText(userInformation2.getUserInformation().getName());
         if (userInformation2.getUserInformation().getNumRatings() == 0) holder.ratingBar.setRating(0);
         else holder.ratingBar.setRating(userInformation2.getUserInformation().getSumRating() / userInformation2.getUserInformation().getNumRatings());
-        if (userInformation2.getUserInformation().getPhotoUrl() == null) holder.imageViewProPic.setImageResource(R.drawable.profilepic);
+        if (userInformation2.getUserInformation().getPhotoUrl().equals("")) holder.imageViewProPic.setImageResource(R.drawable.profilepic);
         else Glide.with(holder.imageViewProPic.getContext())
-                .load(userInformation2.getUserInformation().getPhotoUrl())
-                .into(holder.imageViewProPic);
+                    .load(userInformation2.getUserInformation().getPhotoUrl())
+                    .into(holder.imageViewProPic);
+
+        if (userInformation2.getEnableRemove()) holder.buttonRemove.setVisibility(View.VISIBLE);
+        else holder.buttonRemove.setVisibility(View.INVISIBLE);
+        if (userInformation2.getMemberIsAdmin()) holder.textViewAdmin.setVisibility(View.VISIBLE);
+        else holder.textViewAdmin.setVisibility(View.INVISIBLE);
     }
 
     @Override
@@ -58,12 +64,14 @@ public class MembersAdapter extends RecyclerView.Adapter<MembersAdapter.MembersV
         private RatingBar ratingBar;
         private Button buttonRemove;
         private Button buttonRate;
+        private TextView textViewAdmin;
 
         public MembersViewHolder(View itemView) {
             super(itemView);
             textViewName = itemView.findViewById(R.id.textViewName);
             imageViewProPic = itemView.findViewById(R.id.imageViewProPic);
             ratingBar = itemView.findViewById(R.id.ratingBar);
+            textViewAdmin = itemView.findViewById(R.id.textViewAdmin);
             buttonRemove = itemView.findViewById(R.id.buttonRemove);
             buttonRate = itemView.findViewById(R.id.buttonRate);
 

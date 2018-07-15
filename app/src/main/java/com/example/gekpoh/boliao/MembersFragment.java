@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.firebase.ui.auth.data.model.User;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -27,9 +28,6 @@ public class MembersFragment extends Fragment {
     private DatabaseReference mUserListsDatabaseReference;
     private DatabaseReference mUsersDatabaseReference;
     private ArrayList<UserInformation2> membersList = new ArrayList<>();
-    private String memberId;
-    private UserInformation memberInfo;
-    private UserInformation2 memberInfo2;
     private boolean userIsAdmin;
     private MembersAdapter membersAdapter;
 
@@ -49,37 +47,32 @@ public class MembersFragment extends Fragment {
         mUserListsDatabaseReference.keepSynced(true);
 
 //        Example
-        membersList.add(new UserInformation2(new UserInformation("user1", "desc1", null, 5, 2), false, "abc"));
-        membersList.add(new UserInformation2(new UserInformation("user2", "desc2", null, 3, 3), false, "abc"));
+//        membersList.add(new UserInformation2(new UserInformation("user1", "desc1", "", 5, 2), false, false, "abc"));
+//        membersList.add(new UserInformation2(new UserInformation("user2", "desc2", "", 3, 3), false, false, "abc"));
 
-        membersRecyclerView = getView().findViewById(R.id.membersRecyclerView);
-        membersRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        membersAdapter = new MembersAdapter(getActivity(), membersList);
-        membersRecyclerView.setAdapter(membersAdapter);
-
-//        memberInfo2 = new UserInformation2(
-//                new UserInformation("user1", "desc1", null, 5, 2), false, "abc"); // VERSION 1
-
-        mUserListsDatabaseReference.addValueEventListener(new ValueEventListener() {
+        mUserListsDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if (dataSnapshot.child(MainActivity.userUid).child("isAdmin").getValue(Boolean.class) == true) userIsAdmin = true;   // if current user is admin
-                else userIsAdmin = false; // if current user not admin
+                if (dataSnapshot.child(MainActivity.userUid).child("isAdmin").getValue(Boolean.class) == true) userIsAdmin = true;
+                else userIsAdmin = false;
 
                 for (DataSnapshot childSnapshot : dataSnapshot.getChildren()) {
-                    memberId = childSnapshot.getKey();
-                    Log.d("MembersFrag", memberId);
+                    final String memberId = childSnapshot.getKey();
+                    final boolean memberIsAdmin = childSnapshot.child("isAdmin").getValue(Boolean.class);
+                    if (memberIsAdmin) Log.d("MembersFrag", "true");
+                    else Log.d("MembersFrag", "false");
 
-                    mUsersDatabaseReference.child(memberId).addValueEventListener(new ValueEventListener() {
+                    mUsersDatabaseReference.child(memberId).addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                            Log.d("MembersFrag2", memberId);
-                            memberInfo = dataSnapshot.getValue(UserInformation.class);
-//                            memberInfo2.setUserId(memberId);              // VERSION 1
-//                            memberInfo2.setUserInformation(memberInfo);   // VERSION 1
-//                            memberInfo2.setIsAdmin(true);                 // VERSION 1
-//                            membersList.add(memberInfo2);                 // VERSION 1
-                            membersList.add(new UserInformation2(memberInfo, true, memberId));    // VERSION 2
+                            UserInformation memberInfo = dataSnapshot.getValue(UserInformation.class);
+
+                            if (userIsAdmin && memberId.equals(MainActivity.userUid)) membersList.add(new UserInformation2(memberInfo, false, true, memberId)); // card for myself when i am admin
+                            else if (userIsAdmin && memberIsAdmin) membersList.add(new UserInformation2(memberInfo, true, true, memberId)); // card for other admin when i am admin
+                            else if (userIsAdmin && !memberIsAdmin) membersList.add(new UserInformation2(memberInfo, true, false, memberId));   // card for other non-admin when i am admin
+                            else if (!userIsAdmin && memberIsAdmin) membersList.add(new UserInformation2(memberInfo, false, true, memberId));   // card for other admin when i am non-admin
+                            else if (!userIsAdmin && !memberIsAdmin) membersList.add(new UserInformation2(memberInfo, false, false, memberId)); // card for other non-admin (including myself) when i am non-admin
+
                             membersAdapter.notifyDataSetChanged();
                         }
 
@@ -97,5 +90,9 @@ public class MembersFragment extends Fragment {
             }
         });
 
+        membersRecyclerView = getView().findViewById(R.id.membersRecyclerView);
+        membersRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        membersAdapter = new MembersAdapter(getActivity(), membersList);
+        membersRecyclerView.setAdapter(membersAdapter);
     }
 }
