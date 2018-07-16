@@ -5,12 +5,16 @@ public class UserInformation2 {
     private boolean enableRemove;   // enable/disable remove button
     private boolean memberIsAdmin;
     private String userId;
+    private boolean memberRatedBefore;
+    private boolean inEvent;
 
-    public UserInformation2(UserInformation userInformation, boolean enableRemove, boolean memberIsAdmin, String userId) {
+    public UserInformation2(UserInformation userInformation, boolean enableRemove, boolean memberIsAdmin, String userId, boolean memberRatedBefore, boolean inEvent) {
         this.userInformation = userInformation;
         this.enableRemove = enableRemove;
         this.memberIsAdmin = memberIsAdmin;
         this.userId = userId;
+        this.memberRatedBefore = memberRatedBefore;
+        this.inEvent = inEvent;
     }
 
     public UserInformation getUserInformation() {
@@ -30,4 +34,12 @@ public class UserInformation2 {
     public String getUserId() { return userId; }
 
     public void setUserId(String userId) { this.userId = userId; }
+
+    public boolean getMemberRatedBefore() { return memberRatedBefore; }
+
+    public void setMemberRatedBefore(boolean memberRatedBefore) { this.memberRatedBefore = memberRatedBefore; }
+
+    public boolean getInEvent() { return inEvent; }
+
+    public void setInEvent(boolean inEvent) { this.inEvent = inEvent; }
 }
