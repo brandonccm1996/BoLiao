@@ -29,6 +29,8 @@ public class MembersFragment extends Fragment {
     private DatabaseReference mUserListsDatabaseReference;
     private DatabaseReference mUsersDatabaseReference;
     private DatabaseReference mUsersRatedDatabaseReference;
+    private DatabaseReference mJoinedListsDatabaseReference;
+    private DatabaseReference mGroupsDatabaseReference;
     private ArrayList<UserInformation2> membersList = new ArrayList<>();
     private boolean userIsAdmin;
     private MembersAdapter membersAdapter;
@@ -47,8 +49,12 @@ public class MembersFragment extends Fragment {
 
         mUserListsDatabaseReference = FirebaseDatabaseUtils.getDatabase().getReference().child("userlists").child(groupId);
         mUsersDatabaseReference = FirebaseDatabaseUtils.getDatabase().getReference().child("users");
-        mUserListsDatabaseReference.keepSynced(true);
         mUsersRatedDatabaseReference = FirebaseDatabaseUtils.getDatabase().getReference().child("usersRated").child(MainActivity.userUid);
+        mJoinedListsDatabaseReference = FirebaseDatabaseUtils.getDatabase().getReference().child("joinedlists");
+        mGroupsDatabaseReference = FirebaseDatabaseUtils.getDatabase().getReference().child("groups").child(groupId);
+        mUserListsDatabaseReference.keepSynced(true);
+        mUsersRatedDatabaseReference.keepSynced(true);
+        mUsersDatabaseReference.keepSynced(true);
 
         reloadRecycler();
         membersRecyclerView = getView().findViewById(R.id.membersRecyclerView);
@@ -115,7 +121,7 @@ public class MembersFragment extends Fragment {
         });
     }
 
-    public void removeMember(String memberId, String memberName) {
+    public void removeMember(final String memberId, String memberName) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
                 .setCancelable(true)
                 .setTitle("Removing member")
@@ -123,7 +129,22 @@ public class MembersFragment extends Fragment {
                 .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        reloadRecycler();
+                        mUserListsDatabaseReference.child(memberId).removeValue();
+                        mJoinedListsDatabaseReference.child(memberId).child(groupId).removeValue();
+                        mGroupsDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                int numParticipants = dataSnapshot.child("numParticipants").getValue(Integer.class);
+                                mGroupsDatabaseReference.child("numParticipants").setValue(numParticipants-1);
+                                reloadRecycler();
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                            }
+                        });
+
                     }
                 })
                 .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
