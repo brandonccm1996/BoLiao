@@ -86,6 +86,7 @@ public class EditProfileActivity extends AppCompatActivity {
                             case R.id.remove_pic:
                                 deletePic();
                                 mUsersDatabaseReference.child(MainActivity.userUid).child("photoUrl").setValue("");
+                                reloadUserDetails();
                                 Toast.makeText(EditProfileActivity.this, "Profile pic removed", Toast.LENGTH_SHORT).show();
                                 return true;
                             case R.id.update_pic:
@@ -122,38 +123,7 @@ public class EditProfileActivity extends AppCompatActivity {
             }
         });
 
-        mUsersDatabaseReference.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-
-                currentUserInfo = dataSnapshot.child(MainActivity.userUid).getValue(UserInformation.class);
-
-                if (currentUserInfo.getName().equals("")) textViewName.setText("Enter username");
-                else textViewName.setText(currentUserInfo.getName());
-
-                if (currentUserInfo.getNumRatings() == 0) ratingBar.setRating(0);
-                else ratingBar.setRating(currentUserInfo.getSumRating() / currentUserInfo.getNumRatings());
-
-                textViewNumRatings.setText(currentUserInfo.getNumRatings() + " ratings");
-
-                if (currentUserInfo.getDescription().equals("")) textViewDescription.setText("Enter a description of yourself");
-                else textViewDescription.setText(currentUserInfo.getDescription());
-
-                if (currentUserInfo.getPhotoUrl().equals("")) {
-                    imageViewProPic.setImageResource(R.drawable.profilepic);
-                }
-                else {
-                    Glide.with(imageViewProPic.getContext())
-                            .load(currentUserInfo.getPhotoUrl())
-                            .into(imageViewProPic);
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
+        reloadUserDetails();
     }
 
     @Override
@@ -162,6 +132,7 @@ public class EditProfileActivity extends AppCompatActivity {
             if (resultCode == Activity.RESULT_OK) {
                 String newName = data.getStringExtra(Intent.EXTRA_TEXT);
                 mUsersDatabaseReference.child(MainActivity.userUid).child("name").setValue(newName);
+                reloadUserDetails();
                 Toast.makeText(EditProfileActivity.this, "Username updated", Toast.LENGTH_SHORT).show();
             }
         }
@@ -169,6 +140,7 @@ public class EditProfileActivity extends AppCompatActivity {
             if (resultCode == Activity.RESULT_OK) {
                 String newDescription = data.getStringExtra(Intent.EXTRA_TEXT);
                 mUsersDatabaseReference.child(MainActivity.userUid).child("description").setValue(newDescription);
+                reloadUserDetails();
                 Toast.makeText(EditProfileActivity.this, "Description updated", Toast.LENGTH_SHORT).show();
             }
         }
@@ -201,6 +173,7 @@ public class EditProfileActivity extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             Uri downloadUri = task.getResult();
                             mUsersDatabaseReference.child(MainActivity.userUid).child("photoUrl").setValue(downloadUri.toString());
+                            reloadUserDetails();
                             Toast.makeText(EditProfileActivity.this, "Profile pic updated", Toast.LENGTH_SHORT).show();
                         }
                         else {
@@ -223,6 +196,41 @@ public class EditProfileActivity extends AppCompatActivity {
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception exception) {
+
+            }
+        });
+    }
+
+    private void reloadUserDetails() {
+        mUsersDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+                currentUserInfo = dataSnapshot.child(MainActivity.userUid).getValue(UserInformation.class);
+
+                if (currentUserInfo.getName().equals("")) textViewName.setText("Enter username");
+                else textViewName.setText(currentUserInfo.getName());
+
+                if (currentUserInfo.getNumRatings() == 0) ratingBar.setRating(0);
+                else ratingBar.setRating(currentUserInfo.getSumRating() / currentUserInfo.getNumRatings());
+
+                textViewNumRatings.setText(" Number of ratings: " + currentUserInfo.getNumRatings());
+
+                if (currentUserInfo.getDescription().equals("")) textViewDescription.setText("Enter a description of yourself");
+                else textViewDescription.setText(currentUserInfo.getDescription());
+
+                if (currentUserInfo.getPhotoUrl().equals("")) {
+                    imageViewProPic.setImageResource(R.drawable.profilepic);
+                }
+                else {
+                    Glide.with(imageViewProPic.getContext())
+                            .load(currentUserInfo.getPhotoUrl())
+                            .into(imageViewProPic);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
 
             }
         });
