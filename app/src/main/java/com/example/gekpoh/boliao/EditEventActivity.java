@@ -93,8 +93,8 @@ public class EditEventActivity extends AppCompatActivity implements EditEventFra
                     String startDateTime = fragment1.sendSDate() + " " + fragment1.sendSTime();
                     String endDateTime = fragment1.sendEDate() + " " + fragment1.sendETime();
                     try {
-                        startTimeStamp = Group.groupDateFormatter.parse(startDateTime).getTime();
-                        endTimeStamp = Group.groupDateFormatter.parse(endDateTime).getTime();
+                        startTimeStamp = Group.groupDateFormatter2.parse(startDateTime).getTime();
+                        endTimeStamp = Group.groupDateFormatter2.parse(endDateTime).getTime();
                     }catch(ParseException e){
                         Toast.makeText(EditEventActivity.this, "Failed to create activity due to parsing error", Toast.LENGTH_SHORT).show();
                         return;

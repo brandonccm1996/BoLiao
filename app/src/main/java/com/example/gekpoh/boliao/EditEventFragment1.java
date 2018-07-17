@@ -65,11 +65,11 @@ public class EditEventFragment1 extends Fragment {
 
         editTextName.setText(args.getString("eventname"));
         editTextLocation.setText(args.getString("eventplace"));
-        String SDateTime = args.getString("eventstart");
+        String SDateTime = args.getString("eventstart2");
         String[] SplitSDateTime = SDateTime.split(" ");
         editTextSDate.setText(SplitSDateTime[0]);
         editTextSTime.setText(SplitSDateTime[1]);
-        String EDateTime = args.getString("eventend");
+        String EDateTime = args.getString("eventend2");
         String[] SplitEDateTime = EDateTime.split(" ");
         editTextEDate.setText(SplitEDateTime[0]);
         editTextETime.setText(SplitEDateTime[1]);
@@ -118,8 +118,10 @@ public class EditEventFragment1 extends Fragment {
                 mTimePickerDialog = new TimePickerDialog(getActivity(), new TimePickerDialog.OnTimeSetListener() {
                     @Override
                     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-                        if (hourOfDay >= 12) editTextSTime.setText(String.format("%02d:%02d", hourOfDay, minute));
-                        else editTextSTime.setText(String.format("%02d:%02d", hourOfDay, minute));
+                        if (hourOfDay > 12) editTextSTime.setText(String.format("%02d:%02d", hourOfDay-12, minute) + "p.m.");
+                        else if (hourOfDay == 0) editTextSTime.setText(String.format("%02d:%02d", hourOfDay+12, minute) + "a.m.");
+                        else if (hourOfDay == 12) editTextSTime.setText(String.format("%02d:%02d", hourOfDay, minute) + "p.m.");
+                        else editTextSTime.setText(String.format("%02d:%02d", hourOfDay, minute) + "a.m.");
                     }
                 }, 0, 0, false);
 
@@ -133,8 +135,10 @@ public class EditEventFragment1 extends Fragment {
                 mTimePickerDialog = new TimePickerDialog(getActivity(), new TimePickerDialog.OnTimeSetListener() {
                     @Override
                     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-                        if (hourOfDay >= 12) editTextETime.setText(String.format("%02d:%02d", hourOfDay, minute));
-                        else editTextETime.setText(String.format("%02d:%02d", hourOfDay, minute));
+                        if (hourOfDay > 12) editTextETime.setText(String.format("%02d:%02d", hourOfDay-12, minute) + "p.m.");
+                        else if (hourOfDay == 0) editTextETime.setText(String.format("%02d:%02d", hourOfDay+12, minute) + "a.m.");
+                        else if (hourOfDay == 12) editTextETime.setText(String.format("%02d:%02d", hourOfDay, minute) + "p.m.");
+                        else editTextETime.setText(String.format("%02d:%02d", hourOfDay, minute) + "a.m.");
                     }
                 }, 0, 0, false);
 

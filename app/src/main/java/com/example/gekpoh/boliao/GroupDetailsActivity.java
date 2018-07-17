@@ -328,8 +328,10 @@ public class GroupDetailsActivity extends AppCompatActivity implements OnMapRead
                         args2.putBoolean(getString(R.string.InActivityKey), inEvent);
                         args2.putString(getString(R.string.groupNameKey), mGroup.getNames());
                         args2.putString(getString(R.string.groupPlaceKey), mGroup.getLocation());
-                        args2.putString(getString(R.string.groupStartKey), mGroup.getStartDateTimeString());
-                        args2.putString(getString(R.string.groupEndKey), mGroup.getEndDateTimeString());
+                        args2.putString(getString(R.string.groupStartKey), mGroup.getStartDateTimeString());    // using E, dd/MM/yyyy hh:mma
+                        args2.putString(getString(R.string.groupEndKey), mGroup.getEndDateTimeString());    // using E, dd/MM/yyyy hh:mma
+                        args2.putString("eventstart2", mGroup.getStartDateTimeString2());   // using dd/MM/yyyy hh:mma
+                        args2.putString("eventend2", mGroup.getEndDateTimeString2());   // using dd/MM/yyyy hh:mma
                         args2.putString(getString(R.string.groupPhotoUrlKey), mGroup.getPhotoUrl());
                         args2.putString(getString(R.string.groupDescriptionKey), mGroup.getDescription());
                         args2.putString("groupId", groupId);

@@ -18,6 +18,7 @@ import java.util.Date;
 
 public class Group implements Parcelable,Comparable<Group>{
     public static final SimpleDateFormat groupDateFormatter = new SimpleDateFormat("E, dd/MM/yyyy hh:mma");
+    public static final SimpleDateFormat groupDateFormatter2 = new SimpleDateFormat("dd/MM/yyyy hh:mma");
     private static final String TAG = "GROUP";
     private String chatId;//mGroupId is to indicate the reference to the database for this group. groupid is also used as chatid
     private String names, location, placeId, photoUrl, description;
@@ -82,6 +83,14 @@ public class Group implements Parcelable,Comparable<Group>{
     public String getEndDateTimeString() {
         Date date = new Date(endDateTime);
         return groupDateFormatter.format(date);
+    }
+    public String getStartDateTimeString2() {
+        Date date = new Date(startDateTime);
+        return groupDateFormatter2.format(date);
+    }
+    public String getEndDateTimeString2() {
+        Date date = new Date(endDateTime);
+        return groupDateFormatter2.format(date);
     }
     @Override
     public int describeContents() {
