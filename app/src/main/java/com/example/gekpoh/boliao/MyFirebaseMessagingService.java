@@ -19,8 +19,8 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            NotificationChannel channel = new NotificationChannel("default", "channel_updatedelete", NotificationManager.IMPORTANCE_DEFAULT);
-            channel.setDescription("Update or Delete Event Details");
+            NotificationChannel channel = new NotificationChannel("default", "channel_updateDeleteRemove", NotificationManager.IMPORTANCE_DEFAULT);
+            channel.setDescription("Update or Delete Event or Remove Member");
             mNotificationManager.createNotificationChannel(channel);
         }
 

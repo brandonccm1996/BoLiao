@@ -1,5 +1,6 @@
 package com.example.gekpoh.boliao;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -31,9 +32,11 @@ public class MembersFragment extends Fragment {
     private DatabaseReference mUsersRatedDatabaseReference;
     private DatabaseReference mJoinedListsDatabaseReference;
     private DatabaseReference mGroupsDatabaseReference;
+    private DatabaseReference mRemoveNotifDatabaseReference;
     private ArrayList<UserInformation2> membersList = new ArrayList<>();
     private boolean userIsAdmin;
     private MembersAdapter membersAdapter;
+    private reloadDetailsInterface reloadInterface;
 
     private Bundle args;
 
@@ -54,6 +57,7 @@ public class MembersFragment extends Fragment {
         mUsersRatedDatabaseReference = FirebaseDatabaseUtils.getDatabase().getReference().child("usersRated").child(MainActivity.userUid);
         mJoinedListsDatabaseReference = FirebaseDatabaseUtils.getDatabase().getReference().child("joinedlists");
         mGroupsDatabaseReference = FirebaseDatabaseUtils.getDatabase().getReference().child("groups").child(groupId);
+        mRemoveNotifDatabaseReference = FirebaseDatabaseUtils.getDatabase().getReference().child("removeNotif").child(groupId);
         mUserListsDatabaseReference.keepSynced(true);
         mUsersRatedDatabaseReference.keepSynced(true);
         mUsersDatabaseReference.keepSynced(true);
@@ -63,6 +67,16 @@ public class MembersFragment extends Fragment {
         membersRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         membersAdapter = new MembersAdapter(getActivity(), membersList, MembersFragment.this);
         membersRecyclerView.setAdapter(membersAdapter);
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        try {
+            reloadInterface = (reloadDetailsInterface) context;
+        } catch (ClassCastException castException) {
+            Log.d("MembersFragment", "Activity does not implement interface");
+        }
     }
 
     public interface reloadDetailsInterface {
@@ -142,7 +156,12 @@ public class MembersFragment extends Fragment {
                             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                                 int numParticipants = dataSnapshot.child("numParticipants").getValue(Integer.class);
                                 mGroupsDatabaseReference.child("numParticipants").setValue(numParticipants-1);
+                                reloadInterface.reloadGroupDetails();
                                 reloadRecycler();
+
+                                // create notification object
+                                final String notifId = mRemoveNotifDatabaseReference.push().getKey();
+                                mRemoveNotifDatabaseReference.child(notifId).child(memberId).setValue(true);
                             }
 
                             @Override
