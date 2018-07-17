@@ -55,6 +55,7 @@ import com.google.firebase.iid.FirebaseInstanceId;
 import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Map;
 
@@ -232,7 +233,13 @@ public class MainActivity extends AppCompatActivity implements SearchGroupFragme
                                 starthour = hourOfDay;
                                 startmin = minute;
                                 dateTimeString = dateTimeString + " " + String.format("%02d:%02d", hourOfDay, minute);
-                                startDateText.setText(dateTimeString);
+                                try{
+                                    Date date = Group.groupDateFormatter3.parse(dateTimeString);
+                                    String dateTimeString2 = Group.groupDateFormatter2.format(date);
+                                    startDateText.setText(dateTimeString2);
+                                }catch(ParseException e){
+                                    Toast.makeText(MainActivity.this, "Parse error", Toast.LENGTH_SHORT).show();
+                                }
                             }
                         }, starthour, startmin, false);
                         mTimePickerDialog.show();
@@ -264,7 +271,13 @@ public class MainActivity extends AppCompatActivity implements SearchGroupFragme
                                 endhour = hourOfDay;
                                 endmin = minute;
                                 dateTimeString = dateTimeString + " " + String.format("%02d:%02d", hourOfDay, minute);
-                                endDateText.setText(dateTimeString);
+                                try{
+                                    Date date = Group.groupDateFormatter3.parse(dateTimeString);
+                                    String dateTimeString2 = Group.groupDateFormatter2.format(date);
+                                    endDateText.setText(dateTimeString2);
+                                }catch(ParseException e){
+                                    Toast.makeText(MainActivity.this, "Parse error", Toast.LENGTH_SHORT).show();
+                                }
                             }
                         }, endhour, endmin, false);
                         mTimePickerDialog.show();
@@ -422,8 +435,8 @@ public class MainActivity extends AppCompatActivity implements SearchGroupFragme
         long[] timeFilter = {-1,-1};
         if(timeFilterSwitch.isChecked()){
             try{
-                timeFilter[0] = Group.groupDateFormatter.parse(startDateText.getText().toString()).getTime();
-                timeFilter[1] = Group.groupDateFormatter.parse(endDateText.getText().toString()).getTime();
+                timeFilter[0] = Group.groupDateFormatter2.parse(startDateText.getText().toString()).getTime();
+                timeFilter[1] = Group.groupDateFormatter2.parse(endDateText.getText().toString()).getTime();
             }catch(ParseException e){
                 Log.e(TAG, "Failed to parse");
             }
