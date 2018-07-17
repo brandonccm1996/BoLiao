@@ -35,6 +35,8 @@ public class MembersFragment extends Fragment {
     private boolean userIsAdmin;
     private MembersAdapter membersAdapter;
 
+    private Bundle args;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.members_fragment_layout, container, false);
@@ -43,7 +45,7 @@ public class MembersFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        final Bundle args = getArguments();
+        args = getArguments();
         groupId = args.getString("groupId");
         inEvent = args.getBoolean("inevent");
 
@@ -61,6 +63,10 @@ public class MembersFragment extends Fragment {
         membersRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         membersAdapter = new MembersAdapter(getActivity(), membersList, MembersFragment.this);
         membersRecyclerView.setAdapter(membersAdapter);
+    }
+
+    public interface reloadDetailsInterface {
+        void reloadGroupDetails();
     }
 
     public void reloadRecycler() {

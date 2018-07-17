@@ -43,6 +43,7 @@ public class EventInfoFragment extends Fragment {
     private long mLastClickTime = 0;
     private boolean isAdmin;
     private String groupId;
+    private String photoUrl;
 
     private FirebaseDatabase mFirebaseDatabase;
     private DatabaseReference mUserListsDatabaseReference;
@@ -58,6 +59,8 @@ public class EventInfoFragment extends Fragment {
     private Button buttonDelete;
 
     private ArrayList<String> members;
+
+    private Bundle args;
 
     @Override
     public void onAttach(Context context) {
@@ -78,8 +81,9 @@ public class EventInfoFragment extends Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        final Bundle args = getArguments();
+        args = getArguments();
         groupId = args.getString("groupId");
+        Log.d("EventInfoFrag", "reloading" + args.getString("eventplace"));
 
         mFirebaseDatabase = FirebaseDatabaseUtils.getDatabase();
         mUserListsDatabaseReference = mFirebaseDatabase.getReference().child("userlists").child(groupId);
@@ -97,7 +101,7 @@ public class EventInfoFragment extends Fragment {
         buttonDelete.setVisibility(View.INVISIBLE);
 
         ImageView picView = getView().findViewById(R.id.groupPicView);
-        final String photoUrl = args.getString(getString(R.string.groupPhotoUrlKey));
+        photoUrl = args.getString(getString(R.string.groupPhotoUrlKey));
         if (photoUrl == null) {
             Glide.with(picView.getContext())
                     .load(R.drawable.profilepic)
@@ -133,7 +137,7 @@ public class EventInfoFragment extends Fragment {
             }
         });
 
-        mUserListsDatabaseReference.addValueEventListener(new ValueEventListener() {
+        mUserListsDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 UserLists userList = dataSnapshot.child(MainActivity.userUid).getValue(UserLists.class);
@@ -175,7 +179,7 @@ public class EventInfoFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 members = new ArrayList<>();
-                mUserListsDatabaseReference.addValueEventListener(new ValueEventListener() {
+                mUserListsDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                         for (DataSnapshot childSnapshot : dataSnapshot.getChildren()) {
@@ -210,7 +214,7 @@ public class EventInfoFragment extends Fragment {
                                 mDeleteEventNotifDatabaseReference.child(notifId).setValue(userList);
 
                                 // delete chat photos
-                                mChatsDatabaseReference.addValueEventListener(new ValueEventListener() {
+                                mChatsDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
                                     @Override
                                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                                         for (DataSnapshot childSnapshot : dataSnapshot.getChildren()) {
@@ -233,7 +237,7 @@ public class EventInfoFragment extends Fragment {
                                 });
 
                                 // delete group photo
-                                mGroupsDatabaseReference.addValueEventListener(new ValueEventListener() {
+                                mGroupsDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
                                     @Override
                                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                                         if (dataSnapshot.hasChild("photoUrl")) {

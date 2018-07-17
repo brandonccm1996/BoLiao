@@ -39,7 +39,7 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.HashMap;
 import java.util.Map;
 
-public class GroupDetailsActivity extends AppCompatActivity implements OnMapReadyCallback, EventInfoFragment.eventInfoCallBack {
+public class GroupDetailsActivity extends AppCompatActivity implements OnMapReadyCallback, EventInfoFragment.eventInfoCallBack, MembersFragment.reloadDetailsInterface {
     private static boolean instanceCreated = false;
     private boolean inEvent;
     private static final String TAG = "GroupDetailsActivity";
@@ -305,6 +305,7 @@ public class GroupDetailsActivity extends AppCompatActivity implements OnMapRead
         }
     }
 
+    @Override
     public void reloadGroupDetails() {
         if (ref == null) ref = mFirebaseDatabase.getReference().child("groups").child(groupId);
         if (listener == null) {
@@ -340,6 +341,8 @@ public class GroupDetailsActivity extends AppCompatActivity implements OnMapRead
                         args2.putInt(getString(R.string.groupMaxSizeKey), mGroup.getMaxParticipants());
                         eventInfoFragment.setArguments(args2);
                         membersFragment.setArguments(args2);
+                        Log.d("GroupDetailsAct", "reloading" + args2.getString("eventplace"));
+                        Log.d("GroupDetailsAct", "reloading" + mGroup.getLocation());
 
                         if(detailsPager == null) {
                             detailsPager = findViewById(R.id.groupDetailsPager);
@@ -348,6 +351,7 @@ public class GroupDetailsActivity extends AppCompatActivity implements OnMapRead
                             TabLayout tabLayout = findViewById(R.id.detailsTabLayout);
                             tabLayout.setupWithViewPager(detailsPager);
                         }
+                        detailsPager.getAdapter().notifyDataSetChanged();
                     } else {
                         finish();
                     }
