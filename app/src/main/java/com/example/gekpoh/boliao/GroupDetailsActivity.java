@@ -319,7 +319,7 @@ public class GroupDetailsActivity extends AppCompatActivity implements OnMapRead
                         SearchGroupFragment.getInstance().updateGroupDetails(mGroup, getIntent().getIntExtra(getString(R.string.TapPositionKey), -1));
                     }
                     if (mGroup != null) {
-                        mapFragment = SupportMapFragment.newInstance();
+                        if(mapFragment == null) mapFragment = SupportMapFragment.newInstance();
                         mapFragment.getMapAsync(GroupDetailsActivity.this);
                         mGeoDataClient = Places.getGeoDataClient(GroupDetailsActivity.this);
 
