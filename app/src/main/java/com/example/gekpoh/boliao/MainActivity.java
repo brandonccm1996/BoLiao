@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
@@ -21,11 +22,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.transition.ChangeBounds;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.widget.CompoundButton;
 import android.widget.DatePicker;
 import android.widget.EditText;
@@ -89,7 +92,6 @@ public class MainActivity extends AppCompatActivity implements SearchGroupFragme
             }
         });
         //Initialize google map api at the start of the app to reduce lag when users are using group details activity
-
         // App Logo
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setLogo(R.drawable.common_google_signin_btn_icon_dark);

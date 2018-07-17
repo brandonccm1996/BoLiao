@@ -12,6 +12,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 
 import java.util.ArrayList;
 
@@ -42,9 +43,13 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdap
         if(group.getPhotoUrl() != null){
             Glide.with(holder.mImageView.getContext())
                     .load(group.getPhotoUrl())
+                    .apply(RequestOptions.circleCropTransform())
                     .into(holder.mImageView);
         }else{
-            holder.mImageView.setImageResource(R.drawable.profilepic);
+            Glide.with(holder.mImageView.getContext())
+                    .load(R.drawable.profilepic)
+                    .apply(RequestOptions.circleCropTransform())
+                    .into(holder.mImageView);
         }
         holder.mCardView.setOnClickListener(new View.OnClickListener() {
             @Override

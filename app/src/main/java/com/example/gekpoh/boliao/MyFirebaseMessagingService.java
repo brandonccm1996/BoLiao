@@ -3,6 +3,7 @@ package com.example.gekpoh.boliao;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
@@ -42,7 +43,8 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 // Handle message within 10 seconds
             }
         }
-
+        SharedPreferences prefs = getSharedPreferences(getString(R.string.settings_sharedprefs_dir),Context.MODE_PRIVATE);
+        if(!prefs.getBoolean(getString(R.string.update_settings_key), false)) return;
         // Check if message contains a notification payload.
         if (remoteMessage.getNotification() != null) {
             String notificationTitle = remoteMessage.getNotification().getTitle();

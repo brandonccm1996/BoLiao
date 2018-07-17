@@ -14,7 +14,11 @@
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="4dp">
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="4dp"
+        android:foreground="?android:attr/selectableItemBackground"
+        android:clickable="true"
+        card_view:cardCornerRadius="10dp">
 
         <android.support.constraint.ConstraintLayout
             android:layout_width="match_parent"
@@ -25,17 +29,15 @@
 
             <ImageView
                 android:id="@+id/cardNoteIcon"
-                android:layout_width="74dp"
-                android:layout_height="72dp"
-                android:layout_marginBottom="8dp"
-                android:layout_marginLeft="16dp"
-                android:layout_marginStart="16dp"
-                android:transitionName="transition2"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginStart="8dp"
                 card_view:layout_constraintBottom_toBottomOf="parent"
+                card_view:layout_constraintDimensionRatio="1:1"
+                card_view:layout_constraintLeft_toRightOf="@+id/cardNoteTitle"
                 card_view:layout_constraintStart_toStartOf="parent"
                 card_view:layout_constraintTop_toTopOf="parent"
-                card_view:layout_constraintLeft_toRightOf="@+id/cardNoteTitle"
-                card_view:layout_constraintVertical_bias="0.75"
                 card_view:srcCompat="@mipmap/ic_launcher_round" />
 
             <TextView
@@ -47,36 +49,48 @@
                 android:layout_marginEnd="8dp"
                 android:layout_marginLeft="8dp"
                 android:layout_marginStart="8dp"
-                android:layout_marginTop="4dp"
                 android:text="Title Not Loaded"
                 android:textSize="18sp"
-                card_view:layout_constraintBottom_toTopOf="@+id/cardNoteDate"
+                android:textStyle="bold"
+                card_view:layout_constraintBottom_toTopOf="@id/cardNotePlace"
                 card_view:layout_constraintEnd_toEndOf="parent"
                 card_view:layout_constraintHorizontal_bias="0.106"
                 card_view:layout_constraintStart_toEndOf="@+id/cardNoteIcon"
-                card_view:layout_constraintTop_toTopOf="parent"
+                card_view:layout_constraintTop_toBottomOf="@+id/cardNoteDate"
                 card_view:layout_constraintVertical_bias="0.705" />
 
             <TextView
                 android:id="@+id/cardNoteDate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
                 android:text="Date not loaded"
-                android:textSize="13sp"
-                card_view:layout_constraintBottom_toBottomOf="parent"
-                card_view:layout_constraintStart_toStartOf="@+id/cardNoteTitle" />
+                android:textSize="10sp"
+                card_view:layout_constraintBottom_toTopOf="@+id/cardNoteTitle"
+                card_view:layout_constraintEnd_toEndOf="parent"
+                card_view:layout_constraintTop_toTopOf="parent" />
 
             <TextView
                 android:id="@+id/cardNotePlace"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="8dp"
-                android:layout_marginStart="8dp"
+                android:layout_marginBottom="8dp"
+                android:layout_marginLeft="4dp"
+                android:layout_marginStart="4dp"
                 android:text="Place not loaded"
                 android:textSize="13sp"
-                card_view:layout_constraintBaseline_toBaselineOf="@+id/cardNoteDate"
-                card_view:layout_constraintStart_toEndOf="@+id/cardNoteDate" />
+                card_view:layout_constraintBottom_toBottomOf="parent"
+                card_view:layout_constraintStart_toEndOf="@+id/textView8" />
+
+            <TextView
+                android:id="@+id/textView8"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:layout_marginTop="8dp"
+                android:text="Hosted @:"
+                card_view:layout_constraintBottom_toBottomOf="parent"
+                card_view:layout_constraintStart_toStartOf="@+id/cardNoteTitle"
+                card_view:layout_constraintTop_toBottomOf="@+id/cardNoteTitle" />
 
         </android.support.constraint.ConstraintLayout>
 

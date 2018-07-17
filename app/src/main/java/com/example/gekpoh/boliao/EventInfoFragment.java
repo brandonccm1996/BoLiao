@@ -19,6 +19,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -98,11 +99,15 @@ public class EventInfoFragment extends Fragment {
         ImageView picView = getView().findViewById(R.id.groupPicView);
         final String photoUrl = args.getString(getString(R.string.groupPhotoUrlKey));
         if (photoUrl == null) {
-            picView.setImageResource(R.drawable.profilepic);
+            Glide.with(picView.getContext())
+                    .load(R.drawable.profilepic)
+                    .apply(RequestOptions.circleCropTransform())
+                    .into(picView);
         }
         else {
             Glide.with(picView.getContext())
                     .load(photoUrl)
+                    .apply(RequestOptions.circleCropTransform())
                     .into(picView);
         }
         Button button = getView().findViewById(R.id.joinleaveButton);
