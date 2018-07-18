@@ -101,7 +101,6 @@ public class SearchGroupFragment extends Fragment implements GroupRecyclerAdapte
         }
         super.onViewCreated(view, savedInstanceState);
         //groupList = getArguments().getParcelableArrayList(getResources().getString(R.string.searched_groups));
-        adapter = new GroupRecyclerAdapter(this, searchedgroups);
         groupView = getView().findViewById(R.id.groupList);
         noActivitiesTextView = getView().findViewById(R.id.noActivitiesTextView);
         searchTextView = getView().findViewById(R.id.SearchActivitiesTextView);
@@ -120,6 +119,7 @@ public class SearchGroupFragment extends Fragment implements GroupRecyclerAdapte
 
     public void onSignIn() {
         if (signedIn) return;
+        adapter = new GroupRecyclerAdapter(this, null);
         signedIn = true;
         mDatabaseReference = FirebaseDatabaseUtils.getDatabase().getReference().child("groups");
         mDatabaseReference.keepSynced(true);
@@ -128,20 +128,20 @@ public class SearchGroupFragment extends Fragment implements GroupRecyclerAdapte
     public void onSignOut() {
         if (!signedIn) return;
         signedIn = false;
-        searchedgroups.clear();
-        adapter.notifyDataSetChanged();
+        adapter.clearList();
     }
 
     @Override
-    public void touchGroup(int pos) {
-        if (!FirebaseDatabaseUtils.connectedToDatabase()) {
+    public boolean touchGroup(int pos) {
+        /*if (!FirebaseDatabaseUtils.connectedToDatabase()) {
             Toast.makeText(mContext, "Unable to retrieve information of selected activity. Please check your internet connection", Toast.LENGTH_SHORT).show();
             return;
         }
         if (GroupDetailsActivity.isInstanceCreated()) return;
         Intent intent = new Intent(getContext(), GroupDetailsActivity.class);
         intent.putExtra(getString(R.string.groupKey), searchedgroups.get(pos).getChatId());
-        startActivity(intent);
+        startActivity(intent);*/
+        return false;
     }
 
     public boolean reloadList(String quer) {
@@ -170,6 +170,7 @@ public class SearchGroupFragment extends Fragment implements GroupRecyclerAdapte
         }
         final String query = quer.toLowerCase();
         searchedgroups.clear();
+        adapter.clearList();
         getDeviceLocation();
         if (distanceFilter && locationPermissionGranted) {
             changeLocationSettings();
@@ -181,7 +182,7 @@ public class SearchGroupFragment extends Fragment implements GroupRecyclerAdapte
                     loadingList.remove(dataSnapshot.getKey());
                     if (group == null) {
                         if (loadingList.isEmpty() && !stillLoading) {
-                            adapter.notifyDataSetChanged();
+                            //adapter.notifyDataSetChanged();
                         }
                         return;
                     }
@@ -189,11 +190,12 @@ public class SearchGroupFragment extends Fragment implements GroupRecyclerAdapte
                         if (!timeFilter || (group.getStartDateTime() >= timefilters[0] && group.getEndDateTime() <= timefilters[1])) {
                             Log.v(TAG, "group added");
                             searchedgroups.add(group);
+                            adapter.addGroup(group);
                         }
                     }
                     if (loadingList.isEmpty() && !stillLoading) {
-                        adapter.notifyDataSetChanged();
-                        if(searchedgroups.isEmpty()){
+                        //adapter.notifyDataSetChanged();
+                        if(adapter.isListEmpty()){
                             displayActivitiesNotFound();
                         }else{
                             displayActivitiesFound();
@@ -231,7 +233,7 @@ public class SearchGroupFragment extends Fragment implements GroupRecyclerAdapte
                 public void onGeoQueryReady() {
                     stillLoading = false;
                     if (loadingList.isEmpty() && !stillLoading) {
-                        adapter.notifyDataSetChanged();
+                        //adapter.notifyDataSetChanged();
                     }
                     geoQuery.removeGeoQueryEventListener(this);
                 }
@@ -254,10 +256,11 @@ public class SearchGroupFragment extends Fragment implements GroupRecyclerAdapte
                         } else if (group.getNames().toLowerCase().contains(query) || group.getDescription().toLowerCase().contains(query) || group.getLocation().toLowerCase().contains(query)) {
                             if (!timeFilter || group.getEndDateTime() <= timefilters[1])
                                 searchedgroups.add(group);
+                                adapter.addGroup(group);
                         }
                     }
-                    adapter.notifyDataSetChanged();
-                    if(searchedgroups.isEmpty()){
+                    //adapter.notifyDataSetChanged();
+                    if(adapter.isListEmpty()){
                         displayActivitiesNotFound();
                     }else{
                         displayActivitiesFound();
@@ -283,7 +286,8 @@ public class SearchGroupFragment extends Fragment implements GroupRecyclerAdapte
         for (Group group : searchedgroups) {
             if (group.getChatId().equals(id)) {
                 searchedgroups.remove(group);
-                adapter.notifyDataSetChanged();
+                adapter.removeGroup(group);
+                //adapter.notifyDataSetChanged();
                 break;
             }
         }
@@ -293,12 +297,13 @@ public class SearchGroupFragment extends Fragment implements GroupRecyclerAdapte
         if (pos == -1) return;
         if (group != null) {
             searchedgroups.set(pos, group);
+            adapter.updateGroup(pos,group);
         } else {
             Toast.makeText(mContext, "For some reason, this activity has been deleted.", Toast.LENGTH_SHORT).show();
             searchedgroups.remove(pos);
+            adapter.removeGroupAtPos(pos);
         }
-
-        adapter.notifyDataSetChanged();
+        //adapter.notifyDataSetChanged();
     }
 
     private class reloadLayoutManager extends LinearLayoutManager {

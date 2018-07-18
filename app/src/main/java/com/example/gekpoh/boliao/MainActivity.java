@@ -124,6 +124,10 @@ public class MainActivity extends AppCompatActivity implements SearchGroupFragme
 
             }
         });
+        mViewPager = findViewById(R.id.fragmentHolder);
+        mViewPager.setAdapter(new GroupPagerAdapter(getSupportFragmentManager()));
+        TabLayout tabLayout = findViewById(R.id.tabLayout);
+        tabLayout.setupWithViewPager(mViewPager);
         mFirebaseDatabase = FirebaseDatabaseUtils.getDatabase();
         FirebaseDatabaseUtils.setUpConnectionListener();
         mUsersDatabaseReference = mFirebaseDatabase.getReference().child("users");
@@ -176,10 +180,6 @@ public class MainActivity extends AppCompatActivity implements SearchGroupFragme
                 }
             }
         };
-        mViewPager = findViewById(R.id.fragmentHolder);
-        mViewPager.setAdapter(new GroupPagerAdapter(getSupportFragmentManager()));
-        TabLayout tabLayout = findViewById(R.id.tabLayout);
-        tabLayout.setupWithViewPager(mViewPager);
         distanceText = findViewById(R.id.distancetext);
         distanceText.setEnabled(false);
         startDateText = findViewById(R.id.startDateText);
@@ -218,7 +218,6 @@ public class MainActivity extends AppCompatActivity implements SearchGroupFragme
                     startyear = calendar.get(Calendar.YEAR);
                     startmonth = calendar.get(Calendar.MONTH);
                     startday = calendar.get(Calendar.DAY_OF_MONTH);
-
                 }
 
                 DatePickerDialog mDatePickerDialog = new DatePickerDialog(MainActivity.this, new DatePickerDialog.OnDateSetListener() {

@@ -27,6 +27,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashSet;
 
 public class JoinedGroupFragment extends Fragment implements GroupRecyclerAdapter.GroupTouchCallBack{
@@ -74,7 +75,6 @@ public class JoinedGroupFragment extends Fragment implements GroupRecyclerAdapte
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        adapter = new GroupRecyclerAdapter(this, joinedgroups);
         groupView = getView().findViewById(R.id.groupList);
         searchActivityText = getView().findViewById(R.id.SearchActivitiesTextView);
         searchActivityText.setText("Press the Search button to join new activities");
@@ -94,6 +94,13 @@ public class JoinedGroupFragment extends Fragment implements GroupRecyclerAdapte
     public void onSignIn() {
         if (signedIn) return;
         signedIn = true;
+        Comparator<Group> timeSortComparator = new Comparator<Group>() {
+            @Override
+            public int compare(Group o1, Group o2) {
+                return o1.getStartDateTime() > o2.getStartDateTime()?1:o1.getStartDateTime()<o2.getStartDateTime()?-1:0;
+            }
+        };
+        adapter = new GroupRecyclerAdapter(this, timeSortComparator);
         mJoinedListDatabaseReference = FirebaseDatabase.getInstance().getReference().child("joinedlists").child(MainActivity.userUid);
         mJoinedListDatabaseReference.keepSynced(true);
         mGroupDatabaseReference = FirebaseDatabase.getInstance().getReference().child("groups");
@@ -106,7 +113,7 @@ public class JoinedGroupFragment extends Fragment implements GroupRecyclerAdapte
                 Group group = dataSnapshot.getValue(Group.class);
                 if(group == null)return;
                 joinedgroups.add(group);
-                adapter.notifyDataSetChanged();
+                adapter.addGroup(group);
                 if(!viewState){
                     displayNonEmptyLayout();
                 }
@@ -128,7 +135,6 @@ public class JoinedGroupFragment extends Fragment implements GroupRecyclerAdapte
                     ref.addListenerForSingleValueEvent(mValueEventListener);
                 }
             }
-
             @Override
             public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
             }
@@ -139,11 +145,11 @@ public class JoinedGroupFragment extends Fragment implements GroupRecyclerAdapte
                 for(Group group: joinedgroups){
                     if(group.getChatId().equals(id)){
                         joinedgroups.remove(group);
-                        adapter.notifyDataSetChanged();
+                        adapter.removeGroup(group);
                         break;
                     }
                 }
-                if(joinedgroups.isEmpty()){
+                if(adapter.isListEmpty()){
                     displayEmptyLayout();
                 }
                 joinedgroupIds.remove(id);
@@ -166,7 +172,7 @@ public class JoinedGroupFragment extends Fragment implements GroupRecyclerAdapte
         if(!signedIn) return;
         signedIn = false;
         joinedgroups.clear();
-        adapter.notifyDataSetChanged();
+        adapter.clearList();
         if (mJoinedListDatabaseReference != null && mChildEventListener != null) {
             mJoinedListDatabaseReference.removeEventListener(mChildEventListener);
             mChildEventListener = null;
@@ -175,13 +181,16 @@ public class JoinedGroupFragment extends Fragment implements GroupRecyclerAdapte
     }
 
     @Override
-    public void touchGroup(int pos) {
+    public boolean touchGroup(int pos) {
+        /*
         if(GroupDetailsActivity.isInstanceCreated()) return;
         Intent intent = new Intent(getContext(), GroupDetailsActivity.class);
         intent.putExtra(getString(R.string.groupKey), joinedgroups.get(pos).getChatId());
         intent.putExtra(getString(R.string.InActivityKey),true);
         intent.putExtra(getString(R.string.TapPositionKey),pos);
         startActivity(intent);
+        */
+        return true;
     }
     public static boolean alreadyJoinedGroup(String id){
         return joinedgroupIds.contains(id);
@@ -190,13 +199,13 @@ public class JoinedGroupFragment extends Fragment implements GroupRecyclerAdapte
     public void updateGroupDetails(Group group, final int pos) {
         if(pos == -1)return;
         if(group != null) {
-            joinedgroups.set(pos, group);
+            joinedgroups.set(pos,group);
+            adapter.updateGroup(pos, group);
         }else{
             Toast.makeText(mContext,"For some reason, this activity has been deleted.", Toast.LENGTH_SHORT).show();
             joinedgroups.remove(pos);
+            adapter.removeGroupAtPos(pos);
         }
-
-        adapter.notifyDataSetChanged();
     }
 
     public void displayEmptyLayout(){
@@ -222,7 +231,7 @@ public class JoinedGroupFragment extends Fragment implements GroupRecyclerAdapte
 
     @Override
     public void onResume() {
-        if(joinedgroups == null || joinedgroups.isEmpty()){
+        if(adapter == null || adapter.isListEmpty()){
             displayEmptyLayout();
         }else{
             displayNonEmptyLayout();
