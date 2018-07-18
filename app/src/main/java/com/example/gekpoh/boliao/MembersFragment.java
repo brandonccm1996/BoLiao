@@ -110,11 +110,11 @@ public class MembersFragment extends Fragment {
                                     if (dataSnapshot.child(memberId).exists()) memberRatedBefore = true;
                                     else memberRatedBefore = false;
 
-                                    if (userIsAdmin && memberId.equals(MainActivity.userUid)) membersList.add(new UserInformation2(memberInfo, false, true, memberId, memberRatedBefore, inEvent)); // card for myself when i am admin
-                                    else if (userIsAdmin && memberIsAdmin) membersList.add(new UserInformation2(memberInfo, true, true, memberId, memberRatedBefore, inEvent)); // card for other admin when i am admin
-                                    else if (userIsAdmin && !memberIsAdmin) membersList.add(new UserInformation2(memberInfo, true, false, memberId, memberRatedBefore, inEvent));   // card for other non-admin when i am admin
-                                    else if (!userIsAdmin && memberIsAdmin) membersList.add(new UserInformation2(memberInfo, false, true, memberId, memberRatedBefore, inEvent));   // card for other admin when i am non-admin
-                                    else if (!userIsAdmin && !memberIsAdmin) membersList.add(new UserInformation2(memberInfo, false, false, memberId, memberRatedBefore, inEvent)); // card for other non-admin (including myself) when i am non-admin
+                                    if (userIsAdmin && memberId.equals(MainActivity.userUid)) membersList.add(new UserInformation2(memberInfo, false, true, userIsAdmin, memberId, memberRatedBefore, inEvent)); // card for myself when i am admin
+                                    else if (userIsAdmin && memberIsAdmin) membersList.add(new UserInformation2(memberInfo, true, true, userIsAdmin,  memberId, memberRatedBefore, inEvent)); // card for other admin when i am admin
+                                    else if (userIsAdmin && !memberIsAdmin) membersList.add(new UserInformation2(memberInfo, true, false, userIsAdmin, memberId, memberRatedBefore, inEvent));   // card for other non-admin when i am admin
+                                    else if (!userIsAdmin && memberIsAdmin) membersList.add(new UserInformation2(memberInfo, false, true, userIsAdmin, memberId, memberRatedBefore, inEvent));   // card for other admin when i am non-admin
+                                    else if (!userIsAdmin && !memberIsAdmin) membersList.add(new UserInformation2(memberInfo, false, false, userIsAdmin, memberId, memberRatedBefore, inEvent)); // card for other non-admin (including myself) when i am non-admin
 
                                     membersAdapter.notifyDataSetChanged();
                                 }
@@ -276,4 +276,11 @@ public class MembersFragment extends Fragment {
         AlertDialog dialog = builder.create();
         dialog.show();
     }
+
+    public void appointAdmin(String memberId, String memberName) {
+
+    }
+
+    public void dismissAdmin(String memberId, String memberName) {}
+
 }
