@@ -39,7 +39,8 @@ import java.util.Map;
 public class EventInfoFragment extends Fragment {
     private final String TAG = "EVENTINFOfragment";
     private eventInfoCallBack mCallBack;
-    private TextView sizeView;
+    private TextView sizeView,nameView, startView, endView, placeView, descriptionView;
+    private ImageView picView;
     private long mLastClickTime = 0;
     private boolean isAdmin;
     private String groupId;
@@ -100,7 +101,7 @@ public class EventInfoFragment extends Fragment {
         buttonEdit.setVisibility(View.INVISIBLE);
         buttonDelete.setVisibility(View.INVISIBLE);
 
-        ImageView picView = getView().findViewById(R.id.groupPicView);
+        picView = getView().findViewById(R.id.groupPicView);
         photoUrl = args.getString(getString(R.string.groupPhotoUrlKey));
         if (photoUrl == null) {
             Glide.with(picView.getContext())
@@ -277,7 +278,7 @@ public class EventInfoFragment extends Fragment {
             }
         });
 
-        TextView nameView, startView, endView, placeView, descriptionView;
+
         nameView = getView().findViewById(R.id.eventNameView);
         nameView.setText(args.getString(getString(R.string.groupNameKey),""));
         sizeView = getView().findViewById(R.id.eventSizeView);
@@ -303,5 +304,39 @@ public class EventInfoFragment extends Fragment {
         Bundle args = getArguments();
         String sizeViewText = Long.toString(x) +'/' + Long.toString(args.getInt(getString(R.string.groupMaxSizeKey)));
         sizeView.setText(sizeViewText);
+    }
+
+    public void setEndDate(String endTime){
+        endView.setText(endTime);
+    }
+    public void setStartDate(String startTime){
+        startView.setText(startTime);
+    }
+    public void setActivityName(String name){
+        nameView.setText(name);
+    }
+    public void setParticipantsText(long numParticipants, long maxParticipants){
+        String sizeViewText = Long.toString(numParticipants) +'/' + Long.toString(maxParticipants);
+        sizeView.setText(sizeViewText);
+    }
+    public void setPlaceName(String placeName){
+        placeView.setText(placeName);
+    }
+    public void setDescription(String description){
+        descriptionView.setText(description);
+    }
+    public void setPhoto(String photoUrl){
+        if (photoUrl == null) {
+            Glide.with(picView.getContext())
+                    .load(R.drawable.profilepic)
+                    .apply(RequestOptions.circleCropTransform())
+                    .into(picView);
+        }
+        else {
+            Glide.with(picView.getContext())
+                    .load(photoUrl)
+                    .apply(RequestOptions.circleCropTransform())
+                    .into(picView);
+        }
     }
 }

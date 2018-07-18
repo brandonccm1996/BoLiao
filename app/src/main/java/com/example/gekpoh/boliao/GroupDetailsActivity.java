@@ -174,7 +174,7 @@ public class GroupDetailsActivity extends AppCompatActivity implements OnMapRead
                 return;
             }
             //update userlist and join list
-            TimeNotificationScheduler.cancelReminder(this,mGroup.getChatId());
+            TimeNotificationScheduler.cancelReminder(this, mGroup.getChatId());
             joinedlistref.removeValue();
             userlistref.removeValue();
             //update num of participants
@@ -299,7 +299,7 @@ public class GroupDetailsActivity extends AppCompatActivity implements OnMapRead
             map.put("isAdmin", false);
             userlistref.setValue(map);
             joinedlistref.setValue("true");
-            TimeNotificationScheduler.setNewReminder(GroupDetailsActivity.this,mGroup.getChatId(),mGroup.getNames(),mGroup.getStartDateTime(), -1);
+            TimeNotificationScheduler.setNewReminder(GroupDetailsActivity.this, mGroup.getChatId(), mGroup.getNames(), mGroup.getStartDateTime(), -1);
             SearchGroupFragment.getInstance().removeFromList(id);
             GroupDetailsActivity.this.finish();
         }
@@ -319,39 +319,46 @@ public class GroupDetailsActivity extends AppCompatActivity implements OnMapRead
                         SearchGroupFragment.getInstance().updateGroupDetails(mGroup, getIntent().getIntExtra(getString(R.string.TapPositionKey), -1));
                     }
                     if (mGroup != null) {
-                        if(mapFragment == null) mapFragment = SupportMapFragment.newInstance();
+                        if (mapFragment == null) mapFragment = SupportMapFragment.newInstance();
                         mapFragment.getMapAsync(GroupDetailsActivity.this);
                         mGeoDataClient = Places.getGeoDataClient(GroupDetailsActivity.this);
-
-                        eventInfoFragment = new EventInfoFragment();
-                        membersFragment = new MembersFragment();
-                        Bundle args2 = new Bundle();
-                        args2.putBoolean(getString(R.string.InActivityKey), inEvent);
-                        args2.putString(getString(R.string.groupNameKey), mGroup.getNames());
-                        args2.putString(getString(R.string.groupPlaceKey), mGroup.getLocation());
-                        args2.putString(getString(R.string.groupStartKey), mGroup.getStartDateTimeString());    // using E, dd/MM/yyyy hh:mma
-                        args2.putString(getString(R.string.groupEndKey), mGroup.getEndDateTimeString());    // using E, dd/MM/yyyy hh:mma
-                        args2.putString("eventstart2", mGroup.getStartDateTimeString2());   // using dd/MM/yyyy hh:mma
-                        args2.putString("eventend2", mGroup.getEndDateTimeString2());   // using dd/MM/yyyy hh:mma
-                        args2.putString(getString(R.string.groupPhotoUrlKey), mGroup.getPhotoUrl());
-                        args2.putString(getString(R.string.groupDescriptionKey), mGroup.getDescription());
-                        args2.putString("groupId", groupId);
-                        args2.putString("placeId", mGroup.getPlaceId());
-                        args2.putInt(getString(R.string.groupCurrentSizeKey), mGroup.getNumParticipants());
-                        args2.putInt(getString(R.string.groupMaxSizeKey), mGroup.getMaxParticipants());
-                        eventInfoFragment.setArguments(args2);
-                        membersFragment.setArguments(args2);
-                        Log.d("GroupDetailsAct", "reloading" + args2.getString("eventplace"));
-                        Log.d("GroupDetailsAct", "reloading" + mGroup.getLocation());
-
-                        if(detailsPager == null) {
+                        if (eventInfoFragment == null) {
+                            eventInfoFragment = new EventInfoFragment();
+                            Bundle args2 = new Bundle();
+                            args2.putBoolean(getString(R.string.InActivityKey), inEvent);
+                            args2.putString(getString(R.string.groupNameKey), mGroup.getNames());
+                            args2.putString(getString(R.string.groupPlaceKey), mGroup.getLocation());
+                            args2.putString(getString(R.string.groupStartKey), mGroup.getStartDateTimeString());    // using E, dd/MM/yyyy hh:mma
+                            args2.putString(getString(R.string.groupEndKey), mGroup.getEndDateTimeString());    // using E, dd/MM/yyyy hh:mma
+                            args2.putString("eventstart2", mGroup.getStartDateTimeString2());   // using dd/MM/yyyy hh:mma
+                            args2.putString("eventend2", mGroup.getEndDateTimeString2());   // using dd/MM/yyyy hh:mma
+                            args2.putString(getString(R.string.groupPhotoUrlKey), mGroup.getPhotoUrl());
+                            args2.putString(getString(R.string.groupDescriptionKey), mGroup.getDescription());
+                            args2.putString("groupId", groupId);
+                            args2.putString("placeId", mGroup.getPlaceId());
+                            args2.putInt(getString(R.string.groupCurrentSizeKey), mGroup.getNumParticipants());
+                            args2.putInt(getString(R.string.groupMaxSizeKey), mGroup.getMaxParticipants());
+                            eventInfoFragment.setArguments(args2);
+                            membersFragment = new MembersFragment();
+                            membersFragment.setArguments(args2);
+                            Log.d("GroupDetailsAct", "reloading" + args2.getString("eventplace"));
+                            Log.d("GroupDetailsAct", "reloading" + mGroup.getLocation());
+                        } else {
+                            eventInfoFragment.setPhoto(mGroup.getPhotoUrl());
+                            eventInfoFragment.setActivityName(mGroup.getNames());
+                            eventInfoFragment.setPlaceName(mGroup.getLocation());
+                            eventInfoFragment.setStartDate(mGroup.getStartDateTimeString());
+                            eventInfoFragment.setEndDate(mGroup.getEndDateTimeString());
+                            eventInfoFragment.setDescription(mGroup.getDescription());
+                            eventInfoFragment.setParticipantsText(mGroup.getNumParticipants(), mGroup.getMaxParticipants());
+                        }
+                        if (detailsPager == null) {
                             detailsPager = findViewById(R.id.groupDetailsPager);
                             detailsPager.setOffscreenPageLimit(5);
                             detailsPager.setAdapter(new GroupDetailsPagerAdapter(getSupportFragmentManager()));
                             TabLayout tabLayout = findViewById(R.id.detailsTabLayout);
                             tabLayout.setupWithViewPager(detailsPager);
                         }
-                        detailsPager.getAdapter().notifyDataSetChanged();
                     } else {
                         finish();
                     }
