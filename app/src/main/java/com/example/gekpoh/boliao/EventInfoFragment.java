@@ -348,4 +348,8 @@ public class EventInfoFragment extends Fragment {
         }
         args.putString(getString(R.string.groupPhotoUrlKey), photoUrl);
     }
+
+    public void setPlaceId(String placeId){
+        args.putString("placeId", placeId);
+    }
 }

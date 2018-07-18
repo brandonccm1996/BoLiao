@@ -109,6 +109,7 @@ public class GroupDetailsActivity extends AppCompatActivity implements OnMapRead
     }
 
     private void updateMapUI() {
+        googleMap.clear();
         mGeoDataClient.getPlaceById(mGroup.getPlaceId()).addOnCompleteListener(new OnCompleteListener<PlaceBufferResponse>() {
             @Override
             public void onComplete(@NonNull Task<PlaceBufferResponse> task) {
@@ -351,6 +352,7 @@ public class GroupDetailsActivity extends AppCompatActivity implements OnMapRead
                             eventInfoFragment.setEndDate(mGroup.getEndDateTimeString(),mGroup.getEndDateTimeString2());
                             eventInfoFragment.setDescription(mGroup.getDescription());
                             eventInfoFragment.setParticipantsText(mGroup.getNumParticipants(), mGroup.getMaxParticipants());
+                            eventInfoFragment.setPlaceId(mGroup.getPlaceId());
                         }
                         if (detailsPager == null) {
                             detailsPager = findViewById(R.id.groupDetailsPager);
