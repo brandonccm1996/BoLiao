@@ -35,6 +35,6 @@
     <string name = "time_settings_key">timenotificationsetting</string>
     <string name = "update_settings_key">updatenotificationsetting</string>
 
-    <string name="time_notifications_settings_text">By enabling time notifications, you will be notified whenever an activity you have join is happening soon.</string>
-    <string name="update_notifications_settings_text">By enabling update notifications, you will be notified whenever there is a new update in an activity you have join</string>
+    <string name="time_notifications_settings_text">By enabling time notifications, you will be notified whenever an activity you have joined is happening soon.</string>
+    <string name="update_notifications_settings_text">By enabling update notifications, you will be notified whenever there is a new update in an activity you have joined, or if you have been removed from the activity, or if the activity has been deleted.</string>
 </resources>
