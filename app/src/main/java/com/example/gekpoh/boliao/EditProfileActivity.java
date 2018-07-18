@@ -16,6 +16,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -220,11 +221,15 @@ public class EditProfileActivity extends AppCompatActivity {
                 else textViewDescription.setText(currentUserInfo.getDescription());
 
                 if (currentUserInfo.getPhotoUrl().equals("")) {
-                    imageViewProPic.setImageResource(R.drawable.profilepic);
+                    Glide.with(imageViewProPic.getContext())
+                            .load(R.drawable.profilepic)
+                            .apply(RequestOptions.circleCropTransform())
+                            .into(imageViewProPic);
                 }
                 else {
                     Glide.with(imageViewProPic.getContext())
                             .load(currentUserInfo.getPhotoUrl())
+                            .apply(RequestOptions.circleCropTransform())
                             .into(imageViewProPic);
                 }
             }

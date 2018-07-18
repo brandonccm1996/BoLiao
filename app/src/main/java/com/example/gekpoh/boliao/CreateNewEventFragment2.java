@@ -17,6 +17,7 @@ import android.widget.PopupMenu;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -57,6 +58,13 @@ public class CreateNewEventFragment2 extends Fragment {
         editTextNumPeople = getView().findViewById(R.id.editTextNumPeople);
         editTextDescription = getView().findViewById(R.id.editTextDescription);
 
+        if (photoUri == null) {
+            Glide.with(imageViewActivityPic.getContext())
+                    .load(R.drawable.profilepic)
+                    .apply(RequestOptions.circleCropTransform())
+                    .into(imageViewActivityPic);
+        }
+
         imageViewActivityPic.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -75,7 +83,10 @@ public class CreateNewEventFragment2 extends Fragment {
                             case R.id.remove_pic:
                                 deletePic();
                                 Toast.makeText(getActivity(), "Activity pic removed", Toast.LENGTH_SHORT).show();
-                                imageViewActivityPic.setImageResource(R.drawable.profilepic);
+                                Glide.with(imageViewActivityPic.getContext())
+                                        .load(R.drawable.profilepic)
+                                        .apply(RequestOptions.circleCropTransform())
+                                        .into(imageViewActivityPic);
                                 return true;
                             case R.id.update_pic:
                                 Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
@@ -128,6 +139,7 @@ public class CreateNewEventFragment2 extends Fragment {
 
                             Glide.with(imageViewActivityPic.getContext())
                                     .load(photoUri.toString())
+                                    .apply(RequestOptions.circleCropTransform())
                                     .into(imageViewActivityPic);
                         }
                         else {

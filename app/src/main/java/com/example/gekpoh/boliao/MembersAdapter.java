@@ -15,6 +15,7 @@ import android.widget.RatingBar;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 
 import java.util.ArrayList;
 
@@ -47,9 +48,15 @@ public class MembersAdapter extends RecyclerView.Adapter<MembersAdapter.MembersV
         if (userInformation2.getUserInformation().getNumRatings() == 0) holder.ratingBar.setRating(0);
         else holder.ratingBar.setRating(userInformation2.getUserInformation().getSumRating() / userInformation2.getUserInformation().getNumRatings());
 
-        if (userInformation2.getUserInformation().getPhotoUrl().equals("")) holder.imageViewProPic.setImageResource(R.drawable.profilepic);
+        if (userInformation2.getUserInformation().getPhotoUrl().equals("")) {
+            Glide.with(holder.imageViewProPic.getContext())
+                    .load(R.drawable.profilepic)
+                    .apply(RequestOptions.circleCropTransform())
+                    .into(holder.imageViewProPic);
+        }
         else Glide.with(holder.imageViewProPic.getContext())
                     .load(userInformation2.getUserInformation().getPhotoUrl())
+                    .apply(RequestOptions.circleCropTransform())
                     .into(holder.imageViewProPic);
 
         if (userInformation2.getMemberIsAdmin()) holder.textViewAdmin.setVisibility(View.VISIBLE);
