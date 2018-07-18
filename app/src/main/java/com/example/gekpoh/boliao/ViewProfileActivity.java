@@ -6,6 +6,9 @@ import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
+
 public class ViewProfileActivity extends AppCompatActivity {
 
     private ImageView imageViewProPic;
@@ -27,5 +30,27 @@ public class ViewProfileActivity extends AppCompatActivity {
         ratingBar = findViewById(R.id.ratingBar);
         textViewNumRatings = findViewById(R.id.textViewNumRatings);
         textViewDescription = findViewById(R.id.textViewDescription);
+
+        if(getIntent().hasExtra("memberName") && getIntent().hasExtra("memberDesc") && getIntent().hasExtra("memberSumRating") && getIntent().hasExtra("memberNumRatings") && getIntent().hasExtra("memberProPic")){
+            textViewName.setText(getIntent().getStringExtra("memberName"));
+            textViewDescription.setText(getIntent().getStringExtra("memberDesc"));
+            textViewNumRatings.setText("Number of ratings: " + getIntent().getIntExtra("memberNumRatings", -1));
+
+            if (getIntent().getIntExtra("memberNumRatings", -1) == 0) ratingBar.setRating(0);
+            else ratingBar.setRating(getIntent().getFloatExtra("memberSumRating", -1) / getIntent().getIntExtra("memberNumRatings", -1));
+
+            if (getIntent().getStringExtra("memberProPic").equals("")) {
+                Glide.with(imageViewProPic.getContext())
+                        .load(R.drawable.profilepic)
+                        .apply(RequestOptions.circleCropTransform())
+                        .into(imageViewProPic);
+            }
+            else {
+                Glide.with(imageViewProPic.getContext())
+                        .load(getIntent().getStringExtra("memberProPic"))
+                        .apply(RequestOptions.circleCropTransform())
+                        .into(imageViewProPic);
+            }
+        }
     }
 }

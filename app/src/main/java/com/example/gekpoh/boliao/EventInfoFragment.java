@@ -179,102 +179,107 @@ public class EventInfoFragment extends Fragment {
         buttonDelete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                members = new ArrayList<>();
-                mUserListsDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        for (DataSnapshot childSnapshot : dataSnapshot.getChildren()) {
-                            members.add(childSnapshot.getKey());
+                if (!FirebaseDatabaseUtils.connectedToDatabase()) {
+                    Toast.makeText(getActivity(), "Please make sure that you have an internet connection", Toast.LENGTH_LONG).show();
+                } else {
+                    members = new ArrayList<>();
+                    mUserListsDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                            for (DataSnapshot childSnapshot : dataSnapshot.getChildren()) {
+                                members.add(childSnapshot.getKey());
+                            }
                         }
-                    }
 
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError databaseError) {
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError databaseError) {
 
-                    }
-                });
+                        }
+                    });
 
-                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
-                        .setCancelable(true)
-                        .setTitle("Deleting activity")
-                        .setMessage("Are you sure you want to delete this activity? Activity deletion is not reversible.")
-                        .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
+                            .setCancelable(true)
+                            .setTitle("Deleting activity")
+                            .setMessage("Are you sure you want to delete this activity? Activity deletion is not reversible.")
+                            .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
 
-                            final String notifId = mDeleteEventNotifDatabaseReference.push().getKey();
+                                final String notifId = mDeleteEventNotifDatabaseReference.push().getKey();
 
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
 
-                                // notification
-                                Map userList = new HashMap();
-                                for (String memberId : members) {
-                                    if (!memberId.equals(MainActivity.userUid)) userList.put(memberId, true); // don't send notification to the person deleting event
-                                    mJoinedListsDatabaseReference.child(memberId).child(groupId).removeValue();
-                                    Log.d("EventInfoFrag", memberId);
-                                }
-                                mDeleteEventNotifDatabaseReference.child(notifId).setValue(userList);
+                                    // notification
+                                    Map userList = new HashMap();
+                                    for (String memberId : members) {
+                                        if (!memberId.equals(MainActivity.userUid))
+                                            userList.put(memberId, true); // don't send notification to the person deleting event
+                                        mJoinedListsDatabaseReference.child(memberId).child(groupId).removeValue();
+                                        Log.d("EventInfoFrag", memberId);
+                                    }
+                                    mDeleteEventNotifDatabaseReference.child(notifId).setValue(userList);
 
-                                // delete chat photos
-                                mChatsDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
-                                    @Override
-                                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                        for (DataSnapshot childSnapshot : dataSnapshot.getChildren()) {
-                                            if (childSnapshot.hasChild("photoUrl")) {
-                                                StorageReference photoDeleteRef = mFirebaseStorage.getReferenceFromUrl(childSnapshot.child("photoUrl").getValue().toString());
-                                                photoDeleteRef.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    // delete chat photos
+                                    mChatsDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                                        @Override
+                                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                            for (DataSnapshot childSnapshot : dataSnapshot.getChildren()) {
+                                                if (childSnapshot.hasChild("photoUrl")) {
+                                                    StorageReference photoDeleteRef = mFirebaseStorage.getReferenceFromUrl(childSnapshot.child("photoUrl").getValue().toString());
+                                                    photoDeleteRef.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                        @Override
+                                                        public void onSuccess(Void aVoid) {
+                                                            Log.d("EventInfoFrag", "Deletion working");
+                                                        }
+                                                    });
+                                                }
+                                            }
+                                        }
+
+                                        @Override
+                                        public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                                        }
+                                    });
+
+                                    // delete group photo
+                                    mGroupsDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                                        @Override
+                                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                            if (dataSnapshot.hasChild("photoUrl")) {
+                                                StorageReference photoDeleteRef2 = mFirebaseStorage.getReferenceFromUrl(dataSnapshot.child("photoUrl").getValue().toString());
+                                                photoDeleteRef2.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
                                                     @Override
                                                     public void onSuccess(Void aVoid) {
-                                                        Log.d("EventInfoFrag", "Deletion working");
+                                                        Log.d("EventInfoFrag2", "Deletion working 2");
                                                     }
                                                 });
                                             }
                                         }
-                                    }
 
-                                    @Override
-                                    public void onCancelled(@NonNull DatabaseError databaseError) {
+                                        @Override
+                                        public void onCancelled(@NonNull DatabaseError databaseError) {
 
-                                    }
-                                });
-
-                                // delete group photo
-                                mGroupsDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
-                                    @Override
-                                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                        if (dataSnapshot.hasChild("photoUrl")) {
-                                            StorageReference photoDeleteRef2 = mFirebaseStorage.getReferenceFromUrl(dataSnapshot.child("photoUrl").getValue().toString());
-                                            photoDeleteRef2.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
-                                                @Override
-                                                public void onSuccess(Void aVoid) {
-                                                    Log.d("EventInfoFrag2", "Deletion working 2");
-                                                }
-                                            });
                                         }
-                                    }
+                                    });
 
-                                    @Override
-                                    public void onCancelled(@NonNull DatabaseError databaseError) {
+                                    mChatsDatabaseReference.removeValue();
+                                    mGeofireDatabaseReference.removeValue();
+                                    mUserListsDatabaseReference.removeValue();
+                                    mGroupsDatabaseReference.removeValue();
+                                    Toast.makeText(getActivity(), "Activity deleted", Toast.LENGTH_LONG).show();
+                                    getActivity().onBackPressed();
+                                }
+                            })
+                            .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
 
-                                    }
-                                });
+                                }
+                            });
 
-                                mChatsDatabaseReference.removeValue();
-                                mGeofireDatabaseReference.removeValue();
-                                mUserListsDatabaseReference.removeValue();
-                                mGroupsDatabaseReference.removeValue();
-                                Toast.makeText(getActivity(), "Activity deleted", Toast.LENGTH_LONG).show();
-                                getActivity().onBackPressed();
-                            }
-                        })
-                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-
-                            }
-                        });
-
-                AlertDialog dialog = builder.create();
-                dialog.show();
+                    AlertDialog dialog = builder.create();
+                    dialog.show();
+                }
             }
         });
 

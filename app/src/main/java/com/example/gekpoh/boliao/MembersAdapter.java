@@ -1,9 +1,11 @@
 package com.example.gekpoh.boliao;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.PorterDuff;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -13,6 +15,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
@@ -80,7 +83,10 @@ public class MembersAdapter extends RecyclerView.Adapter<MembersAdapter.MembersV
                 holder.buttonRate.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        membersFragment.rateMember2(userInformation2.getUserId(), userInformation2.getUserInformation().getName());
+                        if (!FirebaseDatabaseUtils.connectedToDatabase()) {
+                            Toast.makeText(mCtx, "Please make sure that you have an internet connection", Toast.LENGTH_LONG).show();
+                        }
+                        else membersFragment.rateMember2(userInformation2.getUserId(), userInformation2.getUserInformation().getName());
                     }
                 });
             } else {
@@ -89,7 +95,10 @@ public class MembersAdapter extends RecyclerView.Adapter<MembersAdapter.MembersV
                 holder.buttonRate.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        membersFragment.rateMember(userInformation2.getUserId(), userInformation2.getUserInformation().getName());
+                        if (!FirebaseDatabaseUtils.connectedToDatabase()) {
+                            Toast.makeText(mCtx, "Please make sure that you have an internet connection", Toast.LENGTH_LONG).show();
+                        }
+                        else membersFragment.rateMember(userInformation2.getUserId(), userInformation2.getUserInformation().getName());
                     }
                 });
             }
@@ -97,10 +106,26 @@ public class MembersAdapter extends RecyclerView.Adapter<MembersAdapter.MembersV
             holder.buttonRemove.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    membersFragment.removeMember(userInformation2.getUserId(), userInformation2.getUserInformation().getName());
+                    if (!FirebaseDatabaseUtils.connectedToDatabase()) {
+                        Toast.makeText(mCtx, "Please make sure that you have an internet connection", Toast.LENGTH_LONG).show();
+                    }
+                    else membersFragment.removeMember(userInformation2.getUserId(), userInformation2.getUserInformation().getName());
                 }
             });
         }
+
+        holder.membersCardView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(mCtx, ViewProfileActivity.class);
+                intent.putExtra("memberName", userInformation2.getUserInformation().getName());
+                intent.putExtra("memberDesc", userInformation2.getUserInformation().getDescription());
+                intent.putExtra("memberSumRating", userInformation2.getUserInformation().getSumRating());
+                intent.putExtra("memberNumRatings", userInformation2.getUserInformation().getNumRatings());
+                intent.putExtra("memberProPic", userInformation2.getUserInformation().getPhotoUrl());
+                mCtx.startActivity(intent);
+            }
+        });
     }
 
     @Override
@@ -115,6 +140,7 @@ public class MembersAdapter extends RecyclerView.Adapter<MembersAdapter.MembersV
         private Button buttonRemove;
         private Button buttonRate;
         private TextView textViewAdmin;
+        private CardView membersCardView;
 
         public MembersViewHolder(View itemView) {
             super(itemView);
@@ -124,6 +150,7 @@ public class MembersAdapter extends RecyclerView.Adapter<MembersAdapter.MembersV
             textViewAdmin = itemView.findViewById(R.id.textViewAdmin);
             buttonRemove = itemView.findViewById(R.id.buttonRemove);
             buttonRate = itemView.findViewById(R.id.buttonRate);
+            membersCardView = itemView.findViewById(R.id.membersCardView);
         }
     }
 }
