@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -20,9 +21,11 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 
 public class EditEventFragment1 extends Fragment {
 
@@ -118,10 +121,12 @@ public class EditEventFragment1 extends Fragment {
                 mTimePickerDialog = new TimePickerDialog(getActivity(), new TimePickerDialog.OnTimeSetListener() {
                     @Override
                     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-                        if (hourOfDay > 12) editTextSTime.setText(String.format("%02d:%02d", hourOfDay-12, minute) + "p.m.");
-                        else if (hourOfDay == 0) editTextSTime.setText(String.format("%02d:%02d", hourOfDay+12, minute) + "a.m.");
-                        else if (hourOfDay == 12) editTextSTime.setText(String.format("%02d:%02d", hourOfDay, minute) + "p.m.");
-                        else editTextSTime.setText(String.format("%02d:%02d", hourOfDay, minute) + "a.m.");
+                        try{
+                            Date date = Group.groupDateFormatter4.parse(String.format(Locale.US,"%02d:%02d", hourOfDay, minute));
+                            editTextSTime.setText(Group.groupDateFormatter5.format(date));
+                        }catch(ParseException e){
+                            Toast.makeText(getActivity(), "Parse error", Toast.LENGTH_SHORT).show();
+                        }
                     }
                 }, 0, 0, false);
 
@@ -135,10 +140,12 @@ public class EditEventFragment1 extends Fragment {
                 mTimePickerDialog = new TimePickerDialog(getActivity(), new TimePickerDialog.OnTimeSetListener() {
                     @Override
                     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-                        if (hourOfDay > 12) editTextETime.setText(String.format("%02d:%02d", hourOfDay-12, minute) + "p.m.");
-                        else if (hourOfDay == 0) editTextETime.setText(String.format("%02d:%02d", hourOfDay+12, minute) + "a.m.");
-                        else if (hourOfDay == 12) editTextETime.setText(String.format("%02d:%02d", hourOfDay, minute) + "p.m.");
-                        else editTextETime.setText(String.format("%02d:%02d", hourOfDay, minute) + "a.m.");
+                        try{
+                            Date date = Group.groupDateFormatter4.parse(String.format(Locale.US,"%02d:%02d", hourOfDay, minute));
+                            editTextETime.setText(Group.groupDateFormatter5.format(date));
+                        }catch(ParseException e){
+                            Toast.makeText(getActivity(), "Parse error", Toast.LENGTH_SHORT).show();
+                        }
                     }
                 }, 0, 0, false);
 

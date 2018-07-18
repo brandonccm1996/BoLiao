@@ -23,6 +23,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 
 public class CreateNewEventFragment1 extends Fragment{
 
@@ -100,10 +101,12 @@ public class CreateNewEventFragment1 extends Fragment{
                 mTimePickerDialog = new TimePickerDialog(getActivity(), new TimePickerDialog.OnTimeSetListener() {
                     @Override
                     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-                        if (hourOfDay > 12) editTextSTime.setText(String.format("%02d:%02d", hourOfDay-12, minute) + "p.m.");
-                        else if (hourOfDay == 0) editTextSTime.setText(String.format("%02d:%02d", hourOfDay+12, minute) + "a.m.");
-                        else if (hourOfDay == 12) editTextSTime.setText(String.format("%02d:%02d", hourOfDay, minute) + "p.m.");
-                        else editTextSTime.setText(String.format("%02d:%02d", hourOfDay, minute) + "a.m.");
+                        try{
+                            Date date = Group.groupDateFormatter4.parse(String.format(Locale.US,"%02d:%02d", hourOfDay, minute));
+                            editTextSTime.setText(Group.groupDateFormatter5.format(date));
+                        }catch(ParseException e){
+                            Toast.makeText(getActivity(), "Parse error", Toast.LENGTH_SHORT).show();
+                        }
                     }
                 }, 0, 0, false);
 
@@ -117,10 +120,12 @@ public class CreateNewEventFragment1 extends Fragment{
                 mTimePickerDialog = new TimePickerDialog(getActivity(), new TimePickerDialog.OnTimeSetListener() {
                     @Override
                     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-                        if (hourOfDay > 12) editTextETime.setText(String.format("%02d:%02d", hourOfDay-12, minute) + "p.m.");
-                        else if (hourOfDay == 0) editTextETime.setText(String.format("%02d:%02d", hourOfDay+12, minute) + "a.m.");
-                        else if (hourOfDay == 12) editTextETime.setText(String.format("%02d:%02d", hourOfDay, minute) + "p.m.");
-                        else editTextETime.setText(String.format("%02d:%02d", hourOfDay, minute) + "a.m.");
+                        try{
+                            Date date = Group.groupDateFormatter4.parse(String.format(Locale.US,"%02d:%02d", hourOfDay, minute));
+                            editTextETime.setText(Group.groupDateFormatter5.format(date));
+                        }catch(ParseException e){
+                            Toast.makeText(getActivity(), "Parse error", Toast.LENGTH_SHORT).show();
+                        }
                     }
                 }, 0, 0, false);
 

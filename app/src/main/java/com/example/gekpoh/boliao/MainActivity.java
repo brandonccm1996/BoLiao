@@ -57,6 +57,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Map;
 
 public class MainActivity extends AppCompatActivity implements SearchGroupFragment.reloadFilterInterface,JoinedGroupFragment.SearchInterface {
@@ -232,7 +233,7 @@ public class MainActivity extends AppCompatActivity implements SearchGroupFragme
                             public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
                                 starthour = hourOfDay;
                                 startmin = minute;
-                                dateTimeString = dateTimeString + " " + String.format("%02d:%02d", hourOfDay, minute);
+                                dateTimeString = dateTimeString + " " + String.format(Locale.US,"%02d:%02d", hourOfDay, minute);
                                 try{
                                     Date date = Group.groupDateFormatter3.parse(dateTimeString);
                                     String dateTimeString2 = Group.groupDateFormatter2.format(date);
@@ -270,7 +271,7 @@ public class MainActivity extends AppCompatActivity implements SearchGroupFragme
                             public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
                                 endhour = hourOfDay;
                                 endmin = minute;
-                                dateTimeString = dateTimeString + " " + String.format("%02d:%02d", hourOfDay, minute);
+                                dateTimeString = dateTimeString + " " + String.format(Locale.US,"%02d:%02d", hourOfDay, minute);
                                 try{
                                     Date date = Group.groupDateFormatter3.parse(dateTimeString);
                                     String dateTimeString2 = Group.groupDateFormatter2.format(date);

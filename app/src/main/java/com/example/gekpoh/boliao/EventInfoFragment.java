@@ -305,25 +305,33 @@ public class EventInfoFragment extends Fragment {
         String sizeViewText = Long.toString(x) +'/' + Long.toString(args.getInt(getString(R.string.groupMaxSizeKey)));
         sizeView.setText(sizeViewText);
     }
-
-    public void setEndDate(String endTime){
+    public void setEndDate(String endTime, String endTime2){
         endView.setText(endTime);
+        args.putString(getString(R.string.groupEndKey), endTime);
+        args.putString("eventend2", endTime2);   // using dd/MM/yyyy hh:mma
     }
-    public void setStartDate(String startTime){
+    public void setStartDate(String startTime, String startTime2){
         startView.setText(startTime);
+        args.putString(getString(R.string.groupStartKey), startTime);
+        args.putString("eventstart2", startTime2);   // using dd/MM/yyyy hh:mma
     }
     public void setActivityName(String name){
         nameView.setText(name);
+        args.putString(getString(R.string.groupNameKey), name);
     }
-    public void setParticipantsText(long numParticipants, long maxParticipants){
+    public void setParticipantsText(int numParticipants, int maxParticipants){
         String sizeViewText = Long.toString(numParticipants) +'/' + Long.toString(maxParticipants);
         sizeView.setText(sizeViewText);
+        args.putInt(getString(R.string.groupCurrentSizeKey), numParticipants);
+        args.putInt(getString(R.string.groupMaxSizeKey), maxParticipants);
     }
     public void setPlaceName(String placeName){
         placeView.setText(placeName);
+        args.putString(getString(R.string.groupPlaceKey), placeName);
     }
     public void setDescription(String description){
         descriptionView.setText(description);
+        args.putString(getString(R.string.groupDescriptionKey), description);
     }
     public void setPhoto(String photoUrl){
         if (photoUrl == null) {
@@ -338,5 +346,6 @@ public class EventInfoFragment extends Fragment {
                     .apply(RequestOptions.circleCropTransform())
                     .into(picView);
         }
+        args.putString(getString(R.string.groupPhotoUrlKey), photoUrl);
     }
 }

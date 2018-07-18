@@ -22,7 +22,7 @@ import java.util.Date;
 import java.util.HashMap;
 
 public class ChatRecyclerAdapter extends RecyclerView.Adapter<ChatRecyclerAdapter.ChatMessageViewHolder>  {
-    public static final SimpleDateFormat chatDateFormatter = new SimpleDateFormat("dd/MM/yyyy kk:mma");
+    public static final SimpleDateFormat chatDateFormatter = new SimpleDateFormat("dd/MM/yyyy hh:mma");
     @NonNull
     private ArrayList<ChatMessage> chatMessageList;
     public ChatRecyclerAdapter(ArrayList<ChatMessage> chatMessages){

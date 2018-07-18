@@ -347,8 +347,8 @@ public class GroupDetailsActivity extends AppCompatActivity implements OnMapRead
                             eventInfoFragment.setPhoto(mGroup.getPhotoUrl());
                             eventInfoFragment.setActivityName(mGroup.getNames());
                             eventInfoFragment.setPlaceName(mGroup.getLocation());
-                            eventInfoFragment.setStartDate(mGroup.getStartDateTimeString());
-                            eventInfoFragment.setEndDate(mGroup.getEndDateTimeString());
+                            eventInfoFragment.setStartDate(mGroup.getStartDateTimeString(),mGroup.getStartDateTimeString2());
+                            eventInfoFragment.setEndDate(mGroup.getEndDateTimeString(),mGroup.getEndDateTimeString2());
                             eventInfoFragment.setDescription(mGroup.getDescription());
                             eventInfoFragment.setParticipantsText(mGroup.getNumParticipants(), mGroup.getMaxParticipants());
                         }

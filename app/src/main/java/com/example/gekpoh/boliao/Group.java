@@ -17,9 +17,11 @@ import java.util.ArrayList;
 import java.util.Date;
 
 public class Group implements Parcelable,Comparable<Group>{
-    public static final SimpleDateFormat groupDateFormatter = new SimpleDateFormat("E, dd/MM/yyyy hh:mma");
-    public static final SimpleDateFormat groupDateFormatter2 = new SimpleDateFormat("dd/MM/yyyy hh:mma");
-    public static final SimpleDateFormat groupDateFormatter3 = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+    public static final SimpleDateFormat groupDateFormatter = new SimpleDateFormat("E, dd/MM/yyyy hh:mma");//Day date and time in 12 hour format
+    public static final SimpleDateFormat groupDateFormatter2 = new SimpleDateFormat("dd/MM/yyyy hh:mma");//date and time in 12 hour format
+    public static final SimpleDateFormat groupDateFormatter3 = new SimpleDateFormat("dd/MM/yyyy HH:mm");//date and time in 24 hour format
+    public static final SimpleDateFormat groupDateFormatter4 = new SimpleDateFormat("HH:mm");//time in 24 hour format
+    public static final SimpleDateFormat groupDateFormatter5 = new SimpleDateFormat("hh:mma");//time in 12 hour format
     private static final String TAG = "GROUP";
     private String chatId;//mGroupId is to indicate the reference to the database for this group. groupid is also used as chatid
     private String names, location, placeId, photoUrl, description;
