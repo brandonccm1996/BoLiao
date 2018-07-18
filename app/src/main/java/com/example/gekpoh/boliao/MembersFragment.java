@@ -277,10 +277,48 @@ public class MembersFragment extends Fragment {
         dialog.show();
     }
 
-    public void appointAdmin(String memberId, String memberName) {
+    public void appointAdmin(final String memberId, String memberName) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
+                .setCancelable(true)
+                .setTitle("Appointing admin")
+                .setMessage("Do you want to appoint " + memberName + " as a group admin? Admins can remove members, appoint or dismiss other admins, edit activity info and delete the activity.")
+                .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        reloadRecycler();
+                    }
+                })
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
 
+                    }
+                });
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 
-    public void dismissAdmin(String memberId, String memberName) {}
+    public void dismissAdmin(final String memberId, String memberName) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
+                .setCancelable(true)
+                .setTitle("Dismissing admin")
+                .setMessage("Do you want to dismiss " + memberName + " from his group admin position? Admins can remove members, appoint or dismiss other admins, edit activity info and delete the activity.")
+                .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        reloadRecycler();
+                    }
+                })
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                });
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
 
 }

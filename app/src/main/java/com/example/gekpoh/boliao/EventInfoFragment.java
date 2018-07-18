@@ -9,12 +9,16 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -198,12 +202,18 @@ public class EventInfoFragment extends Fragment {
                         }
                     });
 
+                    final EditText inputToCheck = new EditText(getActivity());
+                    LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                            LinearLayout.LayoutParams.MATCH_PARENT,
+                            LinearLayout.LayoutParams.MATCH_PARENT);
+                    inputToCheck.setLayoutParams(lp);
+
                     AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
                             .setCancelable(true)
                             .setTitle("Deleting activity")
-                            .setMessage("Are you sure you want to delete this activity? Activity deletion is not reversible.")
+                            .setMessage("Are you sure you want to delete this activity? Activity deletion is not reversible.\nTo confirm, type in: 'delete'")
+                            .setView(inputToCheck)
                             .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
-
                                 final String notifId = mDeleteEventNotifDatabaseReference.push().getKey();
 
                                 @Override
@@ -212,8 +222,7 @@ public class EventInfoFragment extends Fragment {
                                     // notification
                                     Map userList = new HashMap();
                                     for (String memberId : members) {
-                                        if (!memberId.equals(MainActivity.userUid))
-                                            userList.put(memberId, true); // don't send notification to the person deleting event
+                                        if (!memberId.equals(MainActivity.userUid)) userList.put(memberId, true); // don't send notification to the person deleting event
                                         mJoinedListsDatabaseReference.child(memberId).child(groupId).removeValue();
                                         Log.d("EventInfoFrag", memberId);
                                     }
@@ -278,8 +287,26 @@ public class EventInfoFragment extends Fragment {
                                 }
                             });
 
-                    AlertDialog dialog = builder.create();
+                    final AlertDialog dialog = builder.create();
                     dialog.show();
+                    ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+                    inputToCheck.addTextChangedListener(new TextWatcher() {
+                        @Override
+                        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+                        }
+
+                        @Override
+                        public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+                        }
+
+                        @Override
+                        public void afterTextChanged(Editable s) {
+                            if (s.toString().equals("delete")) ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
+                            else ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+                        }
+                    });
                 }
             }
         });
