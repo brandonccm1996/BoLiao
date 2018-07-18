@@ -334,7 +334,7 @@ public class MainActivity extends AppCompatActivity implements SearchGroupFragme
         switch (item.getItemId()) {
             case R.id.edit_profile:
                 if (!FirebaseDatabaseUtils.connectedToDatabase()) {
-                    Toast.makeText(this, "Please make sure that you have an internet connection", Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, "Please check your internet connection", Toast.LENGTH_SHORT).show();
                     return true;
                 }
                 Intent startEditProfileActivityIntent = new Intent(MainActivity.this, EditProfileActivity.class);
@@ -342,7 +342,7 @@ public class MainActivity extends AppCompatActivity implements SearchGroupFragme
                 return true;
             case R.id.create_new_act:
                 if (!FirebaseDatabaseUtils.connectedToDatabase()) {
-                    Toast.makeText(this, "Please make sure that you have an internet connection", Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, "Please check your internet connection", Toast.LENGTH_SHORT).show();
                     return true;
                 }
                 Intent startCreateNewEventActivityIntent = new Intent(MainActivity.this, CreateNewEventActivity.class);

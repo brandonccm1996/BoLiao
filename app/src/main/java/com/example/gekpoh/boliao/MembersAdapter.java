@@ -84,7 +84,7 @@ public class MembersAdapter extends RecyclerView.Adapter<MembersAdapter.MembersV
                     @Override
                     public void onClick(View v) {
                         if (!FirebaseDatabaseUtils.connectedToDatabase()) {
-                            Toast.makeText(mCtx, "Please make sure that you have an internet connection", Toast.LENGTH_LONG).show();
+                            Toast.makeText(mCtx, "Please check your internet connection", Toast.LENGTH_SHORT).show();
                         }
                         else membersFragment.rateMember2(userInformation2.getUserId(), userInformation2.getUserInformation().getName());
                     }
@@ -96,7 +96,7 @@ public class MembersAdapter extends RecyclerView.Adapter<MembersAdapter.MembersV
                     @Override
                     public void onClick(View v) {
                         if (!FirebaseDatabaseUtils.connectedToDatabase()) {
-                            Toast.makeText(mCtx, "Please make sure that you have an internet connection", Toast.LENGTH_LONG).show();
+                            Toast.makeText(mCtx, "Please check your internet connection", Toast.LENGTH_SHORT).show();
                         }
                         else membersFragment.rateMember(userInformation2.getUserId(), userInformation2.getUserInformation().getName());
                     }
@@ -107,7 +107,7 @@ public class MembersAdapter extends RecyclerView.Adapter<MembersAdapter.MembersV
                 @Override
                 public void onClick(View v) {
                     if (!FirebaseDatabaseUtils.connectedToDatabase()) {
-                        Toast.makeText(mCtx, "Please make sure that you have an internet connection", Toast.LENGTH_LONG).show();
+                        Toast.makeText(mCtx, "Please check your internet connection", Toast.LENGTH_SHORT).show();
                     }
                     else membersFragment.removeMember(userInformation2.getUserId(), userInformation2.getUserInformation().getName());
                 }

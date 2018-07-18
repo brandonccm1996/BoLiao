@@ -166,7 +166,7 @@ public class EventInfoFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 if (!FirebaseDatabaseUtils.connectedToDatabase()) {
-                    Toast.makeText(getActivity(), "Please make sure that you have an internet connection", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getActivity(), "Please check your internet connection", Toast.LENGTH_SHORT).show();
                 }
                 else {
                     Intent startEditActivityIntent = new Intent(getActivity(), EditEventActivity.class);
@@ -180,8 +180,9 @@ public class EventInfoFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 if (!FirebaseDatabaseUtils.connectedToDatabase()) {
-                    Toast.makeText(getActivity(), "Please make sure that you have an internet connection", Toast.LENGTH_LONG).show();
-                } else {
+                    Toast.makeText(getActivity(), "Please check your internet connection", Toast.LENGTH_SHORT).show();
+                }
+                else {
                     members = new ArrayList<>();
                     mUserListsDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
