@@ -289,7 +289,7 @@ public class EventInfoFragment extends Fragment {
 
                     final AlertDialog dialog = builder.create();
                     dialog.show();
-                    ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+                    dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
                     inputToCheck.addTextChangedListener(new TextWatcher() {
                         @Override
                         public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -303,8 +303,8 @@ public class EventInfoFragment extends Fragment {
 
                         @Override
                         public void afterTextChanged(Editable s) {
-                            if (s.toString().equals("delete")) ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
-                            else ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+                            if (s.toString().equals("delete")) dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
+                            else dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
                         }
                     });
                 }

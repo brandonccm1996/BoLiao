@@ -285,6 +285,7 @@ public class MembersFragment extends Fragment {
                 .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
+                        mUserListsDatabaseReference.child(memberId).child("isAdmin").setValue(true);
                         reloadRecycler();
                     }
                 })
@@ -307,6 +308,7 @@ public class MembersFragment extends Fragment {
                 .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
+                        mUserListsDatabaseReference.child(memberId).child("isAdmin").setValue(false);
                         reloadRecycler();
                     }
                 })
