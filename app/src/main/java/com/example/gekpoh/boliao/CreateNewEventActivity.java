@@ -113,6 +113,7 @@ public class CreateNewEventActivity extends AppCompatActivity implements CreateN
 
                         //Create lists of users for this group
                         mapToUpload3.put("isAdmin", true);
+                        mapToUpload3.put("isOrganizer", true);
                         mapToUpload2.put(MainActivity.userUid, mapToUpload3);
                         mUserListsDatabaseReference.child(chatId).setValue(mapToUpload2);
 

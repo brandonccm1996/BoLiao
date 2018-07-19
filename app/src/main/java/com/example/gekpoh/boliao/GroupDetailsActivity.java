@@ -298,6 +298,7 @@ public class GroupDetailsActivity extends AppCompatActivity implements OnMapRead
             }
             HashMap<String, Boolean> map = new HashMap<>();
             map.put("isAdmin", false);
+            map.put("isOrganizer", false);
             userlistref.setValue(map);
             joinedlistref.setValue("true");
             TimeNotificationScheduler.setNewReminder(GroupDetailsActivity.this, mGroup.getChatId(), mGroup.getNames(), mGroup.getStartDateTime(), -1);

@@ -62,8 +62,16 @@ public class MembersAdapter extends RecyclerView.Adapter<MembersAdapter.MembersV
                     .apply(RequestOptions.circleCropTransform())
                     .into(holder.imageViewProPic);
 
-        if (userInformation2.getMemberIsAdmin()) holder.textViewAdmin.setVisibility(View.VISIBLE);
-        else holder.textViewAdmin.setVisibility(View.INVISIBLE);
+        // member status text view
+        if (userInformation2.getMemberStatus().equals("organizer")) {
+            holder.textViewMemberStatus.setVisibility(View.VISIBLE);
+            holder.textViewMemberStatus.setText("Organizer");
+        }
+        else if (userInformation2.getMemberStatus().equals("admin")) {
+            holder.textViewMemberStatus.setVisibility(View.VISIBLE);
+            holder.textViewMemberStatus.setText("Admin");
+        }
+        else holder.textViewMemberStatus.setVisibility(View.INVISIBLE);
 
         if (!userInformation2.getInEvent()) {
             holder.buttonRemove.setVisibility(View.GONE);
@@ -71,66 +79,57 @@ public class MembersAdapter extends RecyclerView.Adapter<MembersAdapter.MembersV
             holder.buttonSetAdmin.setVisibility(View.GONE);
         }
         else {
-            if (userInformation2.getEnableRemove()) holder.buttonRemove.setVisibility(View.VISIBLE);
+            // buttonRemove
+            if (userInformation2.getEnableRemove()) {
+                holder.buttonRemove.setVisibility(View.VISIBLE);
+                holder.buttonRemove.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (!FirebaseDatabaseUtils.connectedToDatabase()) {
+                            Toast.makeText(mCtx, "Please check your internet connection", Toast.LENGTH_SHORT).show();
+                        }
+                        else membersFragment.removeMember(userInformation2.getMemberId(), userInformation2.getUserInformation().getName());
+                    }
+                });
+            }
             else holder.buttonRemove.setVisibility(View.GONE);
 
-            if (userInformation2.getUserId().equals(MainActivity.userUid)) holder.buttonRate.setVisibility(View.GONE);
-            else holder.buttonRate.setVisibility(View.VISIBLE);
+            // buttonRate
+            if (userInformation2.getEnableRate()) {
+                holder.buttonRate.setVisibility(View.VISIBLE);
 
-            if (userInformation2.getUserId().equals(MainActivity.userUid)) holder.buttonSetAdmin.setVisibility(View.GONE);
-            else if (!userInformation2.getUserIsAdmin()) holder.buttonSetAdmin.setVisibility(View.GONE);
-            else holder.buttonSetAdmin.setVisibility(View.VISIBLE);
-
-            if (userInformation2.getMemberRatedBefore()) {
-                holder.buttonRate.getBackground().setColorFilter(ContextCompat.getColor(mCtx, R.color.colorLime), PorterDuff.Mode.MULTIPLY);
-                holder.buttonRate.setText("Rated");
-                holder.buttonRate.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        if (!FirebaseDatabaseUtils.connectedToDatabase()) {
-                            Toast.makeText(mCtx, "Please check your internet connection", Toast.LENGTH_SHORT).show();
+                if (userInformation2.getMemberRatedBefore()) {
+                    holder.buttonRate.getBackground().setColorFilter(ContextCompat.getColor(mCtx, R.color.colorLime), PorterDuff.Mode.MULTIPLY);
+                    holder.buttonRate.setText("Rated");
+                    holder.buttonRate.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            if (!FirebaseDatabaseUtils.connectedToDatabase()) {
+                                Toast.makeText(mCtx, "Please check your internet connection", Toast.LENGTH_SHORT).show();
+                            }
+                            else membersFragment.rateMember2(userInformation2.getMemberId(), userInformation2.getUserInformation().getName());
                         }
-                        else membersFragment.rateMember2(userInformation2.getUserId(), userInformation2.getUserInformation().getName());
-                    }
-                });
-            }
-            else {
-                holder.buttonRate.getBackground().clearColorFilter();
-                holder.buttonRate.setText("Rate");
-                holder.buttonRate.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        if (!FirebaseDatabaseUtils.connectedToDatabase()) {
-                            Toast.makeText(mCtx, "Please check your internet connection", Toast.LENGTH_SHORT).show();
-                        }
-                        else membersFragment.rateMember(userInformation2.getUserId(), userInformation2.getUserInformation().getName());
-                    }
-                });
-            }
-
-            holder.buttonRemove.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (!FirebaseDatabaseUtils.connectedToDatabase()) {
-                        Toast.makeText(mCtx, "Please check your internet connection", Toast.LENGTH_SHORT).show();
-                    }
-                    else membersFragment.removeMember(userInformation2.getUserId(), userInformation2.getUserInformation().getName());
+                    });
                 }
-            });
-
-            if (userInformation2.getMemberIsAdmin()) {
-                holder.buttonSetAdmin.setText("Dismiss Admin");
-                holder.buttonSetAdmin.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        if (!FirebaseDatabaseUtils.connectedToDatabase()) {
-                            Toast.makeText(mCtx, "Please check your internet connection", Toast.LENGTH_SHORT).show();
+                else {
+                    holder.buttonRate.getBackground().clearColorFilter();
+                    holder.buttonRate.setText("Rate");
+                    holder.buttonRate.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            if (!FirebaseDatabaseUtils.connectedToDatabase()) {
+                                Toast.makeText(mCtx, "Please check your internet connection", Toast.LENGTH_SHORT).show();
+                            }
+                            else membersFragment.rateMember(userInformation2.getMemberId(), userInformation2.getUserInformation().getName());
                         }
-                        else membersFragment.dismissAdmin(userInformation2.getUserId(), userInformation2.getUserInformation().getName());
-                    }
-                });
+                    });
+                }
             }
-            else {
+            else holder.buttonRate.setVisibility(View.GONE);
+
+            // buttonSetAdmin
+            if (userInformation2.getAppointDismissAdmin().equals("appoint")) {
+                holder.buttonSetAdmin.setVisibility(View.VISIBLE);
                 holder.buttonSetAdmin.setText("Appoint Admin");
                 holder.buttonSetAdmin.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -138,10 +137,24 @@ public class MembersAdapter extends RecyclerView.Adapter<MembersAdapter.MembersV
                         if (!FirebaseDatabaseUtils.connectedToDatabase()) {
                             Toast.makeText(mCtx, "Please check your internet connection", Toast.LENGTH_SHORT).show();
                         }
-                        else membersFragment.appointAdmin(userInformation2.getUserId(), userInformation2.getUserInformation().getName());
+                        else membersFragment.appointAdmin(userInformation2.getMemberId(), userInformation2.getUserInformation().getName());
                     }
                 });
             }
+            else if (userInformation2.getAppointDismissAdmin().equals("dismiss")) {
+                holder.buttonSetAdmin.setVisibility(View.VISIBLE);
+                holder.buttonSetAdmin.setText("Dismiss Admin");
+                holder.buttonSetAdmin.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (!FirebaseDatabaseUtils.connectedToDatabase()) {
+                            Toast.makeText(mCtx, "Please check your internet connection", Toast.LENGTH_SHORT).show();
+                        }
+                        else membersFragment.dismissAdmin(userInformation2.getMemberId(), userInformation2.getUserInformation().getName());
+                    }
+                });
+            }
+            else if (userInformation2.getAppointDismissAdmin().equals("invisible")) holder.buttonSetAdmin.setVisibility(View.GONE);
         }
 
         holder.membersCardView.setOnClickListener(new View.OnClickListener() {
@@ -170,7 +183,7 @@ public class MembersAdapter extends RecyclerView.Adapter<MembersAdapter.MembersV
         private Button buttonRemove;
         private Button buttonRate;
         private Button buttonSetAdmin;
-        private TextView textViewAdmin;
+        private TextView textViewMemberStatus;
         private CardView membersCardView;
 
         public MembersViewHolder(View itemView) {
@@ -178,7 +191,7 @@ public class MembersAdapter extends RecyclerView.Adapter<MembersAdapter.MembersV
             textViewName = itemView.findViewById(R.id.textViewName);
             imageViewProPic = itemView.findViewById(R.id.imageViewProPic);
             ratingBar = itemView.findViewById(R.id.ratingBar);
-            textViewAdmin = itemView.findViewById(R.id.textViewAdmin);
+            textViewMemberStatus = itemView.findViewById(R.id.textViewMemberStatus);
             buttonRemove = itemView.findViewById(R.id.buttonRemove);
             buttonRate = itemView.findViewById(R.id.buttonRate);
             buttonSetAdmin = itemView.findViewById(R.id.buttonSetAdmin);

@@ -2,50 +2,96 @@ package com.example.gekpoh.boliao;
 
 public class UserInformation2 {
     private UserInformation userInformation;
-    private boolean enableRemove;   // enable/disable remove button
-    private boolean memberIsAdmin;
-    private String userId;
-    private boolean memberRatedBefore;
-    private boolean userIsAdmin;
+    private String memberId;
     private boolean inEvent;
+    private boolean memberRatedBefore;
+    private boolean enableRemove;
+    private boolean enableRate;
+    private String appointDismissAdmin;
+    private String memberStatus;
+    private String userStatus;
 
-    public UserInformation2(UserInformation userInformation, boolean enableRemove, boolean memberIsAdmin, boolean userIsAdmin, String userId, boolean memberRatedBefore, boolean inEvent) {
+    public UserInformation2(UserInformation userInformation, String memberId, boolean inEvent, boolean memberRatedBefore, boolean enableRemove, boolean enableRate, String appointDismissAdmin, String memberStatus, String userStatus) {
         this.userInformation = userInformation;
-        this.enableRemove = enableRemove;
-        this.memberIsAdmin = memberIsAdmin;
-        this.userIsAdmin = userIsAdmin;
-        this.userId = userId;
-        this.memberRatedBefore = memberRatedBefore;
+        this.memberId = memberId;
         this.inEvent = inEvent;
+        this.memberRatedBefore = memberRatedBefore;
+        this.enableRemove = enableRemove;
+        this.enableRate = enableRate;
+        this.appointDismissAdmin = appointDismissAdmin;
+        this.memberStatus = memberStatus;
+        this.userStatus = userStatus;
     }
 
     public UserInformation getUserInformation() {
         return userInformation;
     }
 
-    public void setUserInformation(UserInformation userInformation) { this.userInformation = userInformation; }
+    public void setUserInformation(UserInformation userInformation) {
+        this.userInformation = userInformation;
+    }
 
-    public boolean getEnableRemove() { return enableRemove; }
+    public String getMemberId() {
+        return memberId;
+    }
 
-    public void setEnableRemove(boolean enableRemove) { this.enableRemove = enableRemove; }
+    public void setMemberId(String memberId) {
+        this.memberId = memberId;
+    }
 
-    public boolean getMemberIsAdmin() { return memberIsAdmin; }
+    public boolean getInEvent() {
+        return inEvent;
+    }
 
-    public void setMemberIsAdmin(boolean memberIsAdmin) { this.memberIsAdmin = memberIsAdmin; }
+    public void setInEvent(boolean inEvent) {
+        this.inEvent = inEvent;
+    }
 
-    public boolean getUserIsAdmin() { return userIsAdmin; }
+    public boolean getMemberRatedBefore() {
+        return memberRatedBefore;
+    }
 
-    public void setUserIsAdmin(boolean userIsAdmin) { this.userIsAdmin = userIsAdmin; }
+    public void setMemberRatedBefore(boolean memberRatedBefore) {
+        this.memberRatedBefore = memberRatedBefore;
+    }
 
-    public String getUserId() { return userId; }
+    public boolean getEnableRemove() {
+        return enableRemove;
+    }
 
-    public void setUserId(String userId) { this.userId = userId; }
+    public void setEnableRemove(boolean enableRemove) {
+        this.enableRemove = enableRemove;
+    }
 
-    public boolean getMemberRatedBefore() { return memberRatedBefore; }
+    public boolean getEnableRate() {
+        return enableRate;
+    }
 
-    public void setMemberRatedBefore(boolean memberRatedBefore) { this.memberRatedBefore = memberRatedBefore; }
+    public void setEnableRate(boolean enableRate) {
+        this.enableRate = enableRate;
+    }
 
-    public boolean getInEvent() { return inEvent; }
+    public String getAppointDismissAdmin() {
+        return appointDismissAdmin;
+    }
 
-    public void setInEvent(boolean inEvent) { this.inEvent = inEvent; }
+    public void setAppointDismissAdmin(String appointDismissAdmin) {
+        this.appointDismissAdmin = appointDismissAdmin;
+    }
+
+    public String getMemberStatus() {
+        return memberStatus;
+    }
+
+    public void setMemberStatus(String memberStatus) {
+        this.memberStatus = memberStatus;
+    }
+
+    public String getUserStatus() {
+        return userStatus;
+    }
+
+    public void setUserStatus(String userStatus) {
+        this.userStatus = userStatus;
+    }
 }

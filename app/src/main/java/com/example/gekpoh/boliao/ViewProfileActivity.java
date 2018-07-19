@@ -31,6 +31,9 @@ public class ViewProfileActivity extends AppCompatActivity {
         textViewNumRatings = findViewById(R.id.textViewNumRatings);
         textViewDescription = findViewById(R.id.textViewDescription);
 
+        textViewName.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
+        textViewDescription.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
+
         if(getIntent().hasExtra("memberName") && getIntent().hasExtra("memberDesc") && getIntent().hasExtra("memberSumRating") && getIntent().hasExtra("memberNumRatings") && getIntent().hasExtra("memberProPic")){
             textViewName.setText(getIntent().getStringExtra("memberName"));
             textViewDescription.setText(getIntent().getStringExtra("memberDesc"));

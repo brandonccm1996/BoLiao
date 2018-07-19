@@ -69,15 +69,15 @@
                 android:layout_marginRight="8dp"
                 android:layout_marginTop="20dp"
                 android:numStars="5"
-                card_view:layout_constraintEnd_toStartOf="@+id/textViewAdmin"
+                card_view:layout_constraintEnd_toStartOf="@+id/textViewMemberStatus"
                 card_view:layout_constraintStart_toEndOf="@+id/textViewName"
                 card_view:layout_constraintTop_toTopOf="parent" />
 
             <TextView
-                android:id="@+id/textViewAdmin"
+                android:id="@+id/textViewMemberStatus"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Admin"
+                android:text="Status"
                 android:textSize="12sp"
                 card_view:layout_constraintEnd_toEndOf="parent"
                 card_view:layout_constraintTop_toTopOf="parent" />

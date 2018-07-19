@@ -35,6 +35,7 @@ public class MembersFragment extends Fragment {
     private DatabaseReference mRemoveNotifDatabaseReference;
     private ArrayList<UserInformation2> membersList = new ArrayList<>();
     private boolean userIsAdmin;
+    private boolean userIsOrganizer;
     private MembersAdapter membersAdapter;
     private reloadDetailsInterface reloadInterface;
 
@@ -90,13 +91,14 @@ public class MembersFragment extends Fragment {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if (inEvent) {
-                    if (dataSnapshot.child(MainActivity.userUid).child("isAdmin").getValue(Boolean.class) == true) userIsAdmin = true;
-                    else userIsAdmin = false;
+                    userIsOrganizer = dataSnapshot.child(MainActivity.userUid).child("isOrganizer").getValue(Boolean.class);
+                    userIsAdmin = dataSnapshot.child(MainActivity.userUid).child("isAdmin").getValue(Boolean.class);
                 }
 
                 for (DataSnapshot childSnapshot : dataSnapshot.getChildren()) {
                     final String memberId = childSnapshot.getKey();
                     final boolean memberIsAdmin = childSnapshot.child("isAdmin").getValue(Boolean.class);
+                    final boolean memberIsOrganizer = childSnapshot.child("isOrganizer").getValue(Boolean.class);
 
                     mUsersDatabaseReference.child(memberId).addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
@@ -107,15 +109,48 @@ public class MembersFragment extends Fragment {
                                 @Override
                                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                                     boolean memberRatedBefore;
+                                    boolean enableRemove;
+                                    boolean enableRate;
+                                    String appointDismissAdmin;
+                                    String memberStatus;
+                                    String userStatus;
+
                                     if (dataSnapshot.child(memberId).exists()) memberRatedBefore = true;
                                     else memberRatedBefore = false;
 
-                                    if (userIsAdmin && memberId.equals(MainActivity.userUid)) membersList.add(new UserInformation2(memberInfo, false, true, userIsAdmin, memberId, memberRatedBefore, inEvent)); // card for myself when i am admin
-                                    else if (userIsAdmin && memberIsAdmin) membersList.add(new UserInformation2(memberInfo, true, true, userIsAdmin,  memberId, memberRatedBefore, inEvent)); // card for other admin when i am admin
-                                    else if (userIsAdmin && !memberIsAdmin) membersList.add(new UserInformation2(memberInfo, true, false, userIsAdmin, memberId, memberRatedBefore, inEvent));   // card for other non-admin when i am admin
-                                    else if (!userIsAdmin && memberIsAdmin) membersList.add(new UserInformation2(memberInfo, false, true, userIsAdmin, memberId, memberRatedBefore, inEvent));   // card for other admin when i am non-admin
-                                    else if (!userIsAdmin && !memberIsAdmin) membersList.add(new UserInformation2(memberInfo, false, false, userIsAdmin, memberId, memberRatedBefore, inEvent)); // card for other non-admin (including myself) when i am non-admin
+                                    if (userIsOrganizer) userStatus = "organizer";
+                                    else if (userIsAdmin) userStatus = "admin";
+                                    else userStatus = "member";
 
+                                    if (memberIsOrganizer) memberStatus = "organizer";
+                                    else if (memberIsAdmin) memberStatus = "admin";
+                                    else memberStatus = "member";
+
+//                                    if (userIsAdmin && memberId.equals(MainActivity.userUid)) membersList.add(new UserInformation2(memberInfo, false, true, memberIsOrganizer, userIsAdmin, memberId, memberRatedBefore, inEvent)); // card for myself when i am admin
+//                                    else if (userIsAdmin && memberIsAdmin) membersList.add(new UserInformation2(memberInfo, true, true, memberIsOrganizer, userIsAdmin,  memberId, memberRatedBefore, inEvent)); // card for other admin when i am admin
+//                                    else if (userIsAdmin && !memberIsAdmin) membersList.add(new UserInformation2(memberInfo, true, false, memberIsOrganizer, userIsAdmin, memberId, memberRatedBefore, inEvent));   // card for other non-admin when i am admin
+//                                    else if (!userIsAdmin && memberIsAdmin) membersList.add(new UserInformation2(memberInfo, false, true, memberIsOrganizer, userIsAdmin, memberId, memberRatedBefore, inEvent));   // card for other admin when i am non-admin
+//                                    else if (!userIsAdmin && !memberIsAdmin) membersList.add(new UserInformation2(memberInfo, false, false, memberIsOrganizer, userIsAdmin, memberId, memberRatedBefore, inEvent)); // card for other non-admin (including myself) when i am non-admin
+
+                                    if (memberId.equals(MainActivity.userUid)) {
+                                        enableRemove = false;
+                                        enableRate = false;
+                                        appointDismissAdmin = "invisible";
+                                    }
+                                    else {
+                                        enableRate = true;
+                                        if (!userIsAdmin || (userIsAdmin && memberIsOrganizer)) {
+                                            enableRemove = false;
+                                            appointDismissAdmin = "invisible";
+                                        }
+                                        else {
+                                            enableRemove = true;
+                                            if (memberIsAdmin) appointDismissAdmin = "dismiss";
+                                            else appointDismissAdmin = "appoint";
+                                        }
+                                    }
+
+                                    membersList.add(new UserInformation2(memberInfo, memberId,inEvent, memberRatedBefore, enableRemove, enableRate, appointDismissAdmin, memberStatus, userStatus));
                                     membersAdapter.notifyDataSetChanged();
                                 }
 
