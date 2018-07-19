@@ -18,6 +18,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.Continuation;
@@ -39,7 +40,7 @@ import java.util.Map;
 
 import static android.app.Activity.RESULT_OK;
 
-public class ChatFragment extends Fragment {
+public class ChatFragment extends Fragment{
     private static final int MAX_MESSAGE_LENGTH = 140;
     public static final int RC_PHOTO_PICKER = 1;
     private final String TAG = "ChatFragment";
@@ -78,6 +79,7 @@ public class ChatFragment extends Fragment {
                 map.put("timeStamp", ServerValue.TIMESTAMP);
                 mDatabaseReference.child(key).setValue(map);
                 editText.setText("");
+                moveToEndAllowed = true;
             }
         });
         photoPickerButton = getView().findViewById(R.id.photoPickerButton);
@@ -113,6 +115,7 @@ public class ChatFragment extends Fragment {
 
         chatRecyclerView = getView().findViewById(R.id.chatRecyclerView);
         layoutManager = new LinearLayoutManager(getActivity());
+        layoutManager.setStackFromEnd(true);
         chatRecyclerView.setLayoutManager(layoutManager);
         adapter = new ChatRecyclerAdapter(chatMessageList);
         chatRecyclerView.setAdapter(adapter);
@@ -132,37 +135,6 @@ public class ChatFragment extends Fragment {
         mChatPhotoStorageReference = FirebaseStorage.getInstance().getReference().child("chats").child(chatKey);
         mDatabaseReference = FirebaseDatabaseUtils.getDatabase().getReference().child("chats").child(chatKey);
         mDatabaseReference.keepSynced(true);
-        mChildEventListener = new ChildEventListener() {
-            @Override
-            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                Log.v(TAG, "child added");
-                ChatMessage chatMessage = dataSnapshot.getValue(ChatMessage.class);
-                chatMessageList.add(chatMessage);
-                adapter.notifyDataSetChanged();
-                if(moveToEndAllowed || chatMessage.getUid() == MainActivity.userUid) chatRecyclerView.smoothScrollToPosition(chatMessageList.size() - 1);
-            }
-
-            @Override
-            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
-            }
-
-            @Override
-            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-
-            }
-
-            @Override
-            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        };
-        mDatabaseReference.addChildEventListener(mChildEventListener);
     }
 
     @Override
@@ -194,6 +166,7 @@ public class ChatFragment extends Fragment {
                             mDatabaseReference.child(key).setValue(map);
                             editText.setText("");
                             Log.v(TAG,"Sending picture");
+                            moveToEndAllowed = true;
                         }else{
                             Log.e(TAG,"failed to send message");
                         }
@@ -209,12 +182,11 @@ public class ChatFragment extends Fragment {
 
     @Override
     public void onPause() {
-        /*
         if (mDatabaseReference != null && mChildEventListener != null) {
             mDatabaseReference.removeEventListener(mChildEventListener);
             mChildEventListener = null;
         }
-        */
+
         super.onPause();
     }
     @Override
@@ -224,9 +196,12 @@ public class ChatFragment extends Fragment {
                 @Override
                 public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                     Log.v(TAG, "child added");
-                    chatMessageList.add(dataSnapshot.getValue(ChatMessage.class));
-                    adapter.notifyDataSetChanged();
-                    if (moveToEndAllowed) chatRecyclerView.smoothScrollToPosition(chatMessageList.size() - 1);
+                    ChatMessage message = dataSnapshot.getValue(ChatMessage.class);
+                    chatMessageList.add(message);
+                    adapter.notifyItemInserted(chatMessageList.size());
+                    if(moveToEndAllowed){
+                        chatRecyclerView.scrollToPosition(chatMessageList.size() - 1);
+                    }
                 }
 
                 @Override
