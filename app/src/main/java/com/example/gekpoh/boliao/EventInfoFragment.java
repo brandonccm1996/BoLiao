@@ -274,8 +274,8 @@ public class EventInfoFragment extends Fragment {
 
                                     mChatsDatabaseReference.removeValue();
                                     mGeofireDatabaseReference.removeValue();
-                                    mUserListsDatabaseReference.removeValue();
                                     mGroupsDatabaseReference.removeValue();
+                                    mUserListsDatabaseReference.removeValue();
                                     Toast.makeText(getActivity(), "Activity deleted", Toast.LENGTH_LONG).show();
                                     getActivity().onBackPressed();
                                 }
