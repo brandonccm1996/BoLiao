@@ -94,13 +94,15 @@ public class JoinedGroupFragment extends Fragment implements GroupRecyclerAdapte
     public void onSignIn() {
         if (signedIn) return;
         signedIn = true;
-        Comparator<Group> timeSortComparator = new Comparator<Group>() {
-            @Override
-            public int compare(Group o1, Group o2) {
-                return o1.getStartDateTime() > o2.getStartDateTime()?1:o1.getStartDateTime()<o2.getStartDateTime()?-1:0;
-            }
-        };
-        adapter = new GroupRecyclerAdapter(this, timeSortComparator);
+        if(adapter == null) {
+            Comparator<Group> timeSortComparator = new Comparator<Group>() {
+                @Override
+                public int compare(Group o1, Group o2) {
+                    return o1.getStartDateTime() > o2.getStartDateTime() ? 1 : o1.getStartDateTime() < o2.getStartDateTime() ? -1 : 0;
+                }
+            };
+            adapter = new GroupRecyclerAdapter(this, timeSortComparator);
+        }
         mJoinedListDatabaseReference = FirebaseDatabase.getInstance().getReference().child("joinedlists").child(MainActivity.userUid);
         mJoinedListDatabaseReference.keepSynced(true);
         mGroupDatabaseReference = FirebaseDatabase.getInstance().getReference().child("groups");
@@ -171,6 +173,8 @@ public class JoinedGroupFragment extends Fragment implements GroupRecyclerAdapte
     public void onSignOut() {
         if(!signedIn) return;
         signedIn = false;
+        viewState = false;
+        displayEmptyLayout();
         joinedgroups.clear();
         adapter.clearList();
         if (mJoinedListDatabaseReference != null && mChildEventListener != null) {

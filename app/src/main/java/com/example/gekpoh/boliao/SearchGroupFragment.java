@@ -119,7 +119,7 @@ public class SearchGroupFragment extends Fragment implements GroupRecyclerAdapte
 
     public void onSignIn() {
         if (signedIn) return;
-        adapter = new GroupRecyclerAdapter(this, null);
+        if(adapter == null)adapter = new GroupRecyclerAdapter(this, null);
         signedIn = true;
         mDatabaseReference = FirebaseDatabaseUtils.getDatabase().getReference().child("groups");
         mDatabaseReference.keepSynced(true);
@@ -129,6 +129,7 @@ public class SearchGroupFragment extends Fragment implements GroupRecyclerAdapte
         if (!signedIn) return;
         signedIn = false;
         adapter.clearList();
+        displayInitialLayout();
     }
 
     @Override
@@ -454,5 +455,13 @@ public class SearchGroupFragment extends Fragment implements GroupRecyclerAdapte
         initialSearchButton.setEnabled(false);
         groupView.setVisibility(View.GONE);
         noActivitiesTextView.setVisibility(View.VISIBLE);
+    }
+
+    public void displayInitialLayout(){
+        searchTextView.setVisibility(View.VISIBLE);
+        initialSearchButton.setVisibility(View.VISIBLE);
+        initialSearchButton.setEnabled(true);
+        groupView.setVisibility(View.GONE);
+        noActivitiesTextView.setVisibility(View.GONE);
     }
 }
