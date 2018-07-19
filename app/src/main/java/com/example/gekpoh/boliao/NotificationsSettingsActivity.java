@@ -5,17 +5,22 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.widget.CompoundButton;
 import android.widget.Switch;
 
+import com.google.firebase.database.DatabaseReference;
+
 public class NotificationsSettingsActivity extends AppCompatActivity {
     Switch timeSwitch, updateSwitch;
+    private DatabaseReference mUsersDatabaseReference;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.notifications_settings_layout);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setTitle("Settings");
+        mUsersDatabaseReference = FirebaseDatabaseUtils.getDatabase().getReference().child("users").child(MainActivity.userUid);
         timeSwitch = findViewById(R.id.timeSwitch);
         timeSwitch.setChecked(Settings.TIME_NOTIFICATIONS_ENABLED);
         timeSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -33,6 +38,7 @@ public class NotificationsSettingsActivity extends AppCompatActivity {
         updateSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                mUsersDatabaseReference.child("updateNotifEnabled").setValue(isChecked);
                 Settings.UPDATE_NOTIFICATIONS_ENABLED = isChecked;
                 SharedPreferences prefs = getSharedPreferences(getString(R.string.settings_sharedprefs_dir),Context.MODE_PRIVATE);
                 SharedPreferences.Editor editor = prefs.edit();

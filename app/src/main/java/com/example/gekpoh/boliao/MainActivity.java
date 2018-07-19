@@ -147,6 +147,7 @@ public class MainActivity extends AppCompatActivity implements SearchGroupFragme
                             if (!dataSnapshot.hasChild(userUid)) {  // new user, never signed in before
                                 UserInformation newUserInfo = new UserInformation(userDisplayName, "", "", 0, 0);
                                 mUsersDatabaseReference.child(userUid).setValue(newUserInfo);
+                                mUsersDatabaseReference.child(userUid).child("updateNotifEnabled").setValue(false);
                             }
                         }
 

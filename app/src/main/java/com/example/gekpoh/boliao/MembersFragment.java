@@ -196,7 +196,18 @@ public class MembersFragment extends Fragment {
 
                                 // create notification object
                                 final String notifId = mRemoveNotifDatabaseReference.push().getKey();
-                                mRemoveNotifDatabaseReference.child(notifId).child(memberId).setValue(true);
+                                mUsersDatabaseReference.child(memberId).addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                        if (dataSnapshot.child("updateNotifEnabled").getValue(Boolean.class)) mRemoveNotifDatabaseReference.child(notifId).child(memberId).setValue(true);
+                                    }
+
+                                    @Override
+                                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                                    }
+                                });
+
                             }
 
                             @Override

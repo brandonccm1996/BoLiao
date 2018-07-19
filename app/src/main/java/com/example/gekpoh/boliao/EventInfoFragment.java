@@ -57,6 +57,7 @@ public class EventInfoFragment extends Fragment {
     private DatabaseReference mJoinedListsDatabaseReference;
     private DatabaseReference mChatsDatabaseReference;
     private DatabaseReference mDeleteEventNotifDatabaseReference;
+    private DatabaseReference mUsersDatabaseReference;
 
     private FirebaseStorage mFirebaseStorage;
 
@@ -98,6 +99,7 @@ public class EventInfoFragment extends Fragment {
         mChatsDatabaseReference = mFirebaseDatabase.getReference().child("chats").child(groupId);
         mJoinedListsDatabaseReference = mFirebaseDatabase.getReference().child("joinedlists");
         mDeleteEventNotifDatabaseReference = mFirebaseDatabase.getReference().child("deleteEventNotif").child(groupId).child(args.getString("eventname"));
+        mUsersDatabaseReference = mFirebaseDatabase.getReference().child("users");
         mFirebaseStorage = FirebaseStorage.getInstance();
 
         buttonEdit = getView().findViewById(R.id.btnEditInfo);
@@ -220,13 +222,20 @@ public class EventInfoFragment extends Fragment {
                                 public void onClick(DialogInterface dialog, int which) {
 
                                     // notification
-                                    Map userList = new HashMap();
-                                    for (String memberId : members) {
-                                        if (!memberId.equals(MainActivity.userUid)) userList.put(memberId, true); // don't send notification to the person deleting event
+                                    for (final String memberId : members) {
                                         mJoinedListsDatabaseReference.child(memberId).child(groupId).removeValue();
-                                        Log.d("EventInfoFrag", memberId);
+                                        mUsersDatabaseReference.child(memberId).addListenerForSingleValueEvent(new ValueEventListener() {
+                                            @Override
+                                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                                if (!memberId.equals(MainActivity.userUid) && dataSnapshot.child("updateNotifEnabled").getValue(Boolean.class)) mDeleteEventNotifDatabaseReference.child(notifId).child(memberId).setValue(true);
+                                            }
+
+                                            @Override
+                                            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                                            }
+                                        });
                                     }
-                                    mDeleteEventNotifDatabaseReference.child(notifId).setValue(userList);
 
                                     // delete chat photos
                                     mChatsDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -264,6 +273,11 @@ public class EventInfoFragment extends Fragment {
                                                     }
                                                 });
                                             }
+
+                                            mChatsDatabaseReference.removeValue();
+                                            mGeofireDatabaseReference.removeValue();
+                                            mGroupsDatabaseReference.removeValue();
+                                            mUserListsDatabaseReference.removeValue();
                                         }
 
                                         @Override
@@ -272,10 +286,6 @@ public class EventInfoFragment extends Fragment {
                                         }
                                     });
 
-                                    mChatsDatabaseReference.removeValue();
-                                    mGeofireDatabaseReference.removeValue();
-                                    mGroupsDatabaseReference.removeValue();
-                                    mUserListsDatabaseReference.removeValue();
                                     Toast.makeText(getActivity(), "Activity deleted", Toast.LENGTH_LONG).show();
                                     getActivity().onBackPressed();
                                 }

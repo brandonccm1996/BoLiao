@@ -44,6 +44,7 @@ public class EditEventActivity extends AppCompatActivity implements EditEventFra
     private DatabaseReference mGroupDatabaseReference;
     private DatabaseReference mEditEventNotifDatabaseReference;
     private DatabaseReference mUserListsDatabaseReference;
+    private DatabaseReference mUsersDatabaseReference;
     private LatLng mLatLng;
 
     private Bundle extras;
@@ -68,6 +69,8 @@ public class EditEventActivity extends AppCompatActivity implements EditEventFra
         mGroupDatabaseReference = mFirebaseDatabase.getReference().child("groups").child(extras.getString("groupId"));
         mEditEventNotifDatabaseReference = mFirebaseDatabase.getReference().child("editEventNotif").child(extras.getString("groupId"));
         mUserListsDatabaseReference = mFirebaseDatabase.getReference().child("userlists").child(extras.getString("groupId"));
+        mUsersDatabaseReference = mFirebaseDatabase.getReference().child("users");
+
         buttonSubmit = findViewById(R.id.buttonSubmit);
 
         mViewPager = findViewById(R.id.view_pager_create_new_event);
@@ -144,13 +147,20 @@ public class EditEventActivity extends AppCompatActivity implements EditEventFra
                         mUserListsDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                Map userList = new HashMap();
-                                for (DataSnapshot childSnapshot : dataSnapshot.getChildren()) {
-                                    // don't send notification to the person editing event
-                                    if (!childSnapshot.getKey().equals(MainActivity.userUid))
-                                        userList.put(childSnapshot.getKey(), true);
+                                for (final DataSnapshot childSnapshot : dataSnapshot.getChildren()) {
+                                    mUsersDatabaseReference.child(childSnapshot.getKey()).addListenerForSingleValueEvent(new ValueEventListener() {
+                                        @Override
+                                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                            // don't send notification to the person editing event
+                                            if (!childSnapshot.getKey().equals(MainActivity.userUid) && dataSnapshot.child("updateNotifEnabled").getValue(Boolean.class)) mEditEventNotifDatabaseReference.child(notifId).child(childSnapshot.getKey()).setValue(true);
+                                        }
+
+                                        @Override
+                                        public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                                        }
+                                    });
                                 }
-                                mEditEventNotifDatabaseReference.child(notifId).setValue(userList);
                             }
 
                             @Override
