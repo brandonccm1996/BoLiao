@@ -70,68 +70,73 @@ public class CreateNewEventActivity extends AppCompatActivity implements CreateN
         buttonSubmit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (fragment1.sendName().equals("") || fragment1.sendLocation().equals("") || fragment1.sendSDate().equals("") ||
-                        fragment1.sendSTime().equals("") || fragment1.sendEDate().equals("") || fragment1.sendETime().equals("") ||
-                        fragment2.sendDescription().equals("") || fragment2.sendNumPeople().equals("") || fragment3.sendPlaceId() == null)
-                    Toast.makeText(CreateNewEventActivity.this, "Please fill in all fields", Toast.LENGTH_SHORT).show();
-                else if (Integer.parseInt(fragment2.sendNumPeople()) < 1 ) {
-                    Toast.makeText(CreateNewEventActivity.this, "Number of participants must be at least 1", Toast.LENGTH_SHORT).show();
+                if (!FirebaseDatabaseUtils.connectedToDatabase()) {
+                    Toast.makeText(CreateNewEventActivity.this, "Please check your internet connection", Toast.LENGTH_SHORT).show();
                 }
                 else {
-                    chatId = mChatsDatabaseReference.push().getKey();
-
-                    Map mapToUpload = new HashMap();
-                    Map mapToUpload2 = new HashMap();
-                    Map mapToUpload3 = new HashMap();
-                    long startTimeStamp, endTimeStamp;
-                    String startDateTime = fragment1.sendSDate() + " " + fragment1.sendSTime();
-                    String endDateTime = fragment1.sendEDate() + " " + fragment1.sendETime();
-                    try {
-                        startTimeStamp = Group.groupDateFormatter2.parse(startDateTime).getTime();
-                        endTimeStamp = Group.groupDateFormatter2.parse(endDateTime).getTime();
-                    }catch(ParseException e){
-                        Toast.makeText(CreateNewEventActivity.this, "Failed to create activity due to parsing error", Toast.LENGTH_SHORT).show();
-                        return;
+                    if (fragment1.sendName().equals("") || fragment1.sendLocation().equals("") || fragment1.sendSDate().equals("") ||
+                            fragment1.sendSTime().equals("") || fragment1.sendEDate().equals("") || fragment1.sendETime().equals("") ||
+                            fragment2.sendDescription().equals("") || fragment2.sendNumPeople().equals("") || fragment3.sendPlaceId() == null)
+                        Toast.makeText(CreateNewEventActivity.this, "Please fill in all fields", Toast.LENGTH_SHORT).show();
+                    else if (Integer.parseInt(fragment2.sendNumPeople()) < 1) {
+                        Toast.makeText(CreateNewEventActivity.this, "Number of participants must be at least 1", Toast.LENGTH_SHORT).show();
                     }
-                    //Create group in database with relevant information
-                    mapToUpload.put("names", fragment1.sendName());
-                    mapToUpload.put("location", fragment1.sendLocation());
-                    mapToUpload.put("startDateTime", startTimeStamp);
-                    mapToUpload.put("endDateTime", endTimeStamp);
-                    mapToUpload.put("maxParticipants", Integer.parseInt(fragment2.sendNumPeople()));
-                    mapToUpload.put("description", fragment2.sendDescription());
-                    mapToUpload.put("placeId", fragment3.sendPlaceId());
-                    mapToUpload.put("numParticipants", 1);
-                    mapToUpload.put("chatId", chatId);
-                    mapToUpload.put("organizerId", MainActivity.userUid);
-                    mapToUpload.put("photoUrl", fragment2.sendPhotoUri());
-                    mGroupsDatabaseReference.child(chatId).setValue(mapToUpload);
+                    else {
+                        chatId = mChatsDatabaseReference.push().getKey();
 
-                    //Create lists of users for this group
-                    mapToUpload3.put("isAdmin", true);
-                    mapToUpload2.put(MainActivity.userUid, mapToUpload3);
-                    mUserListsDatabaseReference.child(chatId).setValue(mapToUpload2);
-
-                    //Create chat in database
-                    //String key = mChatsDatabaseReference.child(chatId).push().getKey();
-                    //mChatsDatabaseReference.child(chatId).child(key).setValue(new ChatMessage("Welcome to activity chat", "",null,0)); // just some dummy values
-
-                    //add this group to list of joinedgroups for this user
-                    mJoinedListsReference.child(MainActivity.userUid).child(chatId).setValue("true");
-                    //DatabaseReference ref = mFirebaseDatabase.getReference().child("geoFireObjects");
-                    GeoFire geoFire = FirebaseDatabaseUtils.getGeoFireInstance();
-                    geoFire.setLocation(chatId, new GeoLocation(mLatLng.latitude, mLatLng.longitude), new GeoFire.CompletionListener() {
-                        @Override
-                        public void onComplete(String key, DatabaseError error) {
-                            if(error != null){
-                                Toast.makeText(CreateNewEventActivity.this, "Error in setting location in geofire", Toast.LENGTH_SHORT).show();
-                            }
+                        Map mapToUpload = new HashMap();
+                        Map mapToUpload2 = new HashMap();
+                        Map mapToUpload3 = new HashMap();
+                        long startTimeStamp, endTimeStamp;
+                        String startDateTime = fragment1.sendSDate() + " " + fragment1.sendSTime();
+                        String endDateTime = fragment1.sendEDate() + " " + fragment1.sendETime();
+                        try {
+                            startTimeStamp = Group.groupDateFormatter2.parse(startDateTime).getTime();
+                            endTimeStamp = Group.groupDateFormatter2.parse(endDateTime).getTime();
+                        } catch (ParseException e) {
+                            Toast.makeText(CreateNewEventActivity.this, "Failed to create activity due to parsing error", Toast.LENGTH_SHORT).show();
+                            return;
                         }
-                    });
-                    TimeNotificationScheduler.setNewReminder(CreateNewEventActivity.this, chatId, fragment1.sendName(), startTimeStamp, -1);
+                        //Create group in database with relevant information
+                        mapToUpload.put("names", fragment1.sendName());
+                        mapToUpload.put("location", fragment1.sendLocation());
+                        mapToUpload.put("startDateTime", startTimeStamp);
+                        mapToUpload.put("endDateTime", endTimeStamp);
+                        mapToUpload.put("maxParticipants", Integer.parseInt(fragment2.sendNumPeople()));
+                        mapToUpload.put("description", fragment2.sendDescription());
+                        mapToUpload.put("placeId", fragment3.sendPlaceId());
+                        mapToUpload.put("numParticipants", 1);
+                        mapToUpload.put("chatId", chatId);
+                        mapToUpload.put("organizerId", MainActivity.userUid);
+                        mapToUpload.put("photoUrl", fragment2.sendPhotoUri());
+                        mGroupsDatabaseReference.child(chatId).setValue(mapToUpload);
 
-                    Toast.makeText(getApplicationContext(), "Activity created", Toast.LENGTH_LONG).show();
-                    finish();
+                        //Create lists of users for this group
+                        mapToUpload3.put("isAdmin", true);
+                        mapToUpload2.put(MainActivity.userUid, mapToUpload3);
+                        mUserListsDatabaseReference.child(chatId).setValue(mapToUpload2);
+
+                        //Create chat in database
+                        //String key = mChatsDatabaseReference.child(chatId).push().getKey();
+                        //mChatsDatabaseReference.child(chatId).child(key).setValue(new ChatMessage("Welcome to activity chat", "",null,0)); // just some dummy values
+
+                        //add this group to list of joinedgroups for this user
+                        mJoinedListsReference.child(MainActivity.userUid).child(chatId).setValue("true");
+                        //DatabaseReference ref = mFirebaseDatabase.getReference().child("geoFireObjects");
+                        GeoFire geoFire = FirebaseDatabaseUtils.getGeoFireInstance();
+                        geoFire.setLocation(chatId, new GeoLocation(mLatLng.latitude, mLatLng.longitude), new GeoFire.CompletionListener() {
+                            @Override
+                            public void onComplete(String key, DatabaseError error) {
+                                if (error != null) {
+                                    Toast.makeText(CreateNewEventActivity.this, "Error in setting location in geofire", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        });
+                        TimeNotificationScheduler.setNewReminder(CreateNewEventActivity.this, chatId, fragment1.sendName(), startTimeStamp, -1);
+
+                        Toast.makeText(getApplicationContext(), "Activity created", Toast.LENGTH_LONG).show();
+                        finish();
+                    }
                 }
             }
         });

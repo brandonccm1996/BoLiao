@@ -80,25 +80,29 @@ public class EditEventActivity extends AppCompatActivity implements EditEventFra
         buttonSubmit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (fragment1.sendName().equals("") || fragment1.sendLocation().equals("") || fragment1.sendSDate().equals("") ||
-                        fragment1.sendSTime().equals("") || fragment1.sendEDate().equals("") || fragment1.sendETime().equals("") ||
-                        fragment2.sendDescription().equals("") || fragment2.sendNumPeople().equals("") || fragment3.sendPlaceId() == null)
-                    Toast.makeText(EditEventActivity.this, "Please fill in all fields", Toast.LENGTH_SHORT).show();
-                else if (Integer.parseInt(fragment2.sendNumPeople()) < extras.getInt("eventcurrentsize")) {
-                    Toast.makeText(EditEventActivity.this, "You have too many participants. Please remove some participants before reducing the max number of participants.", Toast.LENGTH_LONG).show();
+                if (!FirebaseDatabaseUtils.connectedToDatabase()) {
+                    Toast.makeText(EditEventActivity.this, "Please check your internet connection", Toast.LENGTH_SHORT).show();
                 }
                 else {
-                    Map mapToUpload = new HashMap();
-                    long startTimeStamp, endTimeStamp;
-                    String startDateTime = fragment1.sendSDate() + " " + fragment1.sendSTime();
-                    String endDateTime = fragment1.sendEDate() + " " + fragment1.sendETime();
-                    try {
-                        startTimeStamp = Group.groupDateFormatter2.parse(startDateTime).getTime();
-                        endTimeStamp = Group.groupDateFormatter2.parse(endDateTime).getTime();
-                    }catch(ParseException e){
-                        Toast.makeText(EditEventActivity.this, "Failed to create activity due to parsing error", Toast.LENGTH_SHORT).show();
-                        return;
+                    if (fragment1.sendName().equals("") || fragment1.sendLocation().equals("") || fragment1.sendSDate().equals("") ||
+                            fragment1.sendSTime().equals("") || fragment1.sendEDate().equals("") || fragment1.sendETime().equals("") ||
+                            fragment2.sendDescription().equals("") || fragment2.sendNumPeople().equals("") || fragment3.sendPlaceId() == null)
+                        Toast.makeText(EditEventActivity.this, "Please fill in all fields", Toast.LENGTH_SHORT).show();
+                    else if (Integer.parseInt(fragment2.sendNumPeople()) < extras.getInt("eventcurrentsize")) {
+                        Toast.makeText(EditEventActivity.this, "You have too many participants. Please remove some participants before reducing the max number of participants.", Toast.LENGTH_LONG).show();
                     }
+                    else {
+                        Map mapToUpload = new HashMap();
+                        long startTimeStamp, endTimeStamp;
+                        String startDateTime = fragment1.sendSDate() + " " + fragment1.sendSTime();
+                        String endDateTime = fragment1.sendEDate() + " " + fragment1.sendETime();
+                        try {
+                            startTimeStamp = Group.groupDateFormatter2.parse(startDateTime).getTime();
+                            endTimeStamp = Group.groupDateFormatter2.parse(endDateTime).getTime();
+                        } catch (ParseException e) {
+                            Toast.makeText(EditEventActivity.this, "Failed to create activity due to parsing error", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
 //                    //Create group in database with relevant information
 //                    mapToUpload.put("names", fragment1.sendName());
 //                    mapToUpload.put("location", fragment1.sendLocation());
@@ -114,47 +118,49 @@ public class EditEventActivity extends AppCompatActivity implements EditEventFra
 //                    if (fragment2.sendPhotoUri() != null) mapToUpload.put("photoUrl", fragment2.sendPhotoUri());
 //                    mGroupsDatabaseReference.child(extras.getString("groupId")).setValue(mapToUpload);
 
-                    mGroupDatabaseReference.child("names").setValue(fragment1.sendName());
-                    mGroupDatabaseReference.child("location").setValue(fragment1.sendLocation());
-                    mGroupDatabaseReference.child("startDateTime").setValue(startTimeStamp);
-                    mGroupDatabaseReference.child("endDateTime").setValue(endTimeStamp);
-                    mGroupDatabaseReference.child("maxParticipants").setValue(Integer.parseInt(fragment2.sendNumPeople()));
-                    mGroupDatabaseReference.child("description").setValue(fragment2.sendDescription());
-                    mGroupDatabaseReference.child("placeId").setValue(fragment3.sendPlaceId());
-                    mGroupDatabaseReference.child("photoUrl").setValue(fragment2.sendPhotoUri());
+                        mGroupDatabaseReference.child("names").setValue(fragment1.sendName());
+                        mGroupDatabaseReference.child("location").setValue(fragment1.sendLocation());
+                        mGroupDatabaseReference.child("startDateTime").setValue(startTimeStamp);
+                        mGroupDatabaseReference.child("endDateTime").setValue(endTimeStamp);
+                        mGroupDatabaseReference.child("maxParticipants").setValue(Integer.parseInt(fragment2.sendNumPeople()));
+                        mGroupDatabaseReference.child("description").setValue(fragment2.sendDescription());
+                        mGroupDatabaseReference.child("placeId").setValue(fragment3.sendPlaceId());
+                        mGroupDatabaseReference.child("photoUrl").setValue(fragment2.sendPhotoUri());
 
-                    //DatabaseReference ref = mFirebaseDatabase.getReference().child("geoFireObjects");
-                    GeoFire geoFire = FirebaseDatabaseUtils.getGeoFireInstance();
-                    geoFire.setLocation(extras.getString("groupId"), new GeoLocation(mLatLng.latitude, mLatLng.longitude), new GeoFire.CompletionListener() {
-                        @Override
-                        public void onComplete(String key, DatabaseError error) {
-                            if(error != null){
-                                Toast.makeText(EditEventActivity.this, "Error in setting location in geofire", Toast.LENGTH_SHORT).show();
+                        //DatabaseReference ref = mFirebaseDatabase.getReference().child("geoFireObjects");
+                        GeoFire geoFire = FirebaseDatabaseUtils.getGeoFireInstance();
+                        geoFire.setLocation(extras.getString("groupId"), new GeoLocation(mLatLng.latitude, mLatLng.longitude), new GeoFire.CompletionListener() {
+                            @Override
+                            public void onComplete(String key, DatabaseError error) {
+                                if (error != null) {
+                                    Toast.makeText(EditEventActivity.this, "Error in setting location in geofire", Toast.LENGTH_SHORT).show();
+                                }
                             }
-                        }
-                    });
+                        });
 
-                    // create notification object
-                    final String notifId = mEditEventNotifDatabaseReference.push().getKey();
+                        // create notification object
+                        final String notifId = mEditEventNotifDatabaseReference.push().getKey();
 
-                    mUserListsDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                            Map userList = new HashMap();
-                            for (DataSnapshot childSnapshot : dataSnapshot.getChildren()) {
-                                // don't send notification to the person editing event
-                                if (!childSnapshot.getKey().equals(MainActivity.userUid)) userList.put(childSnapshot.getKey(), true);
+                        mUserListsDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                Map userList = new HashMap();
+                                for (DataSnapshot childSnapshot : dataSnapshot.getChildren()) {
+                                    // don't send notification to the person editing event
+                                    if (!childSnapshot.getKey().equals(MainActivity.userUid))
+                                        userList.put(childSnapshot.getKey(), true);
+                                }
+                                mEditEventNotifDatabaseReference.child(notifId).setValue(userList);
                             }
-                            mEditEventNotifDatabaseReference.child(notifId).setValue(userList);
-                        }
 
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError databaseError) {
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError databaseError) {
 
-                        }
-                    });
+                            }
+                        });
 
-                    finish();
+                        finish();
+                    }
                 }
             }
         });

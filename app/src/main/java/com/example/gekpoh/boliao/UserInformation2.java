@@ -6,12 +6,14 @@ public class UserInformation2 {
     private boolean memberIsAdmin;
     private String userId;
     private boolean memberRatedBefore;
+    private boolean userIsAdmin;
     private boolean inEvent;
 
-    public UserInformation2(UserInformation userInformation, boolean enableRemove, boolean memberIsAdmin, String userId, boolean memberRatedBefore, boolean inEvent) {
+    public UserInformation2(UserInformation userInformation, boolean enableRemove, boolean memberIsAdmin, boolean userIsAdmin, String userId, boolean memberRatedBefore, boolean inEvent) {
         this.userInformation = userInformation;
         this.enableRemove = enableRemove;
         this.memberIsAdmin = memberIsAdmin;
+        this.userIsAdmin = userIsAdmin;
         this.userId = userId;
         this.memberRatedBefore = memberRatedBefore;
         this.inEvent = inEvent;
@@ -30,6 +32,10 @@ public class UserInformation2 {
     public boolean getMemberIsAdmin() { return memberIsAdmin; }
 
     public void setMemberIsAdmin(boolean memberIsAdmin) { this.memberIsAdmin = memberIsAdmin; }
+
+    public boolean getUserIsAdmin() { return userIsAdmin; }
+
+    public void setUserIsAdmin(boolean userIsAdmin) { this.userIsAdmin = userIsAdmin; }
 
     public String getUserId() { return userId; }
 

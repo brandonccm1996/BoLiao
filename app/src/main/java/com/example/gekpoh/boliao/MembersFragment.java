@@ -110,11 +110,11 @@ public class MembersFragment extends Fragment {
                                     if (dataSnapshot.child(memberId).exists()) memberRatedBefore = true;
                                     else memberRatedBefore = false;
 
-                                    if (userIsAdmin && memberId.equals(MainActivity.userUid)) membersList.add(new UserInformation2(memberInfo, false, true, memberId, memberRatedBefore, inEvent)); // card for myself when i am admin
-                                    else if (userIsAdmin && memberIsAdmin) membersList.add(new UserInformation2(memberInfo, true, true, memberId, memberRatedBefore, inEvent)); // card for other admin when i am admin
-                                    else if (userIsAdmin && !memberIsAdmin) membersList.add(new UserInformation2(memberInfo, true, false, memberId, memberRatedBefore, inEvent));   // card for other non-admin when i am admin
-                                    else if (!userIsAdmin && memberIsAdmin) membersList.add(new UserInformation2(memberInfo, false, true, memberId, memberRatedBefore, inEvent));   // card for other admin when i am non-admin
-                                    else if (!userIsAdmin && !memberIsAdmin) membersList.add(new UserInformation2(memberInfo, false, false, memberId, memberRatedBefore, inEvent)); // card for other non-admin (including myself) when i am non-admin
+                                    if (userIsAdmin && memberId.equals(MainActivity.userUid)) membersList.add(new UserInformation2(memberInfo, false, true, userIsAdmin, memberId, memberRatedBefore, inEvent)); // card for myself when i am admin
+                                    else if (userIsAdmin && memberIsAdmin) membersList.add(new UserInformation2(memberInfo, true, true, userIsAdmin,  memberId, memberRatedBefore, inEvent)); // card for other admin when i am admin
+                                    else if (userIsAdmin && !memberIsAdmin) membersList.add(new UserInformation2(memberInfo, true, false, userIsAdmin, memberId, memberRatedBefore, inEvent));   // card for other non-admin when i am admin
+                                    else if (!userIsAdmin && memberIsAdmin) membersList.add(new UserInformation2(memberInfo, false, true, userIsAdmin, memberId, memberRatedBefore, inEvent));   // card for other admin when i am non-admin
+                                    else if (!userIsAdmin && !memberIsAdmin) membersList.add(new UserInformation2(memberInfo, false, false, userIsAdmin, memberId, memberRatedBefore, inEvent)); // card for other non-admin (including myself) when i am non-admin
 
                                     membersAdapter.notifyDataSetChanged();
                                 }
@@ -276,4 +276,51 @@ public class MembersFragment extends Fragment {
         AlertDialog dialog = builder.create();
         dialog.show();
     }
+
+    public void appointAdmin(final String memberId, String memberName) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
+                .setCancelable(true)
+                .setTitle("Appointing admin")
+                .setMessage("Do you want to appoint " + memberName + " as a group admin? Admins can remove members, appoint or dismiss other admins, edit activity info and delete the activity.")
+                .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        mUserListsDatabaseReference.child(memberId).child("isAdmin").setValue(true);
+                        reloadRecycler();
+                    }
+                })
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                });
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    public void dismissAdmin(final String memberId, String memberName) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
+                .setCancelable(true)
+                .setTitle("Dismissing admin")
+                .setMessage("Do you want to dismiss " + memberName + " from his group admin position? Admins can remove members, appoint or dismiss other admins, edit activity info and delete the activity.")
+                .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        mUserListsDatabaseReference.child(memberId).child("isAdmin").setValue(false);
+                        reloadRecycler();
+                    }
+                })
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                });
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
 }
