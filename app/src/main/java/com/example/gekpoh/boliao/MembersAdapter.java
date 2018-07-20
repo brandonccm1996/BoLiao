@@ -46,7 +46,7 @@ public class MembersAdapter extends RecyclerView.Adapter<MembersAdapter.MembersV
     public void onBindViewHolder(@NonNull MembersViewHolder holder, int position) {
         final UserInformation2 userInformation2 = membersList.get(position);
 
-        holder.textViewName.setText(userInformation2.getUserInformation().getName());
+        holder.textViewName.setText(userInformation2.getUserInformation().getName().length() > 10 ? userInformation2.getUserInformation().getName().substring(0, 9) + "..." : userInformation2.getUserInformation().getName());
 
         if (userInformation2.getUserInformation().getNumRatings() == 0) holder.ratingBar.setRating(0);
         else holder.ratingBar.setRating(userInformation2.getUserInformation().getSumRating() / userInformation2.getUserInformation().getNumRatings());

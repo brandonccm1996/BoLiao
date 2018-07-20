@@ -138,7 +138,6 @@ public class EditProfileActivity extends AppCompatActivity {
                 String newName = data.getStringExtra(Intent.EXTRA_TEXT);
                 mUsersDatabaseReference.child(MainActivity.userUid).child("name").setValue(newName);
                 reloadUserDetails();
-                Toast.makeText(EditProfileActivity.this, "Username updated", Toast.LENGTH_SHORT).show();
             }
         }
         else if (requestCode == editDescriptionRequest) {
@@ -146,7 +145,6 @@ public class EditProfileActivity extends AppCompatActivity {
                 String newDescription = data.getStringExtra(Intent.EXTRA_TEXT);
                 mUsersDatabaseReference.child(MainActivity.userUid).child("description").setValue(newDescription);
                 reloadUserDetails();
-                Toast.makeText(EditProfileActivity.this, "Description updated", Toast.LENGTH_SHORT).show();
             }
         }
         else if (requestCode == RC_PHOTO_PICKER) {
