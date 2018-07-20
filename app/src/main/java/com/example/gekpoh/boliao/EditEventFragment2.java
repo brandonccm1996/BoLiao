@@ -15,6 +15,7 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.PopupMenu;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
@@ -41,6 +42,7 @@ public class EditEventFragment2 extends Fragment {
     private ImageView imageViewActivityPic;
     private EditText editTextNumPeople;
     private EditText editTextDescription;
+    private ProgressBar progressBar;
 
     private FirebaseDatabase mFirebaseDatabase;
     private DatabaseReference mGroupsDatabaseReference;
@@ -66,6 +68,8 @@ public class EditEventFragment2 extends Fragment {
         imageViewActivityPic = getView().findViewById(R.id.imageViewActivityPic);
         editTextNumPeople = getView().findViewById(R.id.editTextNumPeople);
         editTextDescription = getView().findViewById(R.id.editTextDescription);
+        progressBar = getView().findViewById(R.id.progressBar);
+        progressBar.setVisibility(View.INVISIBLE);
 
         editTextNumPeople.setText(Long.toString(args.getInt("eventmaxsize")));
         editTextDescription.setText(args.getString("eventdescription"));
@@ -128,6 +132,7 @@ public class EditEventFragment2 extends Fragment {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == RC_PHOTO_PICKER) {
             if (resultCode == RESULT_OK) {
+                progressBar.setVisibility(View.VISIBLE);
 
                 // Delete previous file in Firebase Storage
                 if (photoUri != null) {
@@ -155,6 +160,7 @@ public class EditEventFragment2 extends Fragment {
                         if (task.isSuccessful()) {
                             photoUri = task.getResult();
                             Toast.makeText(getActivity(), "Activity pic updated", Toast.LENGTH_SHORT).show();
+                            progressBar.setVisibility(View.INVISIBLE);
 
                             Glide.with(imageViewActivityPic.getContext())
                                     .load(photoUri.toString())

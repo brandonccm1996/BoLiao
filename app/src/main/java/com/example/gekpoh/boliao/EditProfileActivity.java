@@ -11,6 +11,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.PopupMenu;
+import android.widget.ProgressBar;
 import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -42,6 +43,7 @@ public class EditProfileActivity extends AppCompatActivity {
     private RatingBar ratingBar;
     private TextView textViewNumRatings;
     private TextView textViewDescription;
+    private ProgressBar progressBar;
 
     private FirebaseDatabase mFirebaseDatabase;
     private DatabaseReference mUsersDatabaseReference;
@@ -68,6 +70,8 @@ public class EditProfileActivity extends AppCompatActivity {
         ratingBar = findViewById(R.id.ratingBar);
         textViewNumRatings = findViewById(R.id.textViewNumRatings);
         textViewDescription = findViewById(R.id.textViewDescription);
+        progressBar = findViewById(R.id.progressBar);
+        progressBar.setVisibility(View.INVISIBLE);
 
         imageViewProPic.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -147,6 +151,7 @@ public class EditProfileActivity extends AppCompatActivity {
         }
         else if (requestCode == RC_PHOTO_PICKER) {
             if (resultCode == RESULT_OK) {
+                progressBar.setVisibility(View.VISIBLE);
 
                 // Delete previous file in Firebase Storage
                 if (!currentUserInfo.getPhotoUrl().equals("")) {
@@ -176,6 +181,7 @@ public class EditProfileActivity extends AppCompatActivity {
                             mUsersDatabaseReference.child(MainActivity.userUid).child("photoUrl").setValue(downloadUri.toString());
                             reloadUserDetails();
                             Toast.makeText(EditProfileActivity.this, "Profile pic updated", Toast.LENGTH_SHORT).show();
+                            progressBar.setVisibility(View.INVISIBLE);
                         }
                         else {
                             Toast.makeText(getApplicationContext(), "Upload failed", Toast.LENGTH_SHORT).show();

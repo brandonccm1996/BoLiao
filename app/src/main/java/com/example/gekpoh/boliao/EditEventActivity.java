@@ -94,6 +94,10 @@ public class EditEventActivity extends AppCompatActivity implements EditEventFra
                     else if (Integer.parseInt(fragment2.sendNumPeople()) < extras.getInt("eventcurrentsize")) {
                         Toast.makeText(EditEventActivity.this, "You have too many participants. Please remove some participants before reducing the max number of participants.", Toast.LENGTH_LONG).show();
                     }
+                    else if (fragment1.sendName().contains(".") || fragment1.sendName().contains("#") || fragment1.sendName().contains("$") ||
+                            fragment1.sendName().contains("[") || fragment1.sendName().contains("]")) {
+                        Toast.makeText(EditEventActivity.this, "Activity name must not contain the characters: '.', '#', '$', '[', or ']' ", Toast.LENGTH_LONG).show();
+                    }
                     else {
                         Map mapToUpload = new HashMap();
                         long startTimeStamp, endTimeStamp;
