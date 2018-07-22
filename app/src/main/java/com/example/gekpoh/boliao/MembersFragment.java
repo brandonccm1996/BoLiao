@@ -14,6 +14,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RatingBar;
+import android.widget.Toast;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -21,6 +22,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 public class MembersFragment extends Fragment {
 
@@ -151,6 +154,18 @@ public class MembersFragment extends Fragment {
                                     }
 
                                     membersList.add(new UserInformation2(memberInfo, memberId,inEvent, memberRatedBefore, enableRemove, enableRate, appointDismissAdmin, memberStatus, userStatus));
+                                    if (membersList.size() > 0) {
+                                        Collections.sort(membersList, new Comparator<UserInformation2>() {
+                                            @Override
+                                            public int compare(UserInformation2 o1, UserInformation2 o2) {
+                                                if (o1.getMemberStatus().equals("admin") && o2.getMemberStatus().equals("member")) return -1;
+                                                else if (o1.getMemberStatus().equals("member") && o2.getMemberStatus().equals("admin")) return 1;
+                                                else if (o1.getMemberStatus().equals("organizer") && (o2.getMemberStatus().equals("admin") || o2.getMemberStatus().equals("member"))) return -1;
+                                                else if ((o2.getMemberStatus().equals("admin") || o2.getMemberStatus().equals("member") && o2.getMemberStatus().equals("organizer"))) return 1;
+                                                else return o1.getUserInformation().getName().compareTo(o2.getUserInformation().getName());
+                                            }
+                                        });
+                                    }
                                     membersAdapter.notifyDataSetChanged();
                                 }
 
@@ -180,34 +195,50 @@ public class MembersFragment extends Fragment {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
                 .setCancelable(true)
                 .setTitle("Removing member")
-                .setMessage("Are you sure you want to remove " + memberName + " from the group? Member removal is not reversible.")
+                .setMessage("Are you sure you want to remove " + memberName + " from the group? Member removal is not reversible.\n\nDo note that after you remove this member, you and your group members will not be able to rate this user anymore.")
                 .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        mUserListsDatabaseReference.child(memberId).removeValue();
-                        mJoinedListsDatabaseReference.child(memberId).child(groupId).removeValue();
-                        mGroupsDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                        mUserListsDatabaseReference.child(memberId).addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                int numParticipants = dataSnapshot.child("numParticipants").getValue(Integer.class);
-                                mGroupsDatabaseReference.child("numParticipants").setValue(numParticipants-1);
-                                reloadInterface.reloadGroupDetails();
-                                reloadRecycler();
+                                if (!dataSnapshot.exists()) {
+                                    Toast.makeText(getActivity(), "This member is not in the group anymore", Toast.LENGTH_SHORT).show();
+                                    reloadRecycler();
+                                }
+                                else {
+                                    mUserListsDatabaseReference.child(memberId).removeValue();
+                                    mJoinedListsDatabaseReference.child(memberId).child(groupId).removeValue();
+                                    mGroupsDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                                        @Override
+                                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                            int numParticipants = dataSnapshot.child("numParticipants").getValue(Integer.class);
+                                            mGroupsDatabaseReference.child("numParticipants").setValue(numParticipants-1);
+                                            reloadInterface.reloadGroupDetails();
+                                            reloadRecycler();
 
-                                // create notification object
-                                final String notifId = mRemoveNotifDatabaseReference.push().getKey();
-                                mUsersDatabaseReference.child(memberId).addListenerForSingleValueEvent(new ValueEventListener() {
-                                    @Override
-                                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                        if (dataSnapshot.child("updateNotifEnabled").getValue(Boolean.class)) mRemoveNotifDatabaseReference.child(notifId).child(memberId).setValue(true);
-                                    }
+                                            // create notification object
+                                            final String notifId = mRemoveNotifDatabaseReference.push().getKey();
+                                            mUsersDatabaseReference.child(memberId).addListenerForSingleValueEvent(new ValueEventListener() {
+                                                @Override
+                                                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                                    if (dataSnapshot.child("updateNotifEnabled").getValue(Boolean.class)) mRemoveNotifDatabaseReference.child(notifId).child(memberId).setValue(true);
+                                                }
 
-                                    @Override
-                                    public void onCancelled(@NonNull DatabaseError databaseError) {
+                                                @Override
+                                                public void onCancelled(@NonNull DatabaseError databaseError) {
 
-                                    }
-                                });
+                                                }
+                                            });
 
+                                        }
+
+                                        @Override
+                                        public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                                        }
+                                    });
+                                }
                             }
 
                             @Override
@@ -215,7 +246,6 @@ public class MembersFragment extends Fragment {
 
                             }
                         });
-
                     }
                 })
                 .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -240,15 +270,31 @@ public class MembersFragment extends Fragment {
                 .setPositiveButton("Submit", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        mUsersDatabaseReference.child(memberId).addListenerForSingleValueEvent(new ValueEventListener() {
+                        mUserListsDatabaseReference.child(memberId).addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                int memberNumRatings = dataSnapshot.child("numRatings").getValue(Integer.class);
-                                float memberSumRating = dataSnapshot.child("sumRating").getValue(Float.class);
-                                mUsersDatabaseReference.child(memberId).child("numRatings").setValue(memberNumRatings+1);
-                                mUsersDatabaseReference.child(memberId).child("sumRating").setValue(memberSumRating+ratingBar.getRating());
-                                mUsersRatedDatabaseReference.child(memberId).setValue(ratingBar.getRating());
-                                reloadRecycler();
+                                if (!dataSnapshot.exists()) {
+                                    Toast.makeText(getActivity(), "This member is not in the group anymore", Toast.LENGTH_SHORT).show();
+                                    reloadRecycler();
+                                }
+                                else {
+                                    mUsersDatabaseReference.child(memberId).addListenerForSingleValueEvent(new ValueEventListener() {
+                                        @Override
+                                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                            int memberNumRatings = dataSnapshot.child("numRatings").getValue(Integer.class);
+                                            float memberSumRating = dataSnapshot.child("sumRating").getValue(Float.class);
+                                            mUsersDatabaseReference.child(memberId).child("numRatings").setValue(memberNumRatings+1);
+                                            mUsersDatabaseReference.child(memberId).child("sumRating").setValue(memberSumRating+ratingBar.getRating());
+                                            mUsersRatedDatabaseReference.child(memberId).setValue(ratingBar.getRating());
+                                            reloadRecycler();
+                                        }
+
+                                        @Override
+                                        public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                                        }
+                                    });
+                                }
                             }
 
                             @Override
@@ -282,25 +328,41 @@ public class MembersFragment extends Fragment {
                 .setPositiveButton("Submit", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        mUsersDatabaseReference.child(memberId).addListenerForSingleValueEvent(new ValueEventListener() {
+                        mUserListsDatabaseReference.child(memberId).addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                final float memberSumRating = dataSnapshot.child("sumRating").getValue(Float.class);
+                                if (!dataSnapshot.exists()) {
+                                    Toast.makeText(getActivity(), "This member is not in the group anymore", Toast.LENGTH_SHORT).show();
+                                    reloadRecycler();
+                                }
+                                else {
+                                    mUsersDatabaseReference.child(memberId).addListenerForSingleValueEvent(new ValueEventListener() {
+                                        @Override
+                                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                            final float memberSumRating = dataSnapshot.child("sumRating").getValue(Float.class);
 
-                                mUsersRatedDatabaseReference.child(memberId).addListenerForSingleValueEvent(new ValueEventListener() {
-                                    @Override
-                                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                        float previousRating = dataSnapshot.getValue(Float.class);
-                                        mUsersDatabaseReference.child(memberId).child("sumRating").setValue(memberSumRating-previousRating+ratingBar.getRating());
-                                        mUsersRatedDatabaseReference.child(memberId).setValue(ratingBar.getRating());
-                                        reloadRecycler();
-                                    }
+                                            mUsersRatedDatabaseReference.child(memberId).addListenerForSingleValueEvent(new ValueEventListener() {
+                                                @Override
+                                                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                                    float previousRating = dataSnapshot.getValue(Float.class);
+                                                    mUsersDatabaseReference.child(memberId).child("sumRating").setValue(memberSumRating-previousRating+ratingBar.getRating());
+                                                    mUsersRatedDatabaseReference.child(memberId).setValue(ratingBar.getRating());
+                                                    reloadRecycler();
+                                                }
 
-                                    @Override
-                                    public void onCancelled(@NonNull DatabaseError databaseError) {
+                                                @Override
+                                                public void onCancelled(@NonNull DatabaseError databaseError) {
 
-                                    }
-                                });
+                                                }
+                                            });
+                                        }
+
+                                        @Override
+                                        public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                                        }
+                                    });
+                                }
                             }
 
                             @Override
@@ -327,12 +389,29 @@ public class MembersFragment extends Fragment {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
                 .setCancelable(true)
                 .setTitle("Appointing admin")
-                .setMessage("Do you want to appoint " + memberName + " as a group admin? Admins can remove members, appoint or dismiss other admins, edit activity info and delete the activity.")
+                .setMessage("Do you want to appoint " + memberName + " as a group admin?\n\nAdmins can remove members, appoint or dismiss other admins, edit activity info and delete the activity.")
                 .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        mUserListsDatabaseReference.child(memberId).child("isAdmin").setValue(true);
-                        reloadRecycler();
+                        mUserListsDatabaseReference.child(memberId).addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                if (!dataSnapshot.exists()) {
+                                    Toast.makeText(getActivity(), "This member is not in the group anymore", Toast.LENGTH_SHORT).show();
+                                    reloadRecycler();
+                                }
+                                else {
+                                    mUserListsDatabaseReference.child(memberId).child("isAdmin").setValue(true);
+                                    mUserListsDatabaseReference.child(memberId).child("isOrganizer").setValue(false);
+                                    reloadRecycler();
+                                }
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                            }
+                        });
                     }
                 })
                 .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -350,12 +429,29 @@ public class MembersFragment extends Fragment {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
                 .setCancelable(true)
                 .setTitle("Dismissing admin")
-                .setMessage("Do you want to dismiss " + memberName + " from his group admin position? Admins can remove members, appoint or dismiss other admins, edit activity info and delete the activity.")
+                .setMessage("Do you want to dismiss " + memberName + " from his group admin position?\n\nAdmins can remove members, appoint or dismiss other admins, edit activity info and delete the activity.")
                 .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        mUserListsDatabaseReference.child(memberId).child("isAdmin").setValue(false);
-                        reloadRecycler();
+                        mUserListsDatabaseReference.child(memberId).addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                if (!dataSnapshot.exists()) {
+                                    Toast.makeText(getActivity(), "This member is not in the group anymore", Toast.LENGTH_SHORT).show();
+                                    reloadRecycler();
+                                }
+                                else {
+                                    mUserListsDatabaseReference.child(memberId).child("isAdmin").setValue(false);
+                                    mUserListsDatabaseReference.child(memberId).child("isOrganizer").setValue(false);
+                                    reloadRecycler();
+                                }
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                            }
+                        });
                     }
                 })
                 .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -368,5 +464,4 @@ public class MembersFragment extends Fragment {
         AlertDialog dialog = builder.create();
         dialog.show();
     }
-
 }
