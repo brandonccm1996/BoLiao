@@ -173,11 +173,11 @@
             app:layout_constraintStart_toStartOf="parent" />
 
     </android.support.constraint.ConstraintLayout>
+
     <ScrollView
         android:id="@+id/scrollView2"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginBottom="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginRight="8dp"
         android:layout_marginTop="8dp"
@@ -185,8 +185,9 @@
         android:fillViewport="true"
         android:overScrollMode="always"
         app:layout_constrainedHeight="true"
-        app:layout_constraintBottom_toTopOf="@id/buttonsHolder"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintBottom_toTopOf="@id/buttonsHolder"
         app:layout_constraintStart_toStartOf="@+id/textView11"
         app:layout_constraintTop_toBottomOf="@+id/textView11">
 
@@ -202,6 +203,7 @@
                 android:layout_height="wrap_content"
                 android:text="Description not loaded"
                 android:textSize="12sp" />
+
         </LinearLayout>
     </ScrollView>
 
@@ -216,8 +218,6 @@
         app:layout_constraintBottom_toTopOf="@+id/eventStartDateView"
         app:layout_constraintStart_toStartOf="@+id/textView9"
         app:layout_constraintTop_toBottomOf="@+id/textView9" />
-
-
 
 
 </android.support.constraint.ConstraintLayout>

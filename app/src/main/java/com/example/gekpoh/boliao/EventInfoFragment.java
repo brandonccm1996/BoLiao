@@ -77,7 +77,7 @@ public class EventInfoFragment extends Fragment {
     private Button buttonEdit;
     private Button buttonDelete;
     private Button joinLeaveButton;
-    private ConstraintLayout mLayout, buttonHolder;
+    private ConstraintLayout mLayout;
     private ArrayList<String> members;
 
     private Bundle args;
@@ -155,7 +155,7 @@ public class EventInfoFragment extends Fragment {
                 mCallBack.onJoinLeaveClick();
             }
         });
-
+        mLayout = getView().findViewById(R.id.eventInfoLayout);
         mUserListsDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -181,6 +181,7 @@ public class EventInfoFragment extends Fragment {
                     joinLeaveButton.setVisibility(View.VISIBLE);
                     joinLeaveButton.setEnabled(true);
                 }
+                animateButtonsAppear();
             }
 
             @Override
@@ -188,9 +189,8 @@ public class EventInfoFragment extends Fragment {
 
             }
         });
-        mLayout = getView().findViewById(R.id.eventInfoLayout);
-        buttonHolder = getView().findViewById(R.id.buttonsHolder);
         //buttonHolder.setTranslationY(buttonHolder.getHeight());
+        /*
         GestureDetector.SimpleOnGestureListener listener = new GestureDetector.SimpleOnGestureListener(){
             @Override
             public boolean onDown(MotionEvent e) {
@@ -231,6 +231,7 @@ public class EventInfoFragment extends Fragment {
                 return mDetector.onTouchEvent(event);
             }
         });
+        */
         buttonEdit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -456,5 +457,22 @@ public class EventInfoFragment extends Fragment {
 
     public void setPlaceId(String placeId){
         args.putString("placeId", placeId);
+    }
+
+    public void animateButtonsAppear(){
+        Log.v(TAG, "gesture detected");
+        ConstraintSet constraintSet = new ConstraintSet();
+        constraintSet.clone(mLayout);
+        //appear
+        constraintSet.clear(R.id.scrollView2, ConstraintSet.BOTTOM);
+        constraintSet.connect(R.id.scrollView2,ConstraintSet.BOTTOM,R.id.buttonsHolder,ConstraintSet.TOP);
+        constraintSet.clear(R.id.buttonsHolder, ConstraintSet.TOP);
+        //constraintSet.connect(R.id.buttonsHolder, ConstraintSet.TOP, R.id.scrollView2, ConstraintSet.BOTTOM);
+
+        ChangeBounds autoTransition = new ChangeBounds();
+        autoTransition.setDuration(200);
+        autoTransition.setInterpolator(new LinearInterpolator());
+        TransitionManager.beginDelayedTransition(mLayout);
+        constraintSet.applyTo(mLayout);
     }
 }
