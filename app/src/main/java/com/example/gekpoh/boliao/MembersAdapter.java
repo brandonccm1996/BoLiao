@@ -1,6 +1,8 @@
 package com.example.gekpoh.boliao;
 
+import android.support.v7.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.PorterDuff;
 import android.support.annotation.NonNull;
@@ -43,7 +45,7 @@ public class MembersAdapter extends RecyclerView.Adapter<MembersAdapter.MembersV
     }
 
     @Override
-    public void onBindViewHolder(@NonNull MembersViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull final MembersViewHolder holder, int position) {
         final UserInformation2 userInformation2 = membersList.get(position);
 
         holder.textViewName.setText(userInformation2.getUserInformation().getName().length() > 10 ? userInformation2.getUserInformation().getName().substring(0, 9) + "..." : userInformation2.getUserInformation().getName());
@@ -62,113 +64,170 @@ public class MembersAdapter extends RecyclerView.Adapter<MembersAdapter.MembersV
                     .apply(RequestOptions.circleCropTransform())
                     .into(holder.imageViewProPic);
 
+        final String memberStatus = userInformation2.getMemberStatus();
+        final String userStatus = userInformation2.getUserStatus();
+
         // member status text view
-        if (userInformation2.getMemberStatus().equals("organizer")) {
+        if (memberStatus.equals("organizer")) {
             holder.textViewMemberStatus.setVisibility(View.VISIBLE);
             holder.textViewMemberStatus.setText("Organizer");
         }
-        else if (userInformation2.getMemberStatus().equals("admin")) {
+        else if (memberStatus.equals("admin")) {
             holder.textViewMemberStatus.setVisibility(View.VISIBLE);
             holder.textViewMemberStatus.setText("Admin");
         }
         else holder.textViewMemberStatus.setVisibility(View.INVISIBLE);
 
-        if (!userInformation2.getInEvent()) {
-            holder.buttonRemove.setVisibility(View.GONE);
-            holder.buttonRate.setVisibility(View.GONE);
-            holder.buttonSetAdmin.setVisibility(View.GONE);
+        if (userInformation2.getMemberId().equals(MainActivity.userUid)) {
+            holder.membersCardView.setCardBackgroundColor(mCtx.getResources().getColor(R.color.colorLightBlue));
         }
-        else {
-            // buttonRemove
-            if (userInformation2.getEnableRemove()) {
-                holder.buttonRemove.setVisibility(View.VISIBLE);
-                holder.buttonRemove.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        if (!FirebaseDatabaseUtils.connectedToDatabase()) {
-                            Toast.makeText(mCtx, "Please check your internet connection", Toast.LENGTH_SHORT).show();
-                        }
-                        else membersFragment.removeMember(userInformation2.getMemberId(), userInformation2.getUserInformation().getName());
-                    }
-                });
-            }
-            else holder.buttonRemove.setVisibility(View.GONE);
+        else holder.membersCardView.setCardBackgroundColor(mCtx.getResources().getColor(R.color.white_background));
 
-            // buttonRate
-            if (userInformation2.getEnableRate()) {
-                holder.buttonRate.setVisibility(View.VISIBLE);
-
-                if (userInformation2.getMemberRatedBefore()) {
-                    holder.buttonRate.getBackground().setColorFilter(ContextCompat.getColor(mCtx, R.color.colorLime), PorterDuff.Mode.MULTIPLY);
-                    holder.buttonRate.setText("Rated");
-                    holder.buttonRate.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            if (!FirebaseDatabaseUtils.connectedToDatabase()) {
-                                Toast.makeText(mCtx, "Please check your internet connection", Toast.LENGTH_SHORT).show();
-                            }
-                            else membersFragment.rateMember2(userInformation2.getMemberId(), userInformation2.getUserInformation().getName());
-                        }
-                    });
-                }
-                else {
-                    holder.buttonRate.getBackground().clearColorFilter();
-                    holder.buttonRate.setText("Rate");
-                    holder.buttonRate.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            if (!FirebaseDatabaseUtils.connectedToDatabase()) {
-                                Toast.makeText(mCtx, "Please check your internet connection", Toast.LENGTH_SHORT).show();
-                            }
-                            else membersFragment.rateMember(userInformation2.getMemberId(), userInformation2.getUserInformation().getName());
-                        }
-                    });
-                }
-            }
-            else holder.buttonRate.setVisibility(View.GONE);
-
-            // buttonSetAdmin
-            if (userInformation2.getAppointDismissAdmin().equals("appoint")) {
-                holder.buttonSetAdmin.setVisibility(View.VISIBLE);
-                holder.buttonSetAdmin.setText("Appoint Admin");
-                holder.buttonSetAdmin.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        if (!FirebaseDatabaseUtils.connectedToDatabase()) {
-                            Toast.makeText(mCtx, "Please check your internet connection", Toast.LENGTH_SHORT).show();
-                        }
-                        else membersFragment.appointAdmin(userInformation2.getMemberId(), userInformation2.getUserInformation().getName());
-                    }
-                });
-            }
-            else if (userInformation2.getAppointDismissAdmin().equals("dismiss")) {
-                holder.buttonSetAdmin.setVisibility(View.VISIBLE);
-                holder.buttonSetAdmin.setText("Dismiss Admin");
-                holder.buttonSetAdmin.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        if (!FirebaseDatabaseUtils.connectedToDatabase()) {
-                            Toast.makeText(mCtx, "Please check your internet connection", Toast.LENGTH_SHORT).show();
-                        }
-                        else membersFragment.dismissAdmin(userInformation2.getMemberId(), userInformation2.getUserInformation().getName());
-                    }
-                });
-            }
-            else if (userInformation2.getAppointDismissAdmin().equals("invisible")) holder.buttonSetAdmin.setVisibility(View.GONE);
-        }
-
+        // user actions
         holder.membersCardView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(mCtx, ViewProfileActivity.class);
-                intent.putExtra("memberName", userInformation2.getUserInformation().getName());
-                intent.putExtra("memberDesc", userInformation2.getUserInformation().getDescription());
-                intent.putExtra("memberSumRating", userInformation2.getUserInformation().getSumRating());
-                intent.putExtra("memberNumRatings", userInformation2.getUserInformation().getNumRatings());
-                intent.putExtra("memberProPic", userInformation2.getUserInformation().getPhotoUrl());
-                mCtx.startActivity(intent);
+
+                // non member looking at cards or user looking at his own card
+                if (!userInformation2.getInEvent() || userInformation2.getMemberId().equals(MainActivity.userUid)) {    // non member looking at cards or user looking at his own card
+                    AlertDialog.Builder builder = new AlertDialog.Builder(mCtx)
+                            .setCancelable(true)
+                            .setItems(R.array.memberActionsOwnCardOrNonMember, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    if (!FirebaseDatabaseUtils.connectedToDatabase()) {
+                                        Toast.makeText(mCtx, "Please check your internet connection", Toast.LENGTH_SHORT).show();
+                                    }
+                                    else if (which == 0) putExtrasForIntent(holder, userInformation2);
+                                }
+                            });
+                    AlertDialog dialog = builder.create();
+                    dialog.show();
+                }
+
+                // member not rated before
+                else if (!userInformation2.getMemberRatedBefore()) {
+                    if (userStatus.equals("member") || (userStatus.equals("admin") && memberStatus.equals("organizer"))) {
+                        AlertDialog.Builder builder = new AlertDialog.Builder(mCtx)
+                                .setCancelable(true)
+                                .setItems(R.array.memberActionsMemberToOthersOrAdminToOrganizer, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        if (!FirebaseDatabaseUtils.connectedToDatabase()) {
+                                            Toast.makeText(mCtx, "Please check your internet connection", Toast.LENGTH_SHORT).show();
+                                        }
+                                        else if (which == 0) putExtrasForIntent(holder, userInformation2);
+                                        else if (which == 1) membersFragment.rateMember(userInformation2.getMemberId(), userInformation2.getUserInformation().getName());
+                                    }
+                                });
+                        AlertDialog dialog = builder.create();
+                        dialog.show();
+                    }
+                    else if ((userStatus.equals("admin") || userStatus.equals("organizer")) && memberStatus.equals("member")) {
+                        AlertDialog.Builder builder = new AlertDialog.Builder(mCtx)
+                                .setCancelable(true)
+                                .setItems(R.array.memberActionsAdminToMember, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        if (!FirebaseDatabaseUtils.connectedToDatabase()) {
+                                            Toast.makeText(mCtx, "Please check your internet connection", Toast.LENGTH_SHORT).show();
+                                        }
+                                        else if (which == 0) putExtrasForIntent(holder, userInformation2);
+                                        else if (which == 1) membersFragment.rateMember(userInformation2.getMemberId(), userInformation2.getUserInformation().getName());
+                                        else if (which == 2) membersFragment.removeMember(userInformation2.getMemberId(), userInformation2.getUserInformation().getName());
+                                        else if (which == 3) membersFragment.appointAdmin(userInformation2.getMemberId(), userInformation2.getUserInformation().getName());
+                                    }
+                                });
+                        AlertDialog dialog = builder.create();
+                        dialog.show();
+                    }
+                    else if ((userStatus.equals("admin") || userStatus.equals("organizer")) && memberStatus.equals("admin")) {
+                        AlertDialog.Builder builder = new AlertDialog.Builder(mCtx)
+                                .setCancelable(true)
+                                .setItems(R.array.memberActionsAdminToAdmin, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        if (!FirebaseDatabaseUtils.connectedToDatabase()) {
+                                            Toast.makeText(mCtx, "Please check your internet connection", Toast.LENGTH_SHORT).show();
+                                        }
+                                        else if (which == 0) putExtrasForIntent(holder, userInformation2);
+                                        else if (which == 1) membersFragment.rateMember(userInformation2.getMemberId(), userInformation2.getUserInformation().getName());
+                                        else if (which == 2) membersFragment.removeMember(userInformation2.getMemberId(), userInformation2.getUserInformation().getName());
+                                        else if (which == 3) membersFragment.dismissAdmin(userInformation2.getMemberId(), userInformation2.getUserInformation().getName());
+                                    }
+                                });
+                        AlertDialog dialog = builder.create();
+                        dialog.show();
+                    }
+                }
+
+                // member rated before
+                else if (userInformation2.getMemberRatedBefore()) {
+                    if (userStatus.equals("member") || (userStatus.equals("admin") && memberStatus.equals("organizer"))) {
+                        AlertDialog.Builder builder = new AlertDialog.Builder(mCtx)
+                                .setCancelable(true)
+                                .setItems(R.array.memberActionsMemberToOthersOrAdminToOrganizer2, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        if (!FirebaseDatabaseUtils.connectedToDatabase()) {
+                                            Toast.makeText(mCtx, "Please check your internet connection", Toast.LENGTH_SHORT).show();
+                                        }
+                                        else if (which == 0) putExtrasForIntent(holder, userInformation2);
+                                        else if (which == 1) membersFragment.rateMember2(userInformation2.getMemberId(), userInformation2.getUserInformation().getName());
+                                    }
+                                });
+                        AlertDialog dialog = builder.create();
+                        dialog.show();
+                    }
+                    else if ((userStatus.equals("admin") || userStatus.equals("organizer")) && memberStatus.equals("member")) {
+                        AlertDialog.Builder builder = new AlertDialog.Builder(mCtx)
+                                .setCancelable(true)
+                                .setItems(R.array.memberActionsAdminToMember2, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        if (!FirebaseDatabaseUtils.connectedToDatabase()) {
+                                            Toast.makeText(mCtx, "Please check your internet connection", Toast.LENGTH_SHORT).show();
+                                        }
+                                        else if (which == 0) putExtrasForIntent(holder, userInformation2);
+                                        else if (which == 1) membersFragment.rateMember2(userInformation2.getMemberId(), userInformation2.getUserInformation().getName());
+                                        else if (which == 2) membersFragment.removeMember(userInformation2.getMemberId(), userInformation2.getUserInformation().getName());
+                                        else if (which == 3) membersFragment.appointAdmin(userInformation2.getMemberId(), userInformation2.getUserInformation().getName());
+                                    }
+                                });
+                        AlertDialog dialog = builder.create();
+                        dialog.show();
+                    }
+                    else if ((userStatus.equals("admin") || userStatus.equals("organizer")) && memberStatus.equals("admin")) {
+                        AlertDialog.Builder builder = new AlertDialog.Builder(mCtx)
+                                .setCancelable(true)
+                                .setItems(R.array.memberActionsAdminToAdmin2, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        if (!FirebaseDatabaseUtils.connectedToDatabase()) {
+                                            Toast.makeText(mCtx, "Please check your internet connection", Toast.LENGTH_SHORT).show();
+                                        }
+                                        else if (which == 0) putExtrasForIntent(holder, userInformation2);
+                                        else if (which == 1) membersFragment.rateMember2(userInformation2.getMemberId(), userInformation2.getUserInformation().getName());
+                                        else if (which == 2) membersFragment.removeMember(userInformation2.getMemberId(), userInformation2.getUserInformation().getName());
+                                        else if (which == 3) membersFragment.dismissAdmin(userInformation2.getMemberId(), userInformation2.getUserInformation().getName());
+                                    }
+                                });
+                        AlertDialog dialog = builder.create();
+                        dialog.show();
+                    }
+                }
             }
         });
+    }
+
+    private void putExtrasForIntent(MembersViewHolder holder, UserInformation2 userInformation2) {
+        Intent intent = new Intent(mCtx, ViewProfileActivity.class);
+        intent.putExtra("memberName", userInformation2.getUserInformation().getName());
+        intent.putExtra("memberDesc", userInformation2.getUserInformation().getDescription());
+        intent.putExtra("memberSumRating", userInformation2.getUserInformation().getSumRating());
+        intent.putExtra("memberNumRatings", userInformation2.getUserInformation().getNumRatings());
+        intent.putExtra("memberProPic", userInformation2.getUserInformation().getPhotoUrl());
+        mCtx.startActivity(intent);
     }
 
     @Override
@@ -180,9 +239,6 @@ public class MembersAdapter extends RecyclerView.Adapter<MembersAdapter.MembersV
         private TextView textViewName;
         private ImageView imageViewProPic;
         private RatingBar ratingBar;
-        private Button buttonRemove;
-        private Button buttonRate;
-        private Button buttonSetAdmin;
         private TextView textViewMemberStatus;
         private CardView membersCardView;
 
@@ -192,9 +248,6 @@ public class MembersAdapter extends RecyclerView.Adapter<MembersAdapter.MembersV
             imageViewProPic = itemView.findViewById(R.id.imageViewProPic);
             ratingBar = itemView.findViewById(R.id.ratingBar);
             textViewMemberStatus = itemView.findViewById(R.id.textViewMemberStatus);
-            buttonRemove = itemView.findViewById(R.id.buttonRemove);
-            buttonRate = itemView.findViewById(R.id.buttonRate);
-            buttonSetAdmin = itemView.findViewById(R.id.buttonSetAdmin);
             membersCardView = itemView.findViewById(R.id.membersCardView);
         }
     }

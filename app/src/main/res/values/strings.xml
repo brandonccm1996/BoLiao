@@ -37,4 +37,47 @@
 
     <string name="time_notifications_settings_text">By enabling time notifications, you will be notified whenever an activity you have joined is happening soon.</string>
     <string name="update_notifications_settings_text">By enabling update notifications, you will be notified whenever there is a new update in an activity you have joined, or if you have been removed from the activity, or if the activity has been deleted.</string>
+
+    <string-array name="memberActionsOwnCardOrNonMember">
+        <item>View Profile</item>
+    </string-array>
+    
+    <string-array name="memberActionsMemberToOthersOrAdminToOrganizer">
+        <item>View Profile</item>
+        <item>Rate</item>
+    </string-array>
+
+    <string-array name="memberActionsMemberToOthersOrAdminToOrganizer2">
+        <item>View Profile</item>
+        <item>Rated!</item>
+    </string-array>
+
+    <string-array name="memberActionsAdminToMember">
+        <item>View Profile</item>
+        <item>Rate</item>
+        <item>Remove Member</item>
+        <item>Appoint Admin</item>
+    </string-array>
+
+    <string-array name="memberActionsAdminToMember2">
+        <item>View Profile</item>
+        <item>Rated!</item>
+        <item>Remove Member</item>
+        <item>Appoint Admin</item>
+    </string-array>
+
+    <string-array name="memberActionsAdminToAdmin">
+        <item>View Profile</item>
+        <item>Rate</item>
+        <item>Remove Member</item>
+        <item>Dismiss Admin</item>
+    </string-array>
+
+    <string-array name="memberActionsAdminToAdmin2">
+        <item>View Profile</item>
+        <item>Rated!</item>
+        <item>Remove Member</item>
+        <item>Dismiss Admin</item>
+    </string-array>
+    
 </resources>

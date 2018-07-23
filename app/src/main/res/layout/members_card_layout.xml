@@ -39,27 +39,6 @@
                 card_view:layout_constraintStart_toEndOf="@+id/imageViewProPic"
                 card_view:layout_constraintTop_toTopOf="parent" />
 
-            <Button
-                android:id="@+id/buttonRemove"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Remove"
-                card_view:layout_constraintBaseline_toBaselineOf="@+id/buttonRate"
-                card_view:layout_constraintEnd_toStartOf="@+id/buttonSetAdmin"
-                card_view:layout_constraintHorizontal_bias="0.5"
-                card_view:layout_constraintStart_toEndOf="@+id/buttonRate" />
-
-            <Button
-                android:id="@+id/buttonRate"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="Rate"
-                card_view:layout_constraintEnd_toStartOf="@+id/buttonRemove"
-                card_view:layout_constraintHorizontal_bias="0.5"
-                card_view:layout_constraintStart_toStartOf="parent"
-                card_view:layout_constraintTop_toBottomOf="@+id/imageViewProPic" />
-
             <RatingBar
                 android:id="@+id/ratingBar"
                 style="?attr/ratingBarStyleSmall"
@@ -81,15 +60,6 @@
                 android:textSize="12sp"
                 card_view:layout_constraintEnd_toEndOf="parent"
                 card_view:layout_constraintTop_toTopOf="parent" />
-
-            <Button
-                android:id="@+id/buttonSetAdmin"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                card_view:layout_constraintBaseline_toBaselineOf="@+id/buttonRate"
-                card_view:layout_constraintEnd_toEndOf="parent"
-                card_view:layout_constraintHorizontal_bias="0.5"
-                card_view:layout_constraintStart_toEndOf="@+id/buttonRemove" />
 
         </android.support.constraint.ConstraintLayout>
 

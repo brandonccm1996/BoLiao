@@ -112,9 +112,6 @@ public class MembersFragment extends Fragment {
                                 @Override
                                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                                     boolean memberRatedBefore;
-                                    boolean enableRemove;
-                                    boolean enableRate;
-                                    String appointDismissAdmin;
                                     String memberStatus;
                                     String userStatus;
 
@@ -135,25 +132,7 @@ public class MembersFragment extends Fragment {
 //                                    else if (!userIsAdmin && memberIsAdmin) membersList.add(new UserInformation2(memberInfo, false, true, memberIsOrganizer, userIsAdmin, memberId, memberRatedBefore, inEvent));   // card for other admin when i am non-admin
 //                                    else if (!userIsAdmin && !memberIsAdmin) membersList.add(new UserInformation2(memberInfo, false, false, memberIsOrganizer, userIsAdmin, memberId, memberRatedBefore, inEvent)); // card for other non-admin (including myself) when i am non-admin
 
-                                    if (memberId.equals(MainActivity.userUid)) {
-                                        enableRemove = false;
-                                        enableRate = false;
-                                        appointDismissAdmin = "invisible";
-                                    }
-                                    else {
-                                        enableRate = true;
-                                        if (!userIsAdmin || (userIsAdmin && memberIsOrganizer)) {
-                                            enableRemove = false;
-                                            appointDismissAdmin = "invisible";
-                                        }
-                                        else {
-                                            enableRemove = true;
-                                            if (memberIsAdmin) appointDismissAdmin = "dismiss";
-                                            else appointDismissAdmin = "appoint";
-                                        }
-                                    }
-
-                                    membersList.add(new UserInformation2(memberInfo, memberId,inEvent, memberRatedBefore, enableRemove, enableRate, appointDismissAdmin, memberStatus, userStatus));
+                                    membersList.add(new UserInformation2(memberInfo, memberId, inEvent, memberRatedBefore, memberStatus, userStatus));
                                     if (membersList.size() > 0) {
                                         Collections.sort(membersList, new Comparator<UserInformation2>() {
                                             @Override
