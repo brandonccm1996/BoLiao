@@ -83,8 +83,11 @@ public class CreateNewEventActivity extends AppCompatActivity implements CreateN
                         Toast.makeText(CreateNewEventActivity.this, "Number of participants must be at least 1", Toast.LENGTH_SHORT).show();
                     }
                     else if (fragment1.sendName().contains(".") || fragment1.sendName().contains("#") || fragment1.sendName().contains("$") ||
-                            fragment1.sendName().contains("[") || fragment1.sendName().contains("]")) {
-                        Toast.makeText(CreateNewEventActivity.this, "Activity name must not contain the characters: '.', '#', '$', '[', or ']' ", Toast.LENGTH_LONG).show();
+                            fragment1.sendName().contains("[") || fragment1.sendName().contains("]") || fragment1.sendName().length() > 15) {
+                        Toast.makeText(CreateNewEventActivity.this, "Activity name must not contain the characters: '.', '#', '$', '[', or ']' and must not have more than 15 characters", Toast.LENGTH_LONG).show();
+                    }
+                    else if (fragment1.sendLocation().length() > 15) {
+                        Toast.makeText(CreateNewEventActivity.this, "Activity location must not have more than 15 characters", Toast.LENGTH_SHORT).show();
                     }
                     else {
                         chatId = mChatsDatabaseReference.push().getKey();
