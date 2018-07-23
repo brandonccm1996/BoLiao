@@ -190,7 +190,7 @@ public class EventInfoFragment extends Fragment {
             }
         });
         //buttonHolder.setTranslationY(buttonHolder.getHeight());
-        /*
+
         GestureDetector.SimpleOnGestureListener listener = new GestureDetector.SimpleOnGestureListener(){
             @Override
             public boolean onDown(MotionEvent e) {
@@ -231,7 +231,7 @@ public class EventInfoFragment extends Fragment {
                 return mDetector.onTouchEvent(event);
             }
         });
-        */
+
         buttonEdit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
