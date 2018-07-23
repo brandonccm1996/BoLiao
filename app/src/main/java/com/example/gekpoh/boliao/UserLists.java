@@ -2,7 +2,7 @@ package com.example.gekpoh.boliao;
 
 public class UserLists {
     private boolean isAdmin;
-
+    private boolean isOrganizer;
     public UserLists() {
 
     }
@@ -12,4 +12,5 @@ public class UserLists {
     }
 
     public boolean getIsAdmin() { return isAdmin; }
+    public boolean getIsOrganizer() { return isOrganizer; }
 }

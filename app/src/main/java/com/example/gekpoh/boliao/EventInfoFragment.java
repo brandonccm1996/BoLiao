@@ -1,5 +1,7 @@
 package com.example.gekpoh.boliao;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -7,14 +9,24 @@ import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.constraint.ConstraintLayout;
+import android.support.constraint.ConstraintSet;
+import android.support.transition.AutoTransition;
+import android.support.transition.Transition;
+import android.support.transition.TransitionManager;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.GestureDetectorCompat;
 import android.support.v7.app.AlertDialog;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.LinearInterpolator;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -63,7 +75,8 @@ public class EventInfoFragment extends Fragment {
 
     private Button buttonEdit;
     private Button buttonDelete;
-
+    private Button joinLeaveButton;
+    private ConstraintLayout mLayout, buttonHolder;
     private ArrayList<String> members;
 
     private Bundle args;
@@ -104,8 +117,6 @@ public class EventInfoFragment extends Fragment {
 
         buttonEdit = getView().findViewById(R.id.btnEditInfo);
         buttonDelete = getView().findViewById(R.id.btnDelete);
-        buttonEdit.setVisibility(View.INVISIBLE);
-        buttonDelete.setVisibility(View.INVISIBLE);
 
         picView = getView().findViewById(R.id.groupPicView);
         photoUrl = args.getString(getString(R.string.groupPhotoUrlKey));
@@ -121,17 +132,17 @@ public class EventInfoFragment extends Fragment {
                     .apply(RequestOptions.circleCropTransform())
                     .into(picView);
         }
-        Button button = getView().findViewById(R.id.joinleaveButton);
+        joinLeaveButton = getView().findViewById(R.id.joinleaveButton);
         if(args.getBoolean(getString(R.string.InActivityKey))){
-            button.setText(getString(R.string.LeaveButtonLabel));
+            joinLeaveButton.setText(getString(R.string.LeaveButtonLabel));
         }else{
             if(args.getInt(getString(R.string.groupCurrentSizeKey)) == args.getInt(getString(R.string.groupMaxSizeKey))){
                 //Maxed out.
-                button.setEnabled(false);
+                joinLeaveButton.setEnabled(false);
             }
-            button.setText(getString(R.string.JoinButtonLabel));
+            joinLeaveButton.setText(getString(R.string.JoinButtonLabel));
         }
-        button.setOnClickListener(new View.OnClickListener(){
+        joinLeaveButton.setOnClickListener(new View.OnClickListener(){
 
             @Override
             public void onClick(View v) {
@@ -148,8 +159,10 @@ public class EventInfoFragment extends Fragment {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 UserLists userList = dataSnapshot.child(MainActivity.userUid).getValue(UserLists.class);
+                boolean isOrganizer = false;
                 if(userList != null) {
                     isAdmin = userList.getIsAdmin();
+                    isOrganizer = userList.getIsOrganizer();
                 }
                 else{
                     //if user is not in the group yet, we will not find its info
@@ -158,7 +171,14 @@ public class EventInfoFragment extends Fragment {
 
                 if (isAdmin) {
                     buttonEdit.setVisibility(View.VISIBLE);
+                    buttonEdit.setEnabled(true);
+                }
+                if(isOrganizer){
                     buttonDelete.setVisibility(View.VISIBLE);
+                    buttonDelete.setEnabled(true);
+                }else{
+                    joinLeaveButton.setVisibility(View.VISIBLE);
+                    joinLeaveButton.setEnabled(true);
                 }
             }
 
@@ -167,7 +187,49 @@ public class EventInfoFragment extends Fragment {
 
             }
         });
+        mLayout = getView().findViewById(R.id.eventInfoLayout);
+        buttonHolder = getView().findViewById(R.id.buttonsHolder);
+        //buttonHolder.setTranslationY(buttonHolder.getHeight());
+        GestureDetector.SimpleOnGestureListener listener = new GestureDetector.SimpleOnGestureListener(){
+            @Override
+            public boolean onDown(MotionEvent e) {
+                return true;
+            }
 
+            @Override
+            public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+                Log.v(TAG, "gesture detected");
+                ConstraintSet constraintSet = new ConstraintSet();
+                constraintSet.clone(mLayout);
+                if(velocityY < 0){
+                    //appear
+                    constraintSet.clear(R.id.scrollView2, ConstraintSet.BOTTOM);
+                    constraintSet.connect(R.id.scrollView2,ConstraintSet.BOTTOM,R.id.buttonsHolder,ConstraintSet.TOP);
+                    constraintSet.clear(R.id.buttonsHolder, ConstraintSet.TOP);
+                    //constraintSet.connect(R.id.buttonsHolder, ConstraintSet.TOP, R.id.scrollView2, ConstraintSet.BOTTOM);
+
+                }else{
+                    //dissapear
+                    constraintSet.clear(R.id.scrollView2, ConstraintSet.BOTTOM);
+                    constraintSet.connect(R.id.scrollView2,ConstraintSet.BOTTOM,ConstraintSet.PARENT_ID,ConstraintSet.BOTTOM);
+                    //constraintSet.clear(R.id.buttonsHolder, ConstraintSet.TOP);
+                    constraintSet.connect(R.id.buttonsHolder, ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM);
+                }
+                AutoTransition autoTransition = new AutoTransition();
+                autoTransition.setDuration(100);
+                autoTransition.setInterpolator(new LinearInterpolator());
+                TransitionManager.beginDelayedTransition(mLayout);
+                constraintSet.applyTo(mLayout);
+                return true;
+            }
+        };
+        final GestureDetectorCompat mDetector = new GestureDetectorCompat(getActivity(),listener);
+        mLayout.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                return mDetector.onTouchEvent(event);
+            }
+        });
         buttonEdit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -187,8 +249,7 @@ public class EventInfoFragment extends Fragment {
             public void onClick(View v) {
                 if (!FirebaseDatabaseUtils.connectedToDatabase()) {
                     Toast.makeText(getActivity(), "Please check your internet connection", Toast.LENGTH_SHORT).show();
-                }
-                else {
+                } else {
                     members = new ArrayList<>();
                     mUserListsDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
