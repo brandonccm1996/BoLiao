@@ -84,10 +84,12 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdap
         Group group = groupList.get(position);
         final int mPosition = position;
         String groupName = group.getNames();
-        holder.mGroupName.setText(groupName.length() > 10? groupName.substring(0,9) + "...":groupName);
+        holder.mGroupName.setText(groupName.length() > 15? groupName.substring(0,14) + "...":groupName);
         holder.mGroupDate.setText(group.getStartDateTimeString());//Possible Improvement: Indicate how much time left until the activity, Happening now, Over
         String placeName = group.getLocation();
-        holder.mGroupPlace.setText(placeName.length() > 10? placeName.substring(0,9) + "...":placeName);
+        holder.mGroupPlace.setText(placeName.length() > 15? placeName.substring(0,14) + "...":placeName);
+        String participantsString = "Participants: " + group.getNumParticipants();
+        holder.mGroupParticipants.setText(participantsString);
         if(group.getPhotoUrl() != null){
             Glide.with(holder.mImageView.getContext())
                     .load(group.getPhotoUrl())
@@ -125,7 +127,7 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdap
     }
 
     public class GroupViewHolder extends RecyclerView.ViewHolder{
-        private TextView mGroupName, mGroupDate, mGroupPlace;
+        private TextView mGroupName, mGroupDate, mGroupPlace, mGroupParticipants;
         private CardView mCardView;
         private ImageView mImageView;
         private GroupViewHolder(View itemView) {
@@ -135,6 +137,7 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdap
             mCardView = itemView.findViewById(R.id.cardViewNote);
             mImageView = itemView.findViewById(R.id.cardNoteIcon);
             mGroupDate = itemView.findViewById(R.id.cardNoteDate);
+            mGroupParticipants = itemView.findViewById(R.id.cardNoteParticipants);
             //Include date + people count next time
         }
     }

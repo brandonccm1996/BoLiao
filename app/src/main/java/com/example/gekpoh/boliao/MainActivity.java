@@ -29,11 +29,13 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
+import android.widget.AutoCompleteTextView;
 import android.widget.CompoundButton;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.SearchView;
 import android.widget.Switch;
+import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
@@ -52,6 +54,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.iid.FirebaseInstanceId;
 
+import java.lang.reflect.Field;
 import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -295,6 +298,16 @@ public class MainActivity extends AppCompatActivity implements SearchGroupFragme
         inflater.inflate(R.menu.menu_main, menu);
         searchItem = menu.findItem(R.id.filter);
         final SearchView mSearchView = (SearchView) searchItem.getActionView();
+        final int textViewID = mSearchView.getContext().getResources().getIdentifier("android:id/search_src_text",null, null);
+        final AutoCompleteTextView searchTextView = (AutoCompleteTextView) mSearchView.findViewById(textViewID);
+        try {
+            Field mCursorDrawableRes = TextView.class.getDeclaredField("mCursorDrawableRes");
+            mCursorDrawableRes.setAccessible(true);
+            mCursorDrawableRes.set(searchTextView, 0); //This sets the cursor resource ID to 0 or @null which will make it visible on white background
+        } catch (Exception e) {
+
+        }
+
         mSearchView.setIconifiedByDefault(true);
         mSearchView.setFocusable(true);
         mSearchView.requestFocusFromTouch();
