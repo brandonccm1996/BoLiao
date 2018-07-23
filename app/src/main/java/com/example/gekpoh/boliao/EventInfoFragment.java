@@ -12,6 +12,7 @@ import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
 import android.support.constraint.ConstraintSet;
 import android.support.transition.AutoTransition;
+import android.support.transition.ChangeBounds;
 import android.support.transition.Transition;
 import android.support.transition.TransitionManager;
 import android.support.v4.app.Fragment;
@@ -215,7 +216,7 @@ public class EventInfoFragment extends Fragment {
                     //constraintSet.clear(R.id.buttonsHolder, ConstraintSet.TOP);
                     constraintSet.connect(R.id.buttonsHolder, ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM);
                 }
-                AutoTransition autoTransition = new AutoTransition();
+                ChangeBounds autoTransition = new ChangeBounds();
                 autoTransition.setDuration(100);
                 autoTransition.setInterpolator(new LinearInterpolator());
                 TransitionManager.beginDelayedTransition(mLayout);
