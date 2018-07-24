@@ -62,7 +62,7 @@ public class EditProfileActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayUseLogoEnabled(true);
 
         mFirebaseDatabase = FirebaseDatabaseUtils.getDatabase();
-        mUsersDatabaseReference = mFirebaseDatabase.getReference().child("users");
+        mUsersDatabaseReference = mFirebaseDatabase.getReference().child("users").child(MainActivity.userUid);
         mUsersDatabaseReference.keepSynced(true);
         mFirebaseStorage = FirebaseStorage.getInstance();
         mProfilePicStorageReference = mFirebaseStorage.getReference().child("userprofilepics");
@@ -94,7 +94,7 @@ public class EditProfileActivity extends AppCompatActivity {
                         switch (item.getItemId()) {
                             case R.id.remove_pic:
                                 deletePic();
-                                mUsersDatabaseReference.child(MainActivity.userUid).child("photoUrl").setValue("");
+                                mUsersDatabaseReference.child("photoUrl").setValue("");
                                 reloadUserDetails();
                                 Toast.makeText(EditProfileActivity.this, "Profile pic removed", Toast.LENGTH_SHORT).show();
                                 return true;
@@ -138,14 +138,14 @@ public class EditProfileActivity extends AppCompatActivity {
         if (requestCode == editNameRequest) {
             if (resultCode == Activity.RESULT_OK) {
                 String newName = data.getStringExtra(Intent.EXTRA_TEXT);
-                mUsersDatabaseReference.child(MainActivity.userUid).child("name").setValue(newName);
+                mUsersDatabaseReference.child("name").setValue(newName);
                 reloadUserDetails();
             }
         }
         else if (requestCode == editDescriptionRequest) {
             if (resultCode == Activity.RESULT_OK) {
                 String newDescription = data.getStringExtra(Intent.EXTRA_TEXT);
-                mUsersDatabaseReference.child(MainActivity.userUid).child("description").setValue(newDescription);
+                mUsersDatabaseReference.child("description").setValue(newDescription);
                 reloadUserDetails();
             }
         }
@@ -178,7 +178,7 @@ public class EditProfileActivity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<Uri> task) {
                         if (task.isSuccessful()) {
                             Uri downloadUri = task.getResult();
-                            mUsersDatabaseReference.child(MainActivity.userUid).child("photoUrl").setValue(downloadUri.toString());
+                            mUsersDatabaseReference.child("photoUrl").setValue(downloadUri.toString());
                             reloadUserDetails();
                             Toast.makeText(EditProfileActivity.this, "Profile pic updated", Toast.LENGTH_SHORT).show();
                             progressBar.setVisibility(View.INVISIBLE);
@@ -213,7 +213,7 @@ public class EditProfileActivity extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
-                currentUserInfo = dataSnapshot.child(MainActivity.userUid).getValue(UserInformation.class);
+                currentUserInfo = dataSnapshot.getValue(UserInformation.class);
                 
                 if (currentUserInfo.getName().equals("")) textViewName.setText("Enter username");
                 else textViewName.setText(currentUserInfo.getName());
