@@ -6,6 +6,7 @@ import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -62,6 +63,7 @@ public class EditProfileActivity extends AppCompatActivity {
 
         mFirebaseDatabase = FirebaseDatabaseUtils.getDatabase();
         mUsersDatabaseReference = mFirebaseDatabase.getReference().child("users");
+        mUsersDatabaseReference.keepSynced(true);
         mFirebaseStorage = FirebaseStorage.getInstance();
         mProfilePicStorageReference = mFirebaseStorage.getReference().child("userprofilepics");
 
@@ -72,6 +74,8 @@ public class EditProfileActivity extends AppCompatActivity {
         textViewDescription = findViewById(R.id.textViewDescription);
         progressBar = findViewById(R.id.progressBar);
         progressBar.setVisibility(View.INVISIBLE);
+
+        reloadUserDetails();
 
         imageViewProPic.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -127,8 +131,6 @@ public class EditProfileActivity extends AppCompatActivity {
                 startActivityForResult(startEditDescriptionActivityIntent, editDescriptionRequest);
             }
         });
-
-        reloadUserDetails();
     }
 
     @Override
@@ -212,7 +214,7 @@ public class EditProfileActivity extends AppCompatActivity {
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
                 currentUserInfo = dataSnapshot.child(MainActivity.userUid).getValue(UserInformation.class);
-
+                
                 if (currentUserInfo.getName().equals("")) textViewName.setText("Enter username");
                 else textViewName.setText(currentUserInfo.getName());
 

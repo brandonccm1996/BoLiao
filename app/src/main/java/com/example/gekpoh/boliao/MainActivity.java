@@ -134,6 +134,7 @@ public class MainActivity extends AppCompatActivity implements SearchGroupFragme
         mFirebaseDatabase = FirebaseDatabaseUtils.getDatabase();
         FirebaseDatabaseUtils.setUpConnectionListener();
         mUsersDatabaseReference = mFirebaseDatabase.getReference().child("users");
+        mUsersDatabaseReference.keepSynced(true);
         mFirebaseAuth = FirebaseAuth.getInstance();
         mAuthStateListener = new FirebaseAuth.AuthStateListener() {
             @Override
@@ -144,13 +145,18 @@ public class MainActivity extends AppCompatActivity implements SearchGroupFragme
                     userDisplayName = user.getDisplayName();
                     userUid = user.getUid();
 
-                    mUsersDatabaseReference.addValueEventListener(new ValueEventListener() {
+                    mUsersDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                            String deviceToken = FirebaseInstanceId.getInstance().getToken();
                             if (!dataSnapshot.hasChild(userUid)) {  // new user, never signed in before
-                                UserInformation newUserInfo = new UserInformation(userDisplayName, "", "", 0, 0);
+                                UserInformation newUserInfo = new UserInformation(userDisplayName, "", "", 0, 0, deviceToken, false);
                                 mUsersDatabaseReference.child(userUid).setValue(newUserInfo);
-                                mUsersDatabaseReference.child(userUid).child("updateNotifEnabled").setValue(false);
+                                Log.d("MyTesting", userUid);
+                            }
+                            else {
+                                mUsersDatabaseReference.child(userUid).child("devicetoken").setValue(deviceToken);
+                                Log.d("MyTesting2", userUid);
                             }
                         }
 
@@ -160,8 +166,6 @@ public class MainActivity extends AppCompatActivity implements SearchGroupFragme
                         }
                     });
 
-                    String deviceToken = FirebaseInstanceId.getInstance().getToken();
-                    mUsersDatabaseReference.child(userUid).child("devicetoken").setValue(deviceToken);
                     Settings.loadSettings(MainActivity.this);
                     JoinedGroupFragment jg = JoinedGroupFragment.getInstance();
                     jg.onSignIn();
