@@ -88,7 +88,7 @@ public class JoinedGroupFragment extends Fragment implements GroupRecyclerAdapte
             }
         });
         groupView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        groupView.setAdapter(adapter);
+        if(adapter != null) groupView.setAdapter(adapter);
     }
 
     public void onSignIn() {
@@ -102,6 +102,7 @@ public class JoinedGroupFragment extends Fragment implements GroupRecyclerAdapte
                 }
             };
             adapter = new GroupRecyclerAdapter(this, timeSortComparator);
+            if(groupView != null) groupView.setAdapter(adapter);
         }
         mJoinedListDatabaseReference = FirebaseDatabase.getInstance().getReference().child("joinedlists").child(MainActivity.userUid);
         mJoinedListDatabaseReference.keepSynced(true);

@@ -1,6 +1,7 @@
 package com.example.gekpoh.boliao;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.SharedPreferences;
@@ -12,6 +13,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -113,13 +115,16 @@ public class SearchGroupFragment extends Fragment implements GroupRecyclerAdapte
             }
         });
         groupView.setLayoutManager(new reloadLayoutManager(getActivity()));
-        groupView.setAdapter(adapter);
         groupView.setVisibility(View.GONE);
+        if(adapter != null) groupView.setAdapter(adapter);
     }
 
     public void onSignIn() {
         if (signedIn) return;
-        if(adapter == null)adapter = new GroupRecyclerAdapter(this, null);
+        if(adapter == null){
+            adapter = new GroupRecyclerAdapter(this, null);
+            if(groupView != null) groupView.setAdapter(adapter);
+        }
         signedIn = true;
         mDatabaseReference = FirebaseDatabaseUtils.getDatabase().getReference().child("groups");
         mDatabaseReference.keepSynced(true);
@@ -155,6 +160,12 @@ public class SearchGroupFragment extends Fragment implements GroupRecyclerAdapte
             Toast.makeText(mContext, "Offline searching not available. Please check your internet connection", Toast.LENGTH_SHORT).show();
             return false;
         }
+
+        if(!signedIn){
+            Toast.makeText(mContext, "Please sign in before joining new activities", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
         boolean distanceFilter = mReloadInterface.distanceFilterChecked();
         long distance = mReloadInterface.getDistanceFilter();
         if (distanceFilter && distance == -1) {
@@ -173,77 +184,82 @@ public class SearchGroupFragment extends Fragment implements GroupRecyclerAdapte
         searchedgroups.clear();
         adapter.clearList();
         getDeviceLocation();
-        if (distanceFilter && locationPermissionGranted) {
-            changeLocationSettings();
-            mGetLocationSingleValueEventListener = new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                    Group group = dataSnapshot.getValue(Group.class);
-                    //Need to implement extra filters here for both time and categories etc.
-                    loadingList.remove(dataSnapshot.getKey());
-                    if (group == null) {
+        if (distanceFilter) {
+            if(locationPermissionGranted) {
+                changeLocationSettings();
+                mGetLocationSingleValueEventListener = new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        Group group = dataSnapshot.getValue(Group.class);
+                        //Need to implement extra filters here for both time and categories etc.
+                        loadingList.remove(dataSnapshot.getKey());
+                        if(group != null) {
+                            if (group.getNames().toLowerCase().contains(query) || group.getDescription().toLowerCase().contains(query) || group.getLocation().toLowerCase().contains(query)) {
+                                if (!timeFilter || (group.getStartDateTime() >= timefilters[0] && group.getEndDateTime() <= timefilters[1])) {
+                                    Log.v(TAG, "group added");
+                                    searchedgroups.add(group);
+                                    adapter.addGroup(group);
+                                }
+                            }
+                        }
                         if (loadingList.isEmpty() && !stillLoading) {
                             //adapter.notifyDataSetChanged();
-                        }
-                        return;
-                    }
-                    if (group.getNames().toLowerCase().contains(query) || group.getDescription().toLowerCase().contains(query) || group.getLocation().toLowerCase().contains(query)) {
-                        if (!timeFilter || (group.getStartDateTime() >= timefilters[0] && group.getEndDateTime() <= timefilters[1])) {
-                            Log.v(TAG, "group added");
-                            searchedgroups.add(group);
-                            adapter.addGroup(group);
+                            if (adapter.isListEmpty()) {
+                                displayActivitiesNotFound();
+                            } else {
+                                displayActivitiesFound();
+                            }
                         }
                     }
-                    if (loadingList.isEmpty() && !stillLoading) {
-                        //adapter.notifyDataSetChanged();
-                        if(adapter.isListEmpty()){
-                            displayActivitiesNotFound();
-                        }else{
-                            displayActivitiesFound();
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                    }
+                };
+                GeoFire geoFire = FirebaseDatabaseUtils.getGeoFireInstance();
+                final GeoQuery geoQuery = geoFire.queryAtLocation(new GeoLocation(lastKnownLatLng.latitude, lastKnownLatLng.longitude), distance);
+                geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
+                    @Override
+                    public void onKeyEntered(String key, GeoLocation location) {
+                        stillLoading = true;
+                        if (JoinedGroupFragment.alreadyJoinedGroup(key)) return;
+                        loadingList.add(key);
+                        mDatabaseReference.child(key).addListenerForSingleValueEvent(mGetLocationSingleValueEventListener);
+                    }
+
+                    @Override
+                    public void onKeyExited(String key) {
+
+                    }
+
+                    @Override
+                    public void onKeyMoved(String key, GeoLocation location) {
+
+                    }
+
+                    @Override
+                    public void onGeoQueryReady() {
+                        stillLoading = false;
+                        if (loadingList.isEmpty() && !stillLoading) {
+                            //adapter.notifyDataSetChanged();
+                            if (adapter.isListEmpty()) {
+                                displayActivitiesNotFound();
+                            } else {
+                                displayActivitiesFound();
+                            }
                         }
+                        geoQuery.removeGeoQueryEventListener(this);
                     }
-                }
 
-                @Override
-                public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                }
-            };
-            GeoFire geoFire = FirebaseDatabaseUtils.getGeoFireInstance();
-            final GeoQuery geoQuery = geoFire.queryAtLocation(new GeoLocation(lastKnownLatLng.latitude, lastKnownLatLng.longitude), distance);
-            geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
-                @Override
-                public void onKeyEntered(String key, GeoLocation location) {
-                    stillLoading = true;
-                    if (JoinedGroupFragment.alreadyJoinedGroup(key)) return;
-                    loadingList.add(key);
-                    mDatabaseReference.child(key).addListenerForSingleValueEvent(mGetLocationSingleValueEventListener);
-                }
-
-                @Override
-                public void onKeyExited(String key) {
-
-                }
-
-                @Override
-                public void onKeyMoved(String key, GeoLocation location) {
-
-                }
-
-                @Override
-                public void onGeoQueryReady() {
-                    stillLoading = false;
-                    if (loadingList.isEmpty() && !stillLoading) {
-                        //adapter.notifyDataSetChanged();
+                    @Override
+                    public void onGeoQueryError(DatabaseError error) {
+                        Toast.makeText(getActivity(), "There is a database error: " + error, Toast.LENGTH_SHORT).show();
                     }
-                    geoQuery.removeGeoQueryEventListener(this);
-                }
-
-                @Override
-                public void onGeoQueryError(DatabaseError error) {
-                    Toast.makeText(getActivity(), "There is a database error: " + error, Toast.LENGTH_SHORT).show();
-                }
-            });
+                });
+            }else{
+                checkRequestLocationPermission();
+            }
         } else {
             mValueEventListener = new ValueEventListener() {
                 @Override
@@ -289,6 +305,7 @@ public class SearchGroupFragment extends Fragment implements GroupRecyclerAdapte
                 searchedgroups.remove(group);
                 adapter.removeGroup(group);
                 //adapter.notifyDataSetChanged();
+                if(adapter.isListEmpty()) displayActivitiesNotFound();
                 break;
             }
         }
@@ -328,9 +345,27 @@ public class SearchGroupFragment extends Fragment implements GroupRecyclerAdapte
         if (ActivityCompat.checkSelfPermission(mContext,
                 android.Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(getActivity(),
-                    new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
-                    PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
+            if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(),
+                    android.Manifest.permission.ACCESS_FINE_LOCATION)) {
+                AlertDialog.Builder alertBuilder = new AlertDialog.Builder(mContext);
+                alertBuilder.setCancelable(true);
+                alertBuilder.setTitle("Location Permission required");
+                alertBuilder.setMessage("Location Permission is required for finding activities close to your current location.");
+                alertBuilder.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        ActivityCompat.requestPermissions(getActivity(),
+                                new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
+                                PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
+                    }
+                });
+                AlertDialog alert = alertBuilder.create();
+                alert.show();
+            } else {
+                ActivityCompat.requestPermissions(getActivity(),
+                        new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
+                        PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
+            }
         } else {
             locationPermissionGranted = true;
         }
