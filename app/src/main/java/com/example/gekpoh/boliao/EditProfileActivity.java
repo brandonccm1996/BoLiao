@@ -48,10 +48,12 @@ public class EditProfileActivity extends AppCompatActivity {
 
     private FirebaseDatabase mFirebaseDatabase;
     private DatabaseReference mUsersDatabaseReference;
+    private DatabaseReference mUsersRatingDatabaseReference;
     private FirebaseStorage mFirebaseStorage;
     private StorageReference mProfilePicStorageReference;
 
     private UserInformation currentUserInfo;
+    private UserRating currentUserRating;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,7 +65,7 @@ public class EditProfileActivity extends AppCompatActivity {
 
         mFirebaseDatabase = FirebaseDatabaseUtils.getDatabase();
         mUsersDatabaseReference = mFirebaseDatabase.getReference().child("users").child(MainActivity.userUid);
-        mUsersDatabaseReference.keepSynced(true);
+        mUsersRatingDatabaseReference = mFirebaseDatabase.getReference().child("usersRating").child(MainActivity.userUid);
         mFirebaseStorage = FirebaseStorage.getInstance();
         mProfilePicStorageReference = mFirebaseStorage.getReference().child("userprofilepics");
 
@@ -218,11 +220,6 @@ public class EditProfileActivity extends AppCompatActivity {
                 if (currentUserInfo.getName().equals("")) textViewName.setText("Enter username");
                 else textViewName.setText(currentUserInfo.getName());
 
-                if (currentUserInfo.getNumRatings() == 0) ratingBar.setRating(0);
-                else ratingBar.setRating(currentUserInfo.getSumRating() / currentUserInfo.getNumRatings());
-
-                textViewNumRatings.setText(" Number of ratings: " + currentUserInfo.getNumRatings());
-
                 if (currentUserInfo.getDescription().equals("")) textViewDescription.setText("Enter a description of yourself");
                 else textViewDescription.setText(currentUserInfo.getDescription());
 
@@ -238,6 +235,21 @@ public class EditProfileActivity extends AppCompatActivity {
                             .apply(RequestOptions.circleCropTransform())
                             .into(imageViewProPic);
                 }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
+        mUsersRatingDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                currentUserRating = dataSnapshot.getValue(UserRating.class);
+                if (currentUserRating.getNumRatings() == 0) ratingBar.setRating(0);
+                else ratingBar.setRating(currentUserRating.getSumRating() / currentUserRating.getNumRatings());
+                textViewNumRatings.setText(" Number of ratings: " + currentUserRating.getNumRatings());
             }
 
             @Override

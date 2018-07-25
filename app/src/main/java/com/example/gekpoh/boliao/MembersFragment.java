@@ -16,9 +16,12 @@ import android.view.ViewGroup;
 import android.widget.RatingBar;
 import android.widget.Toast;
 
+import com.firebase.ui.auth.data.model.User;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.MutableData;
+import com.google.firebase.database.Transaction;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
@@ -33,6 +36,7 @@ public class MembersFragment extends Fragment {
     private DatabaseReference mUserListsDatabaseReference;
     private DatabaseReference mUsersDatabaseReference;
     private DatabaseReference mUsersRatedDatabaseReference;
+    private DatabaseReference mUsersRatingDatabaseReference;
     private DatabaseReference mJoinedListsDatabaseReference;
     private DatabaseReference mGroupsDatabaseReference;
     private DatabaseReference mRemoveNotifDatabaseReference;
@@ -59,11 +63,13 @@ public class MembersFragment extends Fragment {
         mUserListsDatabaseReference = FirebaseDatabaseUtils.getDatabase().getReference().child("userlists").child(groupId);
         mUsersDatabaseReference = FirebaseDatabaseUtils.getDatabase().getReference().child("users");
         mUsersRatedDatabaseReference = FirebaseDatabaseUtils.getDatabase().getReference().child("usersRated").child(MainActivity.userUid);
+        mUsersRatingDatabaseReference = FirebaseDatabaseUtils.getDatabase().getReference().child("usersRating");
         mJoinedListsDatabaseReference = FirebaseDatabaseUtils.getDatabase().getReference().child("joinedlists");
         mGroupsDatabaseReference = FirebaseDatabaseUtils.getDatabase().getReference().child("groups").child(groupId);
         mRemoveNotifDatabaseReference = FirebaseDatabaseUtils.getDatabase().getReference().child("removeNotif").child(groupId);
         mUserListsDatabaseReference.keepSynced(true);
         mUsersRatedDatabaseReference.keepSynced(true);
+        mUsersRatingDatabaseReference.keepSynced(true);
         mUsersDatabaseReference.keepSynced(true);
 
         reloadRecycler();
@@ -108,44 +114,50 @@ public class MembersFragment extends Fragment {
                         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                             final UserInformation memberInfo = dataSnapshot.getValue(UserInformation.class);
 
-                            mUsersRatedDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                            mUsersRatingDatabaseReference.child(memberId).addListenerForSingleValueEvent(new ValueEventListener() {
                                 @Override
                                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                    boolean memberRatedBefore;
-                                    String memberStatus;
-                                    String userStatus;
+                                    final UserRating memberRating = dataSnapshot.getValue(UserRating.class);
 
-                                    if (dataSnapshot.child(memberId).exists()) memberRatedBefore = true;
-                                    else memberRatedBefore = false;
+                                    mUsersRatedDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                                        @Override
+                                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                            boolean memberRatedBefore;
+                                            String memberStatus;
+                                            String userStatus;
 
-                                    if (userIsOrganizer) userStatus = "organizer";
-                                    else if (userIsAdmin) userStatus = "admin";
-                                    else userStatus = "member";
+                                            if (dataSnapshot.child(memberId).exists()) memberRatedBefore = true;
+                                            else memberRatedBefore = false;
 
-                                    if (memberIsOrganizer) memberStatus = "organizer";
-                                    else if (memberIsAdmin) memberStatus = "admin";
-                                    else memberStatus = "member";
+                                            if (userIsOrganizer) userStatus = "organizer";
+                                            else if (userIsAdmin) userStatus = "admin";
+                                            else userStatus = "member";
 
-//                                    if (userIsAdmin && memberId.equals(MainActivity.userUid)) membersList.add(new UserInformation2(memberInfo, false, true, memberIsOrganizer, userIsAdmin, memberId, memberRatedBefore, inEvent)); // card for myself when i am admin
-//                                    else if (userIsAdmin && memberIsAdmin) membersList.add(new UserInformation2(memberInfo, true, true, memberIsOrganizer, userIsAdmin,  memberId, memberRatedBefore, inEvent)); // card for other admin when i am admin
-//                                    else if (userIsAdmin && !memberIsAdmin) membersList.add(new UserInformation2(memberInfo, true, false, memberIsOrganizer, userIsAdmin, memberId, memberRatedBefore, inEvent));   // card for other non-admin when i am admin
-//                                    else if (!userIsAdmin && memberIsAdmin) membersList.add(new UserInformation2(memberInfo, false, true, memberIsOrganizer, userIsAdmin, memberId, memberRatedBefore, inEvent));   // card for other admin when i am non-admin
-//                                    else if (!userIsAdmin && !memberIsAdmin) membersList.add(new UserInformation2(memberInfo, false, false, memberIsOrganizer, userIsAdmin, memberId, memberRatedBefore, inEvent)); // card for other non-admin (including myself) when i am non-admin
+                                            if (memberIsOrganizer) memberStatus = "organizer";
+                                            else if (memberIsAdmin) memberStatus = "admin";
+                                            else memberStatus = "member";
 
-                                    membersList.add(new UserInformation2(memberInfo, memberId, inEvent, memberRatedBefore, memberStatus, userStatus));
-                                    if (membersList.size() > 0) {
-                                        Collections.sort(membersList, new Comparator<UserInformation2>() {
-                                            @Override
-                                            public int compare(UserInformation2 o1, UserInformation2 o2) {
-                                                if (o1.getMemberStatus().equals("admin") && o2.getMemberStatus().equals("member")) return -1;
-                                                else if (o1.getMemberStatus().equals("member") && o2.getMemberStatus().equals("admin")) return 1;
-                                                else if (o1.getMemberStatus().equals("organizer") && (o2.getMemberStatus().equals("admin") || o2.getMemberStatus().equals("member"))) return -1;
-                                                else if ((o2.getMemberStatus().equals("admin") || o2.getMemberStatus().equals("member") && o2.getMemberStatus().equals("organizer"))) return 1;
-                                                else return o1.getUserInformation().getName().compareTo(o2.getUserInformation().getName());
+                                            membersList.add(new UserInformation2(memberInfo, memberRating, memberId, inEvent, memberRatedBefore, memberStatus, userStatus));
+                                            if (membersList.size() > 0) {
+                                                Collections.sort(membersList, new Comparator<UserInformation2>() {
+                                                    @Override
+                                                    public int compare(UserInformation2 o1, UserInformation2 o2) {
+                                                        if (o1.getMemberStatus().equals("admin") && o2.getMemberStatus().equals("member")) return -1;
+                                                        else if (o1.getMemberStatus().equals("member") && o2.getMemberStatus().equals("admin")) return 1;
+                                                        else if (o1.getMemberStatus().equals("organizer") && (o2.getMemberStatus().equals("admin") || o2.getMemberStatus().equals("member"))) return -1;
+                                                        else if ((o2.getMemberStatus().equals("admin") || o2.getMemberStatus().equals("member") && o2.getMemberStatus().equals("organizer"))) return 1;
+                                                        else return o1.getUserInformation().getName().compareTo(o2.getUserInformation().getName());
+                                                    }
+                                                });
                                             }
-                                        });
-                                    }
-                                    membersAdapter.notifyDataSetChanged();
+                                            membersAdapter.notifyDataSetChanged();
+                                        }
+
+                                        @Override
+                                        public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                                        }
+                                    });
                                 }
 
                                 @Override
@@ -257,22 +269,34 @@ public class MembersFragment extends Fragment {
                                     reloadRecycler();
                                 }
                                 else {
-                                    mUsersDatabaseReference.child(memberId).addListenerForSingleValueEvent(new ValueEventListener() {
+//                                    mUsersDatabaseReference.child(memberId).addListenerForSingleValueEvent(new ValueEventListener() {
+//                                        @Override
+//                                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+//                                            int memberNumRatings = dataSnapshot.child("numRatings").getValue(Integer.class);
+//                                            float memberSumRating = dataSnapshot.child("sumRating").getValue(Float.class);
+//                                            mUsersDatabaseReference.child(memberId).child("numRatings").setValue(memberNumRatings+1);
+//                                            mUsersDatabaseReference.child(memberId).child("sumRating").setValue(memberSumRating+ratingBar.getRating());
+//                                            mUsersRatedDatabaseReference.child(memberId).setValue(ratingBar.getRating());
+//                                            reloadRecycler();
+//                                        }
+                                    mUsersRatingDatabaseReference.child(memberId).runTransaction(new Transaction.Handler() {
+                                        @NonNull
                                         @Override
-                                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                            int memberNumRatings = dataSnapshot.child("numRatings").getValue(Integer.class);
-                                            float memberSumRating = dataSnapshot.child("sumRating").getValue(Float.class);
-                                            mUsersDatabaseReference.child(memberId).child("numRatings").setValue(memberNumRatings+1);
-                                            mUsersDatabaseReference.child(memberId).child("sumRating").setValue(memberSumRating+ratingBar.getRating());
+                                        public Transaction.Result doTransaction(@NonNull MutableData mutableData) {
+                                            int memberNumRatings = mutableData.child("numRatings").getValue(Integer.class);
+                                            float memberSumRating = mutableData.child("sumRating").getValue(Float.class);
+                                            mutableData.child("numRatings").setValue(memberNumRatings+1);
+                                            mutableData.child("sumRating").setValue(memberSumRating+ratingBar.getRating());
+                                            return Transaction.success(mutableData);
+                                        }
+
+                                        @Override
+                                        public void onComplete(@Nullable DatabaseError databaseError, boolean b, @Nullable DataSnapshot dataSnapshot) {
                                             mUsersRatedDatabaseReference.child(memberId).setValue(ratingBar.getRating());
                                             reloadRecycler();
                                         }
-
-                                        @Override
-                                        public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                                        }
                                     });
+
                                 }
                             }
 
@@ -315,23 +339,73 @@ public class MembersFragment extends Fragment {
                                     reloadRecycler();
                                 }
                                 else {
-                                    mUsersDatabaseReference.child(memberId).addListenerForSingleValueEvent(new ValueEventListener() {
+//                                    mUsersDatabaseReference.child(memberId).addListenerForSingleValueEvent(new ValueEventListener() {
+//                                        @Override
+//                                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+//                                            final float memberSumRating = dataSnapshot.child("sumRating").getValue(Float.class);
+//
+//                                            mUsersRatedDatabaseReference.child(memberId).addListenerForSingleValueEvent(new ValueEventListener() {
+//                                                @Override
+//                                                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+//                                                    float previousRating = dataSnapshot.getValue(Float.class);
+//                                                    mUsersDatabaseReference.child(memberId).child("sumRating").setValue(memberSumRating-previousRating+ratingBar.getRating());
+//                                                    mUsersRatedDatabaseReference.child(memberId).setValue(ratingBar.getRating());
+//                                                    reloadRecycler();
+//                                                }
+//
+//                                                @Override
+//                                                public void onCancelled(@NonNull DatabaseError databaseError) {
+//
+//                                                }
+//                                            });
+//                                        }
+
+//                                    mUsersRatingDatabaseReference.child(memberId).addListenerForSingleValueEvent(new ValueEventListener() {
+//                                        @Override
+//                                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+//                                            final float previousRating = dataSnapshot.getValue(Float.class);
+//
+//                                            mUsersDatabaseReference.child(memberId).runTransaction(new Transaction.Handler() {
+//                                                @NonNull
+//                                                @Override
+//                                                public Transaction.Result doTransaction(@NonNull MutableData mutableData) {
+//                                                    float memberSumRating = mutableData.child("sumRating").getValue(Float.class);
+//                                                    mutableData.child("sumRating").setValue(memberSumRating-previousRating+ratingBar.getRating());
+//                                                    return Transaction.success(mutableData);
+//                                                }
+//
+//                                                @Override
+//                                                public void onComplete(@Nullable DatabaseError databaseError, boolean b, @Nullable DataSnapshot dataSnapshot) {
+//                                                    mUsersRatedDatabaseReference.child(memberId).setValue(ratingBar.getRating());
+//                                                    reloadRecycler();
+//                                                }
+//                                            });
+//                                        }
+//
+//                                        @Override
+//                                        public void onCancelled(@NonNull DatabaseError databaseError) {
+//
+//                                        }
+//                                    });
+
+                                    mUsersRatedDatabaseReference.child(memberId).addListenerForSingleValueEvent(new ValueEventListener() {
                                         @Override
                                         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                            final float memberSumRating = dataSnapshot.child("sumRating").getValue(Float.class);
+                                            final float previousRating = dataSnapshot.getValue(Float.class);
 
-                                            mUsersRatedDatabaseReference.child(memberId).addListenerForSingleValueEvent(new ValueEventListener() {
+                                            mUsersRatingDatabaseReference.child(memberId).runTransaction(new Transaction.Handler() {
+                                                @NonNull
                                                 @Override
-                                                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                                    float previousRating = dataSnapshot.getValue(Float.class);
-                                                    mUsersDatabaseReference.child(memberId).child("sumRating").setValue(memberSumRating-previousRating+ratingBar.getRating());
-                                                    mUsersRatedDatabaseReference.child(memberId).setValue(ratingBar.getRating());
-                                                    reloadRecycler();
+                                                public Transaction.Result doTransaction(@NonNull MutableData mutableData) {
+                                                    float memberSumRating = mutableData.child("sumRating").getValue(Float.class);
+                                                    mutableData.child("sumRating").setValue(memberSumRating-previousRating+ratingBar.getRating());
+                                                    return Transaction.success(mutableData);
                                                 }
 
                                                 @Override
-                                                public void onCancelled(@NonNull DatabaseError databaseError) {
-
+                                                public void onComplete(@Nullable DatabaseError databaseError, boolean b, @Nullable DataSnapshot dataSnapshot) {
+                                                    mUsersRatedDatabaseReference.child(memberId).setValue(ratingBar.getRating());
+                                                    reloadRecycler();
                                                 }
                                             });
                                         }

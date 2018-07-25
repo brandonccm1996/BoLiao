@@ -4,8 +4,6 @@ public class UserInformation {
     private String name;
     private String description;
     private String photoUrl;
-    private float sumRating;
-    private int numRatings;
     private String devicetoken;
     private boolean updateNotifEnabled;
 
@@ -13,12 +11,10 @@ public class UserInformation {
 
     }
 
-    public UserInformation(String username, String description, String photoUrl, float sumRating, int numRatings, String devicetoken, boolean updateNotifEnabled) {
+    public UserInformation(String username, String description, String photoUrl, String devicetoken, boolean updateNotifEnabled) {
         this.name = username;
         this.description = description;
         this.photoUrl = photoUrl;
-        this.sumRating = sumRating;
-        this.numRatings = numRatings;
         this.devicetoken = devicetoken;
         this.updateNotifEnabled = updateNotifEnabled;
     }
@@ -46,18 +42,6 @@ public class UserInformation {
     public void setPhotoUrl(String photoUrl) {
         this.photoUrl = photoUrl;
     }
-
-    public float getSumRating() {
-        return sumRating;
-    }
-
-    public void setSumRating(float sumRating) {
-        this.sumRating = sumRating;
-    }
-
-    public int getNumRatings() { return numRatings; }
-
-    public void setNumRatings(int numRatings) { this.numRatings = numRatings; }
 
     public String getDevicetoken() { return devicetoken; }
 

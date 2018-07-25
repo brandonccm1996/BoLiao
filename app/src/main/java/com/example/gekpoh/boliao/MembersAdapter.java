@@ -50,8 +50,8 @@ public class MembersAdapter extends RecyclerView.Adapter<MembersAdapter.MembersV
 
         holder.textViewName.setText(userInformation2.getUserInformation().getName().length() > 10 ? userInformation2.getUserInformation().getName().substring(0, 9) + "..." : userInformation2.getUserInformation().getName());
 
-        if (userInformation2.getUserInformation().getNumRatings() == 0) holder.ratingBar.setRating(0);
-        else holder.ratingBar.setRating(userInformation2.getUserInformation().getSumRating() / userInformation2.getUserInformation().getNumRatings());
+        if (userInformation2.getUserRating().getNumRatings() == 0) holder.ratingBar.setRating(0);
+        else holder.ratingBar.setRating(userInformation2.getUserRating().getSumRating() / userInformation2.getUserRating().getNumRatings());
 
         if (userInformation2.getUserInformation().getPhotoUrl().equals("")) {
             Glide.with(holder.imageViewProPic.getContext())
@@ -224,8 +224,8 @@ public class MembersAdapter extends RecyclerView.Adapter<MembersAdapter.MembersV
         Intent intent = new Intent(mCtx, ViewProfileActivity.class);
         intent.putExtra("memberName", userInformation2.getUserInformation().getName());
         intent.putExtra("memberDesc", userInformation2.getUserInformation().getDescription());
-        intent.putExtra("memberSumRating", userInformation2.getUserInformation().getSumRating());
-        intent.putExtra("memberNumRatings", userInformation2.getUserInformation().getNumRatings());
+        intent.putExtra("memberSumRating", userInformation2.getUserRating().getSumRating());
+        intent.putExtra("memberNumRatings", userInformation2.getUserRating().getNumRatings());
         intent.putExtra("memberProPic", userInformation2.getUserInformation().getPhotoUrl());
         mCtx.startActivity(intent);
     }

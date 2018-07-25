@@ -70,6 +70,7 @@ public class MainActivity extends AppCompatActivity implements SearchGroupFragme
     private FirebaseAuth.AuthStateListener mAuthStateListener;
     private FirebaseDatabase mFirebaseDatabase;
     private DatabaseReference mUsersDatabaseReference;
+    private DatabaseReference mUsersRatingDatabaseReference;
     private DrawerLayout mDrawerLayout;
     private EditText distanceText, startDateText, endDateText;
     private Switch distanceFilterSwitch, timeFilterSwitch;
@@ -134,7 +135,7 @@ public class MainActivity extends AppCompatActivity implements SearchGroupFragme
         mFirebaseDatabase = FirebaseDatabaseUtils.getDatabase();
         FirebaseDatabaseUtils.setUpConnectionListener();
         mUsersDatabaseReference = mFirebaseDatabase.getReference().child("users");
-        mUsersDatabaseReference.keepSynced(true);
+        mUsersRatingDatabaseReference = mFirebaseDatabase.getReference().child("usersRating");
         mFirebaseAuth = FirebaseAuth.getInstance();
         mAuthStateListener = new FirebaseAuth.AuthStateListener() {
             @Override
@@ -144,19 +145,21 @@ public class MainActivity extends AppCompatActivity implements SearchGroupFragme
                 if (user != null) { // user signed in
                     userDisplayName = user.getDisplayName();
                     userUid = user.getUid();
+                    mUsersDatabaseReference.child(userUid).keepSynced(true);
+                    mUsersRatingDatabaseReference.child(userUid).keepSynced(true);
 
                     mUsersDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                             String deviceToken = FirebaseInstanceId.getInstance().getToken();
                             if (!dataSnapshot.hasChild(userUid)) {  // new user, never signed in before
-                                UserInformation newUserInfo = new UserInformation(userDisplayName, "", "", 0, 0, deviceToken, false);
+                                UserInformation newUserInfo = new UserInformation(userDisplayName, "", "", deviceToken, false);
                                 mUsersDatabaseReference.child(userUid).setValue(newUserInfo);
-                                Log.d("MyTesting", userUid);
+                                UserRating newUserRating = new UserRating(0, 0);
+                                mUsersRatingDatabaseReference.child(userUid).setValue(newUserRating);
                             }
                             else {
                                 mUsersDatabaseReference.child(userUid).child("devicetoken").setValue(deviceToken);
-                                Log.d("MyTesting2", userUid);
                             }
                         }
 
