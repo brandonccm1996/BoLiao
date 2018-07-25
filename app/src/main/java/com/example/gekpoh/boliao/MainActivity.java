@@ -153,13 +153,14 @@ public class MainActivity extends AppCompatActivity implements SearchGroupFragme
                         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                             String deviceToken = FirebaseInstanceId.getInstance().getToken();
                             if (!dataSnapshot.hasChild(userUid)) {  // new user, never signed in before
-                                UserInformation newUserInfo = new UserInformation(userDisplayName, "", "", deviceToken, false);
+                                UserInformation newUserInfo = new UserInformation(userDisplayName, "", "", null, false);
                                 mUsersDatabaseReference.child(userUid).setValue(newUserInfo);
+                                mUsersDatabaseReference.child(userUid).child("devicetokens").child(deviceToken).setValue(true);
                                 UserRating newUserRating = new UserRating(0, 0);
                                 mUsersRatingDatabaseReference.child(userUid).setValue(newUserRating);
                             }
                             else {
-                                mUsersDatabaseReference.child(userUid).child("devicetoken").setValue(deviceToken);
+                                mUsersDatabaseReference.child(userUid).child("devicetokens").child(deviceToken).setValue(true);
                             }
                         }
 
@@ -369,6 +370,8 @@ public class MainActivity extends AppCompatActivity implements SearchGroupFragme
                 startActivity(startCreateNewEventActivityIntent);
                 return true;
             case R.id.signout:
+                String deviceToken = FirebaseInstanceId.getInstance().getToken();
+                mUsersDatabaseReference.child(userUid).child("devicetokens").child(deviceToken).removeValue();
                 AuthUI.getInstance().signOut(this);
                 return true;
             case R.id.filter:
