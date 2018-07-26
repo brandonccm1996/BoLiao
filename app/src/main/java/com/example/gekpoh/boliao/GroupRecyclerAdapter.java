@@ -84,10 +84,12 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdap
         Group group = groupList.get(position);
         final int mPosition = position;
         String groupName = group.getNames();
-        holder.mGroupName.setText(groupName.length() > 15? groupName.substring(0,14) + "...":groupName);
+        //holder.mGroupName.setText(groupName.length() > 15? groupName.substring(0,14) + "...":groupName);
+        holder.mGroupName.setText(groupName);
         holder.mGroupDate.setText(group.getStartDateTimeString());//Possible Improvement: Indicate how much time left until the activity, Happening now, Over
         String placeName = group.getLocation();
-        holder.mGroupPlace.setText(placeName.length() > 15? placeName.substring(0,14) + "...":placeName);
+        //holder.mGroupPlace.setText(placeName.length() > 15? placeName.substring(0,14) + "...":placeName);
+        holder.mGroupPlace.setText(placeName);
         String participantsString = "Participants: " + group.getNumParticipants();
         holder.mGroupParticipants.setText(participantsString);
         if(group.getPhotoUrl() != null){

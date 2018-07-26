@@ -42,16 +42,19 @@
 
             <TextView
                 android:id="@+id/cardNoteTitle"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_marginBottom="8dp"
                 android:layout_marginEnd="8dp"
-                android:layout_marginLeft="8dp"
-                android:layout_marginStart="8dp"
+                android:layout_marginRight="8dp"
+                android:layout_marginLeft="16dp"
+                android:layout_marginStart="16dp"
+                android:ellipsize="end"
                 android:gravity="left"
-                android:textAlignment="gravity"
+                android:singleLine="true"
                 android:text="Title Not Loaded"
+                android:textAlignment="gravity"
                 android:textSize="18sp"
                 android:textStyle="bold"
                 card_view:layout_constraintBottom_toTopOf="@id/cardNotePlace"
@@ -75,16 +78,21 @@
 
             <TextView
                 android:id="@+id/cardNotePlace"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="2dp"
+                android:layout_marginEnd="8dp"
                 android:layout_marginLeft="4dp"
+                android:layout_marginRight="8dp"
                 android:layout_marginStart="4dp"
+                android:ellipsize="end"
                 android:gravity="left"
+                android:singleLine="true"
                 android:text="Place not loaded"
                 android:textAlignment="gravity"
                 android:textSize="13sp"
                 card_view:layout_constraintBottom_toTopOf="@+id/cardNoteParticipants"
+                card_view:layout_constraintEnd_toEndOf="parent"
                 card_view:layout_constraintStart_toEndOf="@+id/textView8" />
 
             <TextView

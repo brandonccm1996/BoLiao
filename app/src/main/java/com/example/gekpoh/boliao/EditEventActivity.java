@@ -150,7 +150,7 @@ public class EditEventActivity extends AppCompatActivity implements EditEventFra
 
                         // create notification object
                         final String notifId = mEditEventNotifDatabaseReference.push().getKey();
-
+                        TimeNotificationScheduler.updateReminder(EditEventActivity.this, extras.getString("groupId"), fragment1.sendName(), startTimeStamp, TimeNotificationScheduler.DELAY_2HRS);
                         mUserListsDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {

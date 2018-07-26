@@ -301,7 +301,7 @@ public class GroupDetailsActivity extends AppCompatActivity implements OnMapRead
             map.put("isOrganizer", false);
             userlistref.setValue(map);
             joinedlistref.setValue("true");
-            TimeNotificationScheduler.setNewReminder(GroupDetailsActivity.this, mGroup.getChatId(), mGroup.getNames(), mGroup.getStartDateTime(), -1);
+            TimeNotificationScheduler.setNewReminder(GroupDetailsActivity.this, mGroup.getChatId(), mGroup.getNames(), mGroup.getStartDateTime(), TimeNotificationScheduler.DELAY_2HRS);
             SearchGroupFragment.getInstance().removeFromList(id);
             GroupDetailsActivity.this.finish();
         }

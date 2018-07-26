@@ -12,11 +12,8 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.TaskStackBuilder;
 import android.util.Log;
 
-import java.sql.Time;
-import java.util.List;
 
 import static android.content.Context.ALARM_SERVICE;
 
@@ -28,9 +25,9 @@ public class TimeNotificationScheduler {
     public static void setExistingReminder(Context context, TimeNotification notification) {
 
         long activatetime = notification.activityTime - notification.notificationDelay;
-        if(activatetime < System.currentTimeMillis()){
+        if (activatetime < System.currentTimeMillis()) {
             //Already missed the time for the notification, remove the notification from database
-            new RemoveReminderTask(context,notification.groupId).execute();
+            new RemoveReminderTask(context, notification.groupId).execute();
             return;
         }
         Log.v(TAG, "Creating New Reminders");
@@ -54,21 +51,22 @@ public class TimeNotificationScheduler {
     //Set reminders for notifications that does not exist in the database
     public static void setNewReminder(Context context, String groupId, String activityName, long activityTimeStamp, long delayTimeStamp) {
         //Create new reminder then insert into database
-        if(System.currentTimeMillis() > activityTimeStamp - delayTimeStamp) return;
+        //if(System.currentTimeMillis() > activityTimeStamp - delayTimeStamp) return;
         Log.v(TAG, "Creating new TimeNotification object");
         TimeNotification notification = new TimeNotification();
         notification.id = (int) System.currentTimeMillis();
         notification.groupId = groupId;
         notification.activityName = activityName;
         notification.activityTime = activityTimeStamp;
-        notification.notificationDelay = delayTimeStamp == -1? DELAY_2HRS :delayTimeStamp;
+        notification.notificationDelay = delayTimeStamp == -1 ? DELAY_2HRS : delayTimeStamp;
         new InsertNewReminderTask(context, notification).execute();
 
         setExistingReminder(context, notification);
     }
+
     public static void updateReminder(Context context, String groupId, String activityName, long activityTimeStamp, long delayTimeStamp) {
         //Create new reminder then insert into database
-        if(System.currentTimeMillis() > activityTimeStamp - delayTimeStamp) return;
+        //if (System.currentTimeMillis() > activityTimeStamp - delayTimeStamp) return;
         new UpdateReminderTask(context, groupId, activityName, activityTimeStamp, delayTimeStamp).execute();
     }
 
@@ -87,11 +85,11 @@ public class TimeNotificationScheduler {
     }*/
 
     public static void showNotification(Context context, Class<?> cls, String groupId, String title, String content, String channelid) {
-        new RemoveReminderTask(context, groupId).execute();
+        //new RemoveReminderTask(context, groupId).execute();
 
-        SharedPreferences prefs = context.getSharedPreferences(context.getResources().getString(R.string.settings_sharedprefs_dir),Context.MODE_PRIVATE);
+        SharedPreferences prefs = context.getSharedPreferences(context.getResources().getString(R.string.settings_sharedprefs_dir), Context.MODE_PRIVATE);
         boolean timeNotificationsEnabled = prefs.getBoolean(context.getResources().getString(R.string.time_settings_key), false);
-        if(!timeNotificationsEnabled) return;
+        if (!timeNotificationsEnabled) return;
 
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
@@ -103,10 +101,10 @@ public class TimeNotificationScheduler {
         Intent notificationIntent = new Intent(context, cls);
         notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
-        PendingIntent pendingIntent = PendingIntent.getActivity(context,1,notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent pendingIntent = PendingIntent.getActivity(context, 1, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, channelid);
-        Notification notification = builder.setContentTitle(title)
-                .setContentText(content).setAutoCancel(true)
+        Notification notification = builder.setContentTitle(title + "\n")
+                .setContentText(content + "\n").setAutoCancel(true)
                 .setSmallIcon(R.mipmap.ic_launcher_round)
                 .setContentIntent(pendingIntent)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
@@ -117,10 +115,11 @@ public class TimeNotificationScheduler {
         Log.v(TAG, "Time Notification Showing");
     }
 
-    private static class InsertNewReminderTask extends AsyncTask<Void, Void, Void>{
+    private static class InsertNewReminderTask extends AsyncTask<Void, Void, Void> {
         private Context mContext;
         private TimeNotification notification;
-        private InsertNewReminderTask(Context context, TimeNotification notification){
+
+        private InsertNewReminderTask(Context context, TimeNotification notification) {
             mContext = context;
             this.notification = notification;
         }
@@ -135,10 +134,11 @@ public class TimeNotificationScheduler {
     }
 
     //This class is used to remove the reminder from the database
-    private static class RemoveReminderTask extends AsyncTask<Void, Void, Void>{
+    private static class RemoveReminderTask extends AsyncTask<Void, Void, Void> {
         private Context mContext;
         private String groupId;
-        private RemoveReminderTask(Context context, String groupId){
+
+        private RemoveReminderTask(Context context, String groupId) {
             mContext = context;
             this.groupId = groupId;
         }
@@ -159,10 +159,11 @@ public class TimeNotificationScheduler {
     }
 
     //This class is used to cancel the reminder in both the database and the alarm manager. e.g leaving a group
-    private static class CancelReminderTask extends AsyncTask<Void, Void, TimeNotification>{
+    private static class CancelReminderTask extends AsyncTask<Void, Void, TimeNotification> {
         private Context mContext;
         private String groupId;
-        private CancelReminderTask(Context context, String groupId){
+
+        private CancelReminderTask(Context context, String groupId) {
             mContext = context;
             this.groupId = groupId;
         }
@@ -177,7 +178,7 @@ public class TimeNotificationScheduler {
 
         @Override
         protected void onPostExecute(TimeNotification notification) {
-            if(notification == null) return;
+            if (notification == null) return;
             ComponentName receiver = new ComponentName(mContext, TimeNotificationReceiver.class);
             PackageManager pm = mContext.getPackageManager();
             pm.setComponentEnabledSetting(receiver,
@@ -192,12 +193,13 @@ public class TimeNotificationScheduler {
         }
     }
 
-    private static class UpdateReminderTask extends AsyncTask<Void, Void, TimeNotification>{
+    private static class UpdateReminderTask extends AsyncTask<Void, Void, TimeNotification> {
         private Context mContext;
         private String groupId;
         String activityName;
         long timeStamp, timeDelay;
-        private UpdateReminderTask(Context context, String groupId, String activityName, long timeStamp , long timeDelay){
+
+        private UpdateReminderTask(Context context, String groupId, String activityName, long timeStamp, long timeDelay) {
             mContext = context;
             this.groupId = groupId;
             this.activityName = activityName;
@@ -207,6 +209,7 @@ public class TimeNotificationScheduler {
 
         @Override
         protected TimeNotification doInBackground(Void... voids) {
+            Log.v(TAG, "Executing update");
             TimeNotificationDatabase db = TimeNotificationDatabase.getTimeNotificationDatabase(mContext);
             TimeNotification noti = db.timeNotificationDao().getNotificationById(groupId);
             db.timeNotificationDao().deleteById(groupId);
@@ -215,9 +218,12 @@ public class TimeNotificationScheduler {
 
         @Override
         protected void onPostExecute(TimeNotification notification) {
-            if(notification == null) return;
-            if(activityName == null) activityName = notification.activityName;
-            if(timeStamp == -1) timeStamp = notification.activityTime;
+            if(notification == null){
+                Log.v(TAG, "NOTIFICATION OBJECT NOT FOUND WHEN UPDATING REMINDER!!!");
+                return;//NOTE!: notification should never be null
+            }
+            if (activityName == null) activityName = notification.activityName;
+            if (timeStamp == -1) timeStamp = notification.activityTime;
             ComponentName receiver = new ComponentName(mContext, TimeNotificationReceiver.class);
             PackageManager pm = mContext.getPackageManager();
             pm.setComponentEnabledSetting(receiver,
