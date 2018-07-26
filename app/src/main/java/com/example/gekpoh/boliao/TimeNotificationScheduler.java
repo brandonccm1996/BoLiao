@@ -27,7 +27,7 @@ public class TimeNotificationScheduler {
         long activatetime = notification.activityTime - notification.notificationDelay;
         if (activatetime < System.currentTimeMillis()) {
             //Already missed the time for the notification, remove the notification from database
-            new RemoveReminderTask(context, notification.groupId).execute();
+            //new RemoveReminderTask(context, notification.groupId).execute();
             return;
         }
         Log.v(TAG, "Creating New Reminders");

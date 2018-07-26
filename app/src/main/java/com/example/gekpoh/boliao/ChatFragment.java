@@ -182,11 +182,12 @@ public class ChatFragment extends Fragment{
 
     @Override
     public void onPause() {
+        /*
         if (mDatabaseReference != null && mChildEventListener != null) {
             mDatabaseReference.removeEventListener(mChildEventListener);
             mChildEventListener = null;
         }
-
+        */
         super.onPause();
     }
     @Override
