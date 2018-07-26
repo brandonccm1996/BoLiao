@@ -30,6 +30,8 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
 
+import es.dmoral.toasty.Toasty;
+
 public class JoinedGroupFragment extends Fragment implements GroupRecyclerAdapter.GroupTouchCallBack{
     private static HashSet<String> joinedgroupIds = new HashSet<>();
     private static JoinedGroupFragment jgFragment;
@@ -207,7 +209,7 @@ public class JoinedGroupFragment extends Fragment implements GroupRecyclerAdapte
             joinedgroups.set(pos,group);
             adapter.updateGroup(pos, group);
         }else{
-            Toast.makeText(mContext,"For some reason, this activity has been deleted.", Toast.LENGTH_SHORT).show();
+            Toasty.error(mContext,"For some reason, this activity has been deleted.", Toast.LENGTH_SHORT).show();
             joinedgroups.remove(pos);
             adapter.removeGroupAtPos(pos);
         }

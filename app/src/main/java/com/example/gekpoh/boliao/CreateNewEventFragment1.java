@@ -25,6 +25,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
+import es.dmoral.toasty.Toasty;
+
 public class CreateNewEventFragment1 extends Fragment{
 
     private EditText editTextName;
@@ -105,7 +107,7 @@ public class CreateNewEventFragment1 extends Fragment{
                             Date date = Group.groupDateFormatter4.parse(String.format(Locale.US,"%02d:%02d", hourOfDay, minute));
                             editTextSTime.setText(Group.groupDateFormatter5.format(date));
                         }catch(ParseException e){
-                            Toast.makeText(getActivity(), "Parse error", Toast.LENGTH_SHORT).show();
+                            Toasty.error(getActivity(), "Parse error", Toast.LENGTH_SHORT).show();
                         }
                     }
                 }, 0, 0, false);
@@ -124,7 +126,7 @@ public class CreateNewEventFragment1 extends Fragment{
                             Date date = Group.groupDateFormatter4.parse(String.format(Locale.US,"%02d:%02d", hourOfDay, minute));
                             editTextETime.setText(Group.groupDateFormatter5.format(date));
                         }catch(ParseException e){
-                            Toast.makeText(getActivity(), "Parse error", Toast.LENGTH_SHORT).show();
+                            Toasty.error(getActivity(), "Parse error", Toast.LENGTH_SHORT).show();
                         }
                     }
                 }, 0, 0, false);

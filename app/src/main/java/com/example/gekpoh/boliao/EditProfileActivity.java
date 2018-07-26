@@ -33,6 +33,8 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
+import es.dmoral.toasty.Toasty;
+
 public class EditProfileActivity extends AppCompatActivity {
 
     private static final int editNameRequest = 1;
@@ -98,7 +100,7 @@ public class EditProfileActivity extends AppCompatActivity {
                                 deletePic();
                                 mUsersDatabaseReference.child("photoUrl").setValue("");
                                 reloadUserDetails();
-                                Toast.makeText(EditProfileActivity.this, "Profile pic removed", Toast.LENGTH_SHORT).show();
+                                Toasty.success(EditProfileActivity.this, "Profile pic removed", Toast.LENGTH_SHORT).show();
                                 return true;
                             case R.id.update_pic:
                                 Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
@@ -182,11 +184,11 @@ public class EditProfileActivity extends AppCompatActivity {
                             Uri downloadUri = task.getResult();
                             mUsersDatabaseReference.child("photoUrl").setValue(downloadUri.toString());
                             reloadUserDetails();
-                            Toast.makeText(EditProfileActivity.this, "Profile pic updated", Toast.LENGTH_SHORT).show();
+                            Toasty.success(EditProfileActivity.this, "Profile pic updated", Toast.LENGTH_SHORT).show();
                             progressBar.setVisibility(View.INVISIBLE);
                         }
                         else {
-                            Toast.makeText(getApplicationContext(), "Upload failed", Toast.LENGTH_SHORT).show();
+                            Toasty.error(getApplicationContext(), "Upload failed", Toast.LENGTH_SHORT).show();
                         }
                     }
                 });

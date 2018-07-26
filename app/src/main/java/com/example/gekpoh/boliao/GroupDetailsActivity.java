@@ -39,6 +39,8 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.HashMap;
 import java.util.Map;
 
+import es.dmoral.toasty.Toasty;
+
 public class GroupDetailsActivity extends AppCompatActivity implements OnMapReadyCallback, EventInfoFragment.eventInfoCallBack, MembersFragment.reloadDetailsInterface {
     private static boolean instanceCreated = false;
     private boolean inEvent;
@@ -161,7 +163,7 @@ public class GroupDetailsActivity extends AppCompatActivity implements OnMapRead
     @Override
     public void onJoinLeaveClick() {
         if (!FirebaseDatabaseUtils.connectedToDatabase()) {
-            Toast.makeText(this, "Please check your internet connection", Toast.LENGTH_SHORT).show();
+            Toasty.error(this, "Please check your internet connection", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -171,7 +173,7 @@ public class GroupDetailsActivity extends AppCompatActivity implements OnMapRead
         final DatabaseReference numParticipantsRef = mFirebaseDatabase.getReference().child("groups").child(id).child("numParticipants");
         if (inEvent) {
             if (mGroup.getOrganizerId().equals(MainActivity.userUid)) {
-                Toast.makeText(this, "Organizer can't quit.", Toast.LENGTH_SHORT).show();
+                Toasty.error(this, "Organizer can't quit.", Toast.LENGTH_SHORT).show();
                 return;
             }
             //update userlist and join list
@@ -290,7 +292,7 @@ public class GroupDetailsActivity extends AppCompatActivity implements OnMapRead
                 return;
             }
             if (!allowJoin) {
-                Toast.makeText(GroupDetailsActivity.this, "Sorry, group is already full", Toast.LENGTH_SHORT).show();
+                Toasty.error(GroupDetailsActivity.this, "Sorry, group is already full", Toast.LENGTH_SHORT).show();
                 if (!GroupDetailsActivity.instanceCreated || eventInfoFragment == null || eventInfoFragment.isDetached())
                     return;
                 eventInfoFragment.updateNumParticipants((long) dataSnapshot.getValue());
@@ -369,7 +371,7 @@ public class GroupDetailsActivity extends AppCompatActivity implements OnMapRead
 
                 @Override
                 public void onCancelled(@NonNull DatabaseError databaseError) {
-                    Toast.makeText(GroupDetailsActivity.this, "Activity not found", Toast.LENGTH_SHORT).show();
+                    Toasty.error(GroupDetailsActivity.this, "Activity not found", Toast.LENGTH_SHORT).show();
                 }
             };
         }

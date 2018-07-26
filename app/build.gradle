@@ -50,5 +50,8 @@ dependencies {
     annotationProcessor "android.arch.persistence.room:compiler:$room_version"
     // Test helpers
     testImplementation "android.arch.persistence.room:testing:$room_version"
+
+    // External libraries
+    implementation 'com.github.GrenderG:Toasty:1.3.0'
 }
 apply plugin: 'com.google.gms.google-services'

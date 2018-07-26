@@ -11,6 +11,8 @@ import com.firebase.ui.auth.AuthUI;
 
 import java.util.Arrays;
 
+import es.dmoral.toasty.Toasty;
+
 public class StartActivity extends AppCompatActivity {
 
     private Button buttonSignIn;
@@ -31,7 +33,7 @@ public class StartActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (!FirebaseDatabaseUtils.connectedToDatabase()) {
-                    Toast.makeText(StartActivity.this, "Please check your internet connection", Toast.LENGTH_SHORT).show();
+                    Toasty.error(StartActivity.this, "Please check your internet connection", Toast.LENGTH_SHORT).show();
                 }
                 else {
                     startActivityForResult(
@@ -53,7 +55,7 @@ public class StartActivity extends AppCompatActivity {
 
         if (requestCode == RC_SIGN_IN) {
             if (resultCode == RESULT_OK) {
-                Toast.makeText(this, "Signed in!", Toast.LENGTH_SHORT).show();
+                Toasty.success(this, "Signed in!", Toast.LENGTH_SHORT).show();
                 finish();
             }
         }

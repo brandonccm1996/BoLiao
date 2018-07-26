@@ -28,6 +28,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import es.dmoral.toasty.Toasty;
+
 public class EditEventActivity extends AppCompatActivity implements EditEventFragment3.fragment3CallBack{
 
     private static final int NUM_PAGES = 3;
@@ -84,22 +86,22 @@ public class EditEventActivity extends AppCompatActivity implements EditEventFra
             @Override
             public void onClick(View v) {
                 if (!FirebaseDatabaseUtils.connectedToDatabase()) {
-                    Toast.makeText(EditEventActivity.this, "Please check your internet connection", Toast.LENGTH_SHORT).show();
+                    Toasty.error(EditEventActivity.this, "Please check your internet connection", Toast.LENGTH_SHORT).show();
                 }
                 else {
                     if (fragment1.sendName().equals("") || fragment1.sendLocation().equals("") || fragment1.sendSDate().equals("") ||
                             fragment1.sendSTime().equals("") || fragment1.sendEDate().equals("") || fragment1.sendETime().equals("") ||
                             fragment2.sendDescription().equals("") || fragment2.sendNumPeople().equals("") || fragment3.sendPlaceId() == null)
-                        Toast.makeText(EditEventActivity.this, "Please fill in all fields", Toast.LENGTH_SHORT).show();
+                        Toasty.error(EditEventActivity.this, "Please fill in all fields", Toast.LENGTH_SHORT).show();
                     else if (Integer.parseInt(fragment2.sendNumPeople()) < extras.getInt("eventcurrentsize")) {
-                        Toast.makeText(EditEventActivity.this, "You have too many participants. Please remove some participants before reducing the max number of participants.", Toast.LENGTH_LONG).show();
+                        Toasty.error(EditEventActivity.this, "You have too many participants. Please remove some participants before reducing the max number of participants.", Toast.LENGTH_LONG).show();
                     }
                     else if (fragment1.sendName().contains(".") || fragment1.sendName().contains("#") || fragment1.sendName().contains("$") ||
                             fragment1.sendName().contains("[") || fragment1.sendName().contains("]") || fragment1.sendName().length() > 15) {
-                        Toast.makeText(EditEventActivity.this, "Activity name must not contain the characters: '.', '#', '$', '[', or ']' and must not have more than 15 characters", Toast.LENGTH_LONG).show();
+                        Toasty.error(EditEventActivity.this, "Activity name must not contain the characters: '.', '#', '$', '[', or ']' and must not have more than 15 characters", Toast.LENGTH_LONG).show();
                     }
                     else if (fragment1.sendLocation().length() > 15) {
-                        Toast.makeText(EditEventActivity.this, "Activity location must not have more than 15 characters", Toast.LENGTH_LONG).show();
+                        Toasty.error(EditEventActivity.this, "Activity location must not have more than 15 characters", Toast.LENGTH_LONG).show();
                     }
                     else {
                         Map mapToUpload = new HashMap();
@@ -110,7 +112,7 @@ public class EditEventActivity extends AppCompatActivity implements EditEventFra
                             startTimeStamp = Group.groupDateFormatter2.parse(startDateTime).getTime();
                             endTimeStamp = Group.groupDateFormatter2.parse(endDateTime).getTime();
                         } catch (ParseException e) {
-                            Toast.makeText(EditEventActivity.this, "Failed to create activity due to parsing error", Toast.LENGTH_SHORT).show();
+                            Toasty.error(EditEventActivity.this, "Failed to create activity due to parsing error", Toast.LENGTH_SHORT).show();
                             return;
                         }
 //                    //Create group in database with relevant information
@@ -143,7 +145,7 @@ public class EditEventActivity extends AppCompatActivity implements EditEventFra
                             @Override
                             public void onComplete(String key, DatabaseError error) {
                                 if (error != null) {
-                                    Toast.makeText(EditEventActivity.this, "Error in setting location in geofire", Toast.LENGTH_SHORT).show();
+                                    Toasty.error(EditEventActivity.this, "Error in setting location in geofire", Toast.LENGTH_SHORT).show();
                                 }
                             }
                         });

@@ -63,6 +63,8 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
 
+import es.dmoral.toasty.Toasty;
+
 public class MainActivity extends AppCompatActivity implements SearchGroupFragment.reloadFilterInterface,JoinedGroupFragment.SearchInterface {
     public static String userDisplayName;
     public static String userUid;
@@ -101,6 +103,10 @@ public class MainActivity extends AppCompatActivity implements SearchGroupFragme
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setLogo(R.drawable.common_google_signin_btn_icon_dark);
         getSupportActionBar().setDisplayUseLogoEnabled(true);
+
+        // Config Toasty
+        Toasty.Config.getInstance().setTextSize(14).apply();
+
         mDrawerLayout = findViewById(R.id.drawer_layout);
         mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
         mDrawerLayout.addDrawerListener(new DrawerLayout.DrawerListener() {
@@ -243,7 +249,7 @@ public class MainActivity extends AppCompatActivity implements SearchGroupFragme
                                     String dateTimeString2 = Group.groupDateFormatter2.format(date);
                                     startDateText.setText(dateTimeString2);
                                 }catch(ParseException e){
-                                    Toast.makeText(MainActivity.this, "Parse error", Toast.LENGTH_SHORT).show();
+                                    Toasty.error(MainActivity.this, "Parse error", Toast.LENGTH_SHORT).show();
                                 }
                             }
                         }, starthour, startmin, false);
@@ -281,7 +287,7 @@ public class MainActivity extends AppCompatActivity implements SearchGroupFragme
                                     String dateTimeString2 = Group.groupDateFormatter2.format(date);
                                     endDateText.setText(dateTimeString2);
                                 }catch(ParseException e){
-                                    Toast.makeText(MainActivity.this, "Parse error", Toast.LENGTH_SHORT).show();
+                                    Toasty.error(MainActivity.this, "Parse error", Toast.LENGTH_SHORT).show();
                                 }
                             }
                         }, endhour, endmin, false);
@@ -348,7 +354,7 @@ public class MainActivity extends AppCompatActivity implements SearchGroupFragme
         switch (item.getItemId()) {
             case R.id.edit_profile:
                 if (!FirebaseDatabaseUtils.connectedToDatabase()) {
-                    Toast.makeText(this, "Please check your internet connection", Toast.LENGTH_SHORT).show();
+                    Toasty.error(this, "Please check your internet connection", Toast.LENGTH_SHORT).show();
                     return true;
                 }
                 Intent startEditProfileActivityIntent = new Intent(MainActivity.this, EditProfileActivity.class);
@@ -356,7 +362,7 @@ public class MainActivity extends AppCompatActivity implements SearchGroupFragme
                 return true;
             case R.id.create_new_act:
                 if (!FirebaseDatabaseUtils.connectedToDatabase()) {
-                    Toast.makeText(this, "Please check your internet connection", Toast.LENGTH_SHORT).show();
+                    Toasty.error(this, "Please check your internet connection", Toast.LENGTH_SHORT).show();
                     return true;
                 }
                 Intent startCreateNewEventActivityIntent = new Intent(MainActivity.this, CreateNewEventActivity.class);

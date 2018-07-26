@@ -53,6 +53,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import es.dmoral.toasty.Toasty;
+
 public class EventInfoFragment extends Fragment {
     private final String TAG = "EVENTINFOfragment";
     private eventInfoCallBack mCallBack;
@@ -236,7 +238,7 @@ public class EventInfoFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 if (!FirebaseDatabaseUtils.connectedToDatabase()) {
-                    Toast.makeText(getActivity(), "Please check your internet connection", Toast.LENGTH_SHORT).show();
+                    Toasty.error(getActivity(), "Please check your internet connection", Toast.LENGTH_SHORT).show();
                 }
                 else {
                     Intent startEditActivityIntent = new Intent(getActivity(), EditEventActivity.class);
@@ -250,7 +252,7 @@ public class EventInfoFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 if (!FirebaseDatabaseUtils.connectedToDatabase()) {
-                    Toast.makeText(getActivity(), "Please check your internet connection", Toast.LENGTH_SHORT).show();
+                    Toasty.error(getActivity(), "Please check your internet connection", Toast.LENGTH_SHORT).show();
                 } else {
                     members = new ArrayList<>();
                     mUserListsDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -349,7 +351,7 @@ public class EventInfoFragment extends Fragment {
                                         }
                                     });
 
-                                    Toast.makeText(getActivity(), "Activity deleted", Toast.LENGTH_LONG).show();
+                                    Toasty.success(getActivity(), "Activity deleted", Toast.LENGTH_LONG).show();
                                     getActivity().onBackPressed();
                                 }
                             })
