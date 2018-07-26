@@ -73,6 +73,7 @@ public class EventInfoFragment extends Fragment {
     private DatabaseReference mChatsDatabaseReference;
     private DatabaseReference mDeleteEventNotifDatabaseReference;
     private DatabaseReference mUsersDatabaseReference;
+    private DatabaseReference mDetectDeleteNotifDatabaseReference;
 
     private FirebaseStorage mFirebaseStorage;
 
@@ -115,6 +116,7 @@ public class EventInfoFragment extends Fragment {
         mChatsDatabaseReference = mFirebaseDatabase.getReference().child("chats").child(groupId);
         mJoinedListsDatabaseReference = mFirebaseDatabase.getReference().child("joinedlists");
         mDeleteEventNotifDatabaseReference = mFirebaseDatabase.getReference().child("deleteEventNotif").child(groupId).child(args.getString("eventname"));
+        mDetectDeleteNotifDatabaseReference = mFirebaseDatabase.getReference().child("detectDelete").child(groupId);
         mUsersDatabaseReference = mFirebaseDatabase.getReference().child("users");
         mFirebaseStorage = FirebaseStorage.getInstance();
 
@@ -293,6 +295,7 @@ public class EventInfoFragment extends Fragment {
                                             @Override
                                             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                                                 if (!memberId.equals(MainActivity.userUid) && dataSnapshot.child("updateNotifEnabled").getValue(Boolean.class)) mDeleteEventNotifDatabaseReference.child(notifId).child(memberId).setValue(true);
+                                                mDetectDeleteNotifDatabaseReference.child(notifId).child(memberId).setValue(true);
                                             }
 
                                             @Override

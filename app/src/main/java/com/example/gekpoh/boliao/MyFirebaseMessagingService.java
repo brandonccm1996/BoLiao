@@ -36,6 +36,9 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 Log.d("FbMessagingService", "newName: " + remoteMessage.getData().get("newName"));
                 TimeNotificationScheduler.updateReminder(this,remoteMessage.getData().get("groupId"), remoteMessage.getData().get("newName"), -1, TimeNotificationScheduler.DELAY_2HRS);
             }
+            else if (remoteMessage.getData().get("title").equals("Delete Detected")) {
+                Log.d("FbMessagingService", "groupId: " + remoteMessage.getData().get("groupId"));
+            }
 
             if (/* Check if data needs to be processed by long running job */ true) {
                 // For long-running tasks (10 seconds or more) use Firebase Job Dispatcher.
