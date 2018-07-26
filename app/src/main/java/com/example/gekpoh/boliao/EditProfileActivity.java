@@ -217,10 +217,10 @@ public class EditProfileActivity extends AppCompatActivity {
 
                 currentUserInfo = dataSnapshot.getValue(UserInformation.class);
                 
-                if (currentUserInfo.getName().equals("")) textViewName.setText("Enter username");
+                if (currentUserInfo.getName().equals("")) textViewName.setText("");
                 else textViewName.setText(currentUserInfo.getName());
 
-                if (currentUserInfo.getDescription().equals("")) textViewDescription.setText("Enter a description of yourself");
+                if (currentUserInfo.getDescription().equals("")) textViewDescription.setText("");
                 else textViewDescription.setText(currentUserInfo.getDescription());
 
                 if (currentUserInfo.getPhotoUrl().equals("")) {

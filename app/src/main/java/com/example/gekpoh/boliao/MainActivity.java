@@ -78,7 +78,6 @@ public class MainActivity extends AppCompatActivity implements SearchGroupFragme
     private ViewPager mViewPager;
     private static final String TAG = "MAINACTIVITY";
     private static final int NUM_PAGES = 2;
-    private static final int RC_SIGN_IN = 1;
     String dateTimeString;
     private int startyear = -1,endyear = -1, startmonth, endmonth, startday, endday, starthour = 0, endhour = 0, startmin = 0, endmin = 0;
     private float currentOffset;
@@ -175,20 +174,14 @@ public class MainActivity extends AppCompatActivity implements SearchGroupFragme
                     jg.onSignIn();
                     SearchGroupFragment sg = SearchGroupFragment.getInstance();
                     sg.onSignIn();
-                } else {  // user signed out
+                }
+                else {  // user signed out
                     JoinedGroupFragment jg = JoinedGroupFragment.getInstance();
                     jg.onSignOut();
                     SearchGroupFragment sg = SearchGroupFragment.getInstance();
                     sg.onSignOut();
-                    startActivityForResult(
-                            AuthUI.getInstance()
-                                    .createSignInIntentBuilder()
-                                    .setIsSmartLockEnabled(false)
-                                    .setAvailableProviders(Arrays.asList(
-                                            new AuthUI.IdpConfig.EmailBuilder().build(),
-                                            new AuthUI.IdpConfig.GoogleBuilder().build()
-                                    ))
-                                    .build(), RC_SIGN_IN);
+                    Intent startActIntent = new Intent(MainActivity.this, StartActivity.class);
+                    startActivity(startActIntent);
                 }
             }
         };
@@ -373,6 +366,8 @@ public class MainActivity extends AppCompatActivity implements SearchGroupFragme
                 String deviceToken = FirebaseInstanceId.getInstance().getToken();
                 mUsersDatabaseReference.child(userUid).child("devicetokens").child(deviceToken).removeValue();
                 AuthUI.getInstance().signOut(this);
+                Intent startActIntent = new Intent(MainActivity.this, StartActivity.class);
+                startActivity(startActIntent);
                 return true;
             case R.id.filter:
                 mDrawerLayout.openDrawer(GravityCompat.END);
@@ -413,19 +408,6 @@ public class MainActivity extends AppCompatActivity implements SearchGroupFragme
             searchItem.collapseActionView();
         }
         super.onBackPressed();
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode == RC_SIGN_IN) {
-            if (resultCode == RESULT_OK) {
-                Toast.makeText(this, "Signed in!", Toast.LENGTH_SHORT).show();
-            } else if (resultCode == RESULT_CANCELED) {
-                finish();
-            }
-        }
     }
 
     @Override

@@ -12,7 +12,6 @@
         android:layout_marginBottom="8dp"
         android:layout_marginTop="8dp"
         android:ems="10"
-        android:hint="No of Participants"
         android:inputType="number"
         android:textSize="14sp"
         app:layout_constraintBottom_toTopOf="@+id/editTextDescription"
@@ -25,13 +24,11 @@
         android:id="@+id/editTextDescription"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginBottom="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginRight="8dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="16dp"
         android:ems="10"
         android:gravity="top"
-        android:hint="Enter a description for your activity"
         android:inputType="textMultiLine"
         android:isScrollContainer="true"
         app:layout_constraintBottom_toTopOf="@+id/guideline10"
@@ -93,5 +90,23 @@
         android:orientation="vertical"
         app:layout_constraintGuide_begin="20dp"
         app:layout_constraintGuide_percent="0.95"/>
+
+    <TextView
+        android:id="@+id/textView13"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="No. of Participants:"
+        android:textSize="12sp"
+        app:layout_constraintBottom_toTopOf="@+id/editTextNumPeople"
+        app:layout_constraintStart_toStartOf="@+id/editTextNumPeople" />
+
+    <TextView
+        android:id="@+id/textView14"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Description:"
+        android:textSize="12sp"
+        app:layout_constraintBottom_toTopOf="@+id/editTextDescription"
+        app:layout_constraintStart_toStartOf="@+id/guideline11" />
 
 </android.support.constraint.ConstraintLayout>
