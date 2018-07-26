@@ -28,6 +28,7 @@
         android:layout_marginEnd="8dp"
         android:layout_marginRight="8dp"
         android:background="@android:color/background_light"
+        android:backgroundTint="@color/colorLightBlue"
         android:drawableEnd="@android:drawable/ic_menu_edit"
         android:drawableRight="@android:drawable/ic_menu_edit"
         android:padding="3dp"
@@ -36,8 +37,7 @@
         app:layout_constraintEnd_toStartOf="@+id/guideline3"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="@+id/guideline2"
-        app:layout_constraintTop_toBottomOf="@+id/imageViewProPic"
-        tools:text="Name" />
+        app:layout_constraintTop_toBottomOf="@+id/imageViewProPic" />
 
     <RatingBar
         android:id="@+id/ratingBar"
@@ -61,6 +61,7 @@
         android:layout_marginEnd="8dp"
         android:layout_marginRight="8dp"
         android:background="@android:color/white"
+        android:backgroundTint="@color/colorLightBlue"
         android:drawableEnd="@android:drawable/ic_menu_edit"
         android:drawableRight="@android:drawable/ic_menu_edit"
         android:padding="3dp"
@@ -69,8 +70,7 @@
         app:layout_constraintEnd_toStartOf="@+id/guideline3"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="@+id/guideline2"
-        app:layout_constraintTop_toBottomOf="@+id/ratingBar"
-        tools:text="Description" />
+        app:layout_constraintTop_toBottomOf="@+id/ratingBar" />
 
     <TextView
         android:id="@+id/textViewNumRatings"
@@ -119,4 +119,22 @@
         android:orientation="vertical"
         app:layout_constraintGuide_begin="20dp"
         app:layout_constraintGuide_percent="0.95" />
+
+    <TextView
+        android:id="@+id/textView16"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Username:"
+        android:textSize="12sp"
+        app:layout_constraintBottom_toTopOf="@+id/textViewName"
+        app:layout_constraintStart_toStartOf="@+id/guideline2" />
+
+    <TextView
+        android:id="@+id/textView17"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="User Bio:"
+        android:textSize="12sp"
+        app:layout_constraintBottom_toTopOf="@+id/textViewDescription"
+        app:layout_constraintStart_toStartOf="@+id/guideline2" />
 </android.support.constraint.ConstraintLayout>

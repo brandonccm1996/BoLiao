@@ -269,16 +269,6 @@ public class MembersFragment extends Fragment {
                                     reloadRecycler();
                                 }
                                 else {
-//                                    mUsersDatabaseReference.child(memberId).addListenerForSingleValueEvent(new ValueEventListener() {
-//                                        @Override
-//                                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-//                                            int memberNumRatings = dataSnapshot.child("numRatings").getValue(Integer.class);
-//                                            float memberSumRating = dataSnapshot.child("sumRating").getValue(Float.class);
-//                                            mUsersDatabaseReference.child(memberId).child("numRatings").setValue(memberNumRatings+1);
-//                                            mUsersDatabaseReference.child(memberId).child("sumRating").setValue(memberSumRating+ratingBar.getRating());
-//                                            mUsersRatedDatabaseReference.child(memberId).setValue(ratingBar.getRating());
-//                                            reloadRecycler();
-//                                        }
                                     mUsersRatingDatabaseReference.child(memberId).runTransaction(new Transaction.Handler() {
                                         @NonNull
                                         @Override
@@ -339,55 +329,6 @@ public class MembersFragment extends Fragment {
                                     reloadRecycler();
                                 }
                                 else {
-//                                    mUsersDatabaseReference.child(memberId).addListenerForSingleValueEvent(new ValueEventListener() {
-//                                        @Override
-//                                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-//                                            final float memberSumRating = dataSnapshot.child("sumRating").getValue(Float.class);
-//
-//                                            mUsersRatedDatabaseReference.child(memberId).addListenerForSingleValueEvent(new ValueEventListener() {
-//                                                @Override
-//                                                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-//                                                    float previousRating = dataSnapshot.getValue(Float.class);
-//                                                    mUsersDatabaseReference.child(memberId).child("sumRating").setValue(memberSumRating-previousRating+ratingBar.getRating());
-//                                                    mUsersRatedDatabaseReference.child(memberId).setValue(ratingBar.getRating());
-//                                                    reloadRecycler();
-//                                                }
-//
-//                                                @Override
-//                                                public void onCancelled(@NonNull DatabaseError databaseError) {
-//
-//                                                }
-//                                            });
-//                                        }
-
-//                                    mUsersRatingDatabaseReference.child(memberId).addListenerForSingleValueEvent(new ValueEventListener() {
-//                                        @Override
-//                                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-//                                            final float previousRating = dataSnapshot.getValue(Float.class);
-//
-//                                            mUsersDatabaseReference.child(memberId).runTransaction(new Transaction.Handler() {
-//                                                @NonNull
-//                                                @Override
-//                                                public Transaction.Result doTransaction(@NonNull MutableData mutableData) {
-//                                                    float memberSumRating = mutableData.child("sumRating").getValue(Float.class);
-//                                                    mutableData.child("sumRating").setValue(memberSumRating-previousRating+ratingBar.getRating());
-//                                                    return Transaction.success(mutableData);
-//                                                }
-//
-//                                                @Override
-//                                                public void onComplete(@Nullable DatabaseError databaseError, boolean b, @Nullable DataSnapshot dataSnapshot) {
-//                                                    mUsersRatedDatabaseReference.child(memberId).setValue(ratingBar.getRating());
-//                                                    reloadRecycler();
-//                                                }
-//                                            });
-//                                        }
-//
-//                                        @Override
-//                                        public void onCancelled(@NonNull DatabaseError databaseError) {
-//
-//                                        }
-//                                    });
-
                                     mUsersRatedDatabaseReference.child(memberId).addListenerForSingleValueEvent(new ValueEventListener() {
                                         @Override
                                         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
