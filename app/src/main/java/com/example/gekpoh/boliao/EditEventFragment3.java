@@ -48,6 +48,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import es.dmoral.toasty.Toasty;
+
 public class EditEventFragment3 extends Fragment implements OnMapReadyCallback, GoogleApiClient.OnConnectionFailedListener {
 
     private boolean mLocationPermissionsGranted = false;
@@ -159,7 +161,7 @@ public class EditEventFragment3 extends Fragment implements OnMapReadyCallback, 
                         Place myPlace = places.get(0);
                         moveCamera(myPlace.getLatLng(), DEFAULT_ZOOM, myPlace.getName().toString());
                         mCallback.setLatLng(myPlace.getLatLng());
-                        Toast.makeText(getActivity(), "Activity location marked at: " + myPlace.getName().toString(), Toast.LENGTH_LONG).show();
+                        Toasty.info(getActivity(), "Activity location marked at: " + myPlace.getName().toString(), Toast.LENGTH_LONG).show();
                         places.release();
                     } else {
                         Log.e("EditEventMapAct", "Place not found.");
@@ -225,7 +227,7 @@ public class EditEventFragment3 extends Fragment implements OnMapReadyCallback, 
             Address address = list.get(0);
 
             moveCamera(new LatLng(address.getLatitude(), address.getLongitude()), DEFAULT_ZOOM, address.getAddressLine(0));
-            Toast.makeText(getActivity(), "Click on the marker to show directions", Toast.LENGTH_LONG).show();
+            Toasty.info(getActivity(), "Click on the marker to show directions", Toast.LENGTH_LONG).show();
         }
     }
 
@@ -243,7 +245,7 @@ public class EditEventFragment3 extends Fragment implements OnMapReadyCallback, 
                         Place myPlace = places.get(0);
                         moveCamera(myPlace.getLatLng(), DEFAULT_ZOOM, myPlace.getName().toString());
                         mCallback.setLatLng(myPlace.getLatLng());
-                        Toast.makeText(getActivity(), "Activity location marked at: " + myPlace.getName().toString(), Toast.LENGTH_LONG).show();
+                        Toasty.info(getActivity(), "Activity location marked at: " + myPlace.getName().toString(), Toast.LENGTH_LONG).show();
                         places.release();
                     } else {
                         Log.e("EditEventMapAct", "Place not found.");

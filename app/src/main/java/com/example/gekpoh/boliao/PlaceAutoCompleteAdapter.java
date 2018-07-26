@@ -28,6 +28,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import es.dmoral.toasty.Toasty;
+
 /**
  * Adapter that handles Autocomplete requests from the Places Geo Data Client.
  * {@link AutocompletePrediction} results from the API are frozen and stored directly in this
@@ -207,7 +209,7 @@ public class PlaceAutoCompleteAdapter extends ArrayAdapter<AutocompletePredictio
             return DataBufferUtils.freezeAndClose(autocompletePredictions);
         } catch (RuntimeExecutionException e) {
             // If the query did not complete successfully return null
-            Toast.makeText(getContext(), "Error contacting API: " + e.toString(),
+            Toasty.error(getContext(), "Error contacting API: " + e.toString(),
                     Toast.LENGTH_SHORT).show();
             Log.e(TAG, "Error getting autocomplete prediction API call", e);
             return null;

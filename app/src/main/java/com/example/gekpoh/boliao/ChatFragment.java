@@ -38,6 +38,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import es.dmoral.toasty.Toasty;
+
 import static android.app.Activity.RESULT_OK;
 
 public class ChatFragment extends Fragment{
@@ -172,7 +174,7 @@ public class ChatFragment extends Fragment{
                         }
                     } else {
                         // Handle failures
-                        Toast.makeText(getActivity(),"Unable to send image", Toast.LENGTH_SHORT).show();
+                        Toasty.error(getActivity(), "Unable to send image", Toast.LENGTH_SHORT).show();
                         editText.setText("");
                     }
                 }

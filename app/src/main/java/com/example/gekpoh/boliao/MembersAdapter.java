@@ -24,6 +24,8 @@ import com.bumptech.glide.request.RequestOptions;
 
 import java.util.ArrayList;
 
+import es.dmoral.toasty.Toasty;
+
 public class MembersAdapter extends RecyclerView.Adapter<MembersAdapter.MembersViewHolder>{
 
     private Context mCtx;
@@ -96,7 +98,7 @@ public class MembersAdapter extends RecyclerView.Adapter<MembersAdapter.MembersV
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
                                     if (!FirebaseDatabaseUtils.connectedToDatabase()) {
-                                        Toast.makeText(mCtx, "Please check your internet connection", Toast.LENGTH_SHORT).show();
+                                        Toasty.error(mCtx, "Please check your internet connection", Toast.LENGTH_SHORT).show();
                                     }
                                     else if (which == 0) putExtrasForIntent(holder, userInformation2);
                                 }
@@ -114,7 +116,7 @@ public class MembersAdapter extends RecyclerView.Adapter<MembersAdapter.MembersV
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
                                         if (!FirebaseDatabaseUtils.connectedToDatabase()) {
-                                            Toast.makeText(mCtx, "Please check your internet connection", Toast.LENGTH_SHORT).show();
+                                            Toasty.error(mCtx, "Please check your internet connection", Toast.LENGTH_SHORT).show();
                                         }
                                         else if (which == 0) putExtrasForIntent(holder, userInformation2);
                                         else if (which == 1) membersFragment.rateMember(userInformation2.getMemberId(), userInformation2.getUserInformation().getName());
@@ -130,7 +132,7 @@ public class MembersAdapter extends RecyclerView.Adapter<MembersAdapter.MembersV
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
                                         if (!FirebaseDatabaseUtils.connectedToDatabase()) {
-                                            Toast.makeText(mCtx, "Please check your internet connection", Toast.LENGTH_SHORT).show();
+                                            Toasty.error(mCtx, "Please check your internet connection", Toast.LENGTH_SHORT).show();
                                         }
                                         else if (which == 0) putExtrasForIntent(holder, userInformation2);
                                         else if (which == 1) membersFragment.rateMember(userInformation2.getMemberId(), userInformation2.getUserInformation().getName());
@@ -148,7 +150,7 @@ public class MembersAdapter extends RecyclerView.Adapter<MembersAdapter.MembersV
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
                                         if (!FirebaseDatabaseUtils.connectedToDatabase()) {
-                                            Toast.makeText(mCtx, "Please check your internet connection", Toast.LENGTH_SHORT).show();
+                                            Toasty.error(mCtx, "Please check your internet connection", Toast.LENGTH_SHORT).show();
                                         }
                                         else if (which == 0) putExtrasForIntent(holder, userInformation2);
                                         else if (which == 1) membersFragment.rateMember(userInformation2.getMemberId(), userInformation2.getUserInformation().getName());
@@ -170,7 +172,7 @@ public class MembersAdapter extends RecyclerView.Adapter<MembersAdapter.MembersV
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
                                         if (!FirebaseDatabaseUtils.connectedToDatabase()) {
-                                            Toast.makeText(mCtx, "Please check your internet connection", Toast.LENGTH_SHORT).show();
+                                            Toasty.error(mCtx, "Please check your internet connection", Toast.LENGTH_SHORT).show();
                                         }
                                         else if (which == 0) putExtrasForIntent(holder, userInformation2);
                                         else if (which == 1) membersFragment.rateMember2(userInformation2.getMemberId(), userInformation2.getUserInformation().getName());
@@ -186,7 +188,7 @@ public class MembersAdapter extends RecyclerView.Adapter<MembersAdapter.MembersV
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
                                         if (!FirebaseDatabaseUtils.connectedToDatabase()) {
-                                            Toast.makeText(mCtx, "Please check your internet connection", Toast.LENGTH_SHORT).show();
+                                            Toasty.error(mCtx, "Please check your internet connection", Toast.LENGTH_SHORT).show();
                                         }
                                         else if (which == 0) putExtrasForIntent(holder, userInformation2);
                                         else if (which == 1) membersFragment.rateMember2(userInformation2.getMemberId(), userInformation2.getUserInformation().getName());
@@ -204,7 +206,7 @@ public class MembersAdapter extends RecyclerView.Adapter<MembersAdapter.MembersV
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
                                         if (!FirebaseDatabaseUtils.connectedToDatabase()) {
-                                            Toast.makeText(mCtx, "Please check your internet connection", Toast.LENGTH_SHORT).show();
+                                            Toasty.error(mCtx, "Please check your internet connection", Toast.LENGTH_SHORT).show();
                                         }
                                         else if (which == 0) putExtrasForIntent(holder, userInformation2);
                                         else if (which == 1) membersFragment.rateMember2(userInformation2.getMemberId(), userInformation2.getUserInformation().getName());

@@ -28,6 +28,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
+import es.dmoral.toasty.Toasty;
+
 public class MembersFragment extends Fragment {
 
     private String groupId;
@@ -194,7 +196,7 @@ public class MembersFragment extends Fragment {
                             @Override
                             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                                 if (!dataSnapshot.exists()) {
-                                    Toast.makeText(getActivity(), "This member is not in the group anymore", Toast.LENGTH_SHORT).show();
+                                    Toasty.error(getActivity(), "This member is not in the group anymore", Toast.LENGTH_SHORT).show();
                                     reloadRecycler();
                                 }
                                 else {
@@ -265,7 +267,7 @@ public class MembersFragment extends Fragment {
                             @Override
                             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                                 if (!dataSnapshot.exists()) {
-                                    Toast.makeText(getActivity(), "This member is not in the group anymore", Toast.LENGTH_SHORT).show();
+                                    Toasty.error(getActivity(), "This member is not in the group anymore", Toast.LENGTH_SHORT).show();
                                     reloadRecycler();
                                 }
                                 else {
@@ -325,7 +327,7 @@ public class MembersFragment extends Fragment {
                             @Override
                             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                                 if (!dataSnapshot.exists()) {
-                                    Toast.makeText(getActivity(), "This member is not in the group anymore", Toast.LENGTH_SHORT).show();
+                                    Toasty.error(getActivity(), "This member is not in the group anymore", Toast.LENGTH_SHORT).show();
                                     reloadRecycler();
                                 }
                                 else {
@@ -383,7 +385,7 @@ public class MembersFragment extends Fragment {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
                 .setCancelable(true)
                 .setTitle("Appointing admin")
-                .setMessage("Do you want to appoint " + memberName + " as a group admin?\n\nAdmins can remove members, appoint or dismiss other admins, edit activity info and delete the activity.")
+                .setMessage("Do you want to appoint " + memberName + " as a group admin?\n\nAdmins can remove members, appoint or dismiss other admins and edit activity info.")
                 .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -391,7 +393,7 @@ public class MembersFragment extends Fragment {
                             @Override
                             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                                 if (!dataSnapshot.exists()) {
-                                    Toast.makeText(getActivity(), "This member is not in the group anymore", Toast.LENGTH_SHORT).show();
+                                    Toasty.error(getActivity(), "This member is not in the group anymore", Toast.LENGTH_SHORT).show();
                                     reloadRecycler();
                                 }
                                 else {
@@ -423,7 +425,7 @@ public class MembersFragment extends Fragment {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
                 .setCancelable(true)
                 .setTitle("Dismissing admin")
-                .setMessage("Do you want to dismiss " + memberName + " from his group admin position?\n\nAdmins can remove members, appoint or dismiss other admins, edit activity info and delete the activity.")
+                .setMessage("Do you want to dismiss " + memberName + " from his group admin position?\n\nAdmins can remove members, appoint or dismiss other admins and edit activity info.")
                 .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -431,7 +433,7 @@ public class MembersFragment extends Fragment {
                             @Override
                             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                                 if (!dataSnapshot.exists()) {
-                                    Toast.makeText(getActivity(), "This member is not in the group anymore", Toast.LENGTH_SHORT).show();
+                                    Toasty.error(getActivity(), "This member is not in the group anymore", Toast.LENGTH_SHORT).show();
                                     reloadRecycler();
                                 }
                                 else {

@@ -19,6 +19,8 @@ import com.bumptech.glide.request.RequestOptions;
 
 import java.util.Comparator;
 
+import es.dmoral.toasty.Toasty;
+
 public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdapter.GroupViewHolder> {
     private GroupTouchCallBack mCallBack;
     private SortedList<Group> groupList;
@@ -109,7 +111,7 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdap
                 //Toast.makeText(view.getContext(),String.format("%s clicked", group.getName()),Toast.LENGTH_SHORT).show();
                 boolean inEvent = mCallBack.touchGroup(mPosition);
                 if (!inEvent && !FirebaseDatabaseUtils.connectedToDatabase()) {
-                    Toast.makeText(view.getContext(), "Unable to retrieve information of selected activity. Please check your internet connection", Toast.LENGTH_SHORT).show();
+                    Toasty.error(view.getContext(), "Unable to retrieve information of selected activity. Please check your internet connection", Toast.LENGTH_SHORT).show();
                     return;
                 }
                 if(GroupDetailsActivity.isInstanceCreated()) return;

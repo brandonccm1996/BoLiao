@@ -31,6 +31,8 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
+import es.dmoral.toasty.Toasty;
+
 import static android.app.Activity.RESULT_OK;
 
 public class EditEventFragment2 extends Fragment {
@@ -105,7 +107,7 @@ public class EditEventFragment2 extends Fragment {
                         switch (item.getItemId()) {
                             case R.id.remove_pic:
                                 deletePic();
-                                Toast.makeText(getActivity(), "Activity pic removed", Toast.LENGTH_SHORT).show();
+                                Toasty.success(getActivity(), "Activity pic removed", Toast.LENGTH_SHORT).show();
                                 Glide.with(imageViewActivityPic.getContext())
                                         .load(R.drawable.profilepic)
                                         .apply(RequestOptions.circleCropTransform())
@@ -159,7 +161,7 @@ public class EditEventFragment2 extends Fragment {
                     public void onComplete(@NonNull Task<Uri> task) {
                         if (task.isSuccessful()) {
                             photoUri = task.getResult();
-                            Toast.makeText(getActivity(), "Activity pic updated", Toast.LENGTH_SHORT).show();
+                            Toasty.success(getActivity(), "Activity pic updated", Toast.LENGTH_SHORT).show();
                             progressBar.setVisibility(View.INVISIBLE);
 
                             Glide.with(imageViewActivityPic.getContext())
@@ -168,7 +170,7 @@ public class EditEventFragment2 extends Fragment {
                                     .into(imageViewActivityPic);
                         }
                         else {
-                            Toast.makeText(getActivity(), "Upload failed", Toast.LENGTH_SHORT).show();
+                            Toasty.error(getActivity(), "Upload failed", Toast.LENGTH_SHORT).show();
                         }
                     }
                 });

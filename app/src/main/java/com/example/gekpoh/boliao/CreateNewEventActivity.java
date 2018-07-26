@@ -25,6 +25,8 @@ import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Map;
 
+import es.dmoral.toasty.Toasty;
+
 public class CreateNewEventActivity extends AppCompatActivity implements CreateNewEventFragment3.fragment3CallBack{
 
     private static final int NUM_PAGES = 3;
@@ -71,23 +73,23 @@ public class CreateNewEventActivity extends AppCompatActivity implements CreateN
             @Override
             public void onClick(View v) {
                 if (!FirebaseDatabaseUtils.connectedToDatabase()) {
-                    Toast.makeText(CreateNewEventActivity.this, "Please check your internet connection", Toast.LENGTH_SHORT).show();
+                    Toasty.error(CreateNewEventActivity.this, "Please check your internet connection", Toast.LENGTH_SHORT).show();
                 }
                 else {
                     if (fragment1.sendName().equals("") || fragment1.sendLocation().equals("") || fragment1.sendSDate().equals("") ||
                             fragment1.sendSTime().equals("") || fragment1.sendEDate().equals("") || fragment1.sendETime().equals("") ||
                             fragment2.sendDescription().equals("") || fragment2.sendNumPeople().equals("") || fragment3.sendPlaceId() == null) {
-                        Toast.makeText(CreateNewEventActivity.this, "Please fill in all fields", Toast.LENGTH_SHORT).show();
+                        Toasty.error(CreateNewEventActivity.this, "Please fill in all fields", Toast.LENGTH_SHORT).show();
                     }
                     else if (Integer.parseInt(fragment2.sendNumPeople()) < 1) {
-                        Toast.makeText(CreateNewEventActivity.this, "Number of participants must be at least 1", Toast.LENGTH_SHORT).show();
+                        Toasty.error(CreateNewEventActivity.this, "Number of participants must be at least 1", Toast.LENGTH_SHORT).show();
                     }
                     else if (fragment1.sendName().contains(".") || fragment1.sendName().contains("#") || fragment1.sendName().contains("$") ||
                             fragment1.sendName().contains("[") || fragment1.sendName().contains("]") || fragment1.sendName().length() > 15) {
-                        Toast.makeText(CreateNewEventActivity.this, "Activity name must not contain the characters: '.', '#', '$', '[', or ']' and must not have more than 15 characters", Toast.LENGTH_LONG).show();
+                        Toasty.error(CreateNewEventActivity.this, "Activity name must not contain the characters: '.', '#', '$', '[', or ']' and must not have more than 15 characters", Toast.LENGTH_LONG).show();
                     }
                     else if (fragment1.sendLocation().length() > 15) {
-                        Toast.makeText(CreateNewEventActivity.this, "Activity location must not have more than 15 characters", Toast.LENGTH_SHORT).show();
+                        Toasty.error(CreateNewEventActivity.this, "Activity location must not have more than 15 characters", Toast.LENGTH_SHORT).show();
                     }
                     else {
                         chatId = mChatsDatabaseReference.push().getKey();
@@ -102,7 +104,7 @@ public class CreateNewEventActivity extends AppCompatActivity implements CreateN
                             startTimeStamp = Group.groupDateFormatter2.parse(startDateTime).getTime();
                             endTimeStamp = Group.groupDateFormatter2.parse(endDateTime).getTime();
                         } catch (ParseException e) {
-                            Toast.makeText(CreateNewEventActivity.this, "Failed to create activity due to parsing error", Toast.LENGTH_SHORT).show();
+                            Toasty.error(CreateNewEventActivity.this, "Failed to create activity due to parsing error", Toast.LENGTH_SHORT).show();
                             return;
                         }
                         //Create group in database with relevant information
@@ -137,13 +139,13 @@ public class CreateNewEventActivity extends AppCompatActivity implements CreateN
                             @Override
                             public void onComplete(String key, DatabaseError error) {
                                 if (error != null) {
-                                    Toast.makeText(CreateNewEventActivity.this, "Error in setting location in geofire", Toast.LENGTH_SHORT).show();
+                                    Toasty.error(CreateNewEventActivity.this, "Error in setting location in geofire", Toast.LENGTH_SHORT).show();
                                 }
                             }
                         });
                         TimeNotificationScheduler.setNewReminder(CreateNewEventActivity.this, chatId, fragment1.sendName(), startTimeStamp, -1);
 
-                        Toast.makeText(getApplicationContext(), "Activity created", Toast.LENGTH_LONG).show();
+                        Toasty.success(getApplicationContext(), "Activity created", Toast.LENGTH_LONG).show();
                         finish();
                     }
                 }

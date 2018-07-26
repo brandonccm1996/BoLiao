@@ -47,6 +47,8 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 import java.util.HashSet;
 
+import es.dmoral.toasty.Toasty;
+
 public class SearchGroupFragment extends Fragment implements GroupRecyclerAdapter.GroupTouchCallBack {
     private Context mContext;
     private reloadFilterInterface mReloadInterface;
@@ -83,7 +85,7 @@ public class SearchGroupFragment extends Fragment implements GroupRecyclerAdapte
         try {
             mReloadInterface = (reloadFilterInterface) context;
         } catch (ClassCastException e) {
-            Toast.makeText(mContext, "Need to implement reload interface", Toast.LENGTH_SHORT).show();
+            Toasty.error(mContext, "Need to implement reload interface", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -157,19 +159,19 @@ public class SearchGroupFragment extends Fragment implements GroupRecyclerAdapte
         reloadTimer = SystemClock.elapsedRealtime();
 
         if (!FirebaseDatabaseUtils.connectedToDatabase()) {
-            Toast.makeText(mContext, "Offline searching not available. Please check your internet connection", Toast.LENGTH_SHORT).show();
+            Toasty.error(mContext, "Offline searching not available. Please check your internet connection", Toast.LENGTH_SHORT).show();
             return false;
         }
 
         if(!signedIn){
-            Toast.makeText(mContext, "Please sign in before joining new activities", Toast.LENGTH_SHORT).show();
+            Toasty.error(mContext, "Please sign in before joining new activities", Toast.LENGTH_SHORT).show();
             return false;
         }
 
         boolean distanceFilter = mReloadInterface.distanceFilterChecked();
         long distance = mReloadInterface.getDistanceFilter();
         if (distanceFilter && distance == -1) {
-            Toast.makeText(mContext, "Please set the distance filter", Toast.LENGTH_SHORT).show();
+            Toasty.error(mContext, "Please set the distance filter", Toast.LENGTH_SHORT).show();
             return false;
         }
 
@@ -177,7 +179,7 @@ public class SearchGroupFragment extends Fragment implements GroupRecyclerAdapte
         final long[] timefilters = mReloadInterface.getTimeFilter();
         boolean categoriesFilter = mReloadInterface.categoriesFilterChecked();
         if (timeFilter && (timefilters[0] == -1 || timefilters[1] == -1)) {
-            Toast.makeText(mContext, "Please set an appropriate date in time filter", Toast.LENGTH_SHORT).show();
+            Toasty.error(mContext, "Please set an appropriate date in time filter", Toast.LENGTH_SHORT).show();
             return false;
         }
         final String query = quer.toLowerCase();
@@ -254,7 +256,7 @@ public class SearchGroupFragment extends Fragment implements GroupRecyclerAdapte
 
                     @Override
                     public void onGeoQueryError(DatabaseError error) {
-                        Toast.makeText(getActivity(), "There is a database error: " + error, Toast.LENGTH_SHORT).show();
+                        Toasty.error(getActivity(), "There is a database error: " + error, Toast.LENGTH_SHORT).show();
                     }
                 });
             }else{
@@ -317,7 +319,7 @@ public class SearchGroupFragment extends Fragment implements GroupRecyclerAdapte
             searchedgroups.set(pos, group);
             adapter.updateGroup(pos,group);
         } else {
-            Toast.makeText(mContext, "For some reason, this activity has been deleted.", Toast.LENGTH_SHORT).show();
+            Toasty.error(mContext, "For some reason, this activity has been deleted.", Toast.LENGTH_SHORT).show();
             searchedgroups.remove(pos);
             adapter.removeGroupAtPos(pos);
         }
