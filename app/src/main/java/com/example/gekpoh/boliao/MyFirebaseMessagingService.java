@@ -4,6 +4,7 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.BitmapFactory;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
@@ -55,7 +56,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             String notificationMessage = remoteMessage.getNotification().getBody();
 
             NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this, "default")
-                    .setSmallIcon(R.drawable.logoorangesmall)
+                    .setSmallIcon(R.mipmap.ic_launcher)
                     .setContentTitle(notificationTitle)
                     .setContentText(notificationMessage)
                     .setPriority(NotificationCompat.PRIORITY_DEFAULT);
