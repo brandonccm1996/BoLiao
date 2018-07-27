@@ -38,6 +38,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             }
             else if (remoteMessage.getData().get("title").equals("Delete Detected")) {
                 Log.d("FbMessagingService", "groupId: " + remoteMessage.getData().get("groupId"));
+                TimeNotificationScheduler.cancelReminder(this, remoteMessage.getData().get("groupId"));
             }
 
             if (/* Check if data needs to be processed by long running job */ true) {

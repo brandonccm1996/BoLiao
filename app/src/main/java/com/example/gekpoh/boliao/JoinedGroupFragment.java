@@ -32,7 +32,7 @@ import java.util.HashSet;
 
 import es.dmoral.toasty.Toasty;
 
-public class JoinedGroupFragment extends Fragment implements GroupRecyclerAdapter.GroupTouchCallBack{
+public class JoinedGroupFragment extends Fragment implements GroupRecyclerAdapter.GroupTouchCallBack {
     private static HashSet<String> joinedgroupIds = new HashSet<>();
     private static JoinedGroupFragment jgFragment;
     private boolean signedIn = false;
@@ -60,9 +60,9 @@ public class JoinedGroupFragment extends Fragment implements GroupRecyclerAdapte
     public void onAttach(Context context) {
         super.onAttach(context);
         mContext = context;
-        try{
-            searchInterface = (SearchInterface)context;
-        }catch(ClassCastException e){
+        try {
+            searchInterface = (SearchInterface) context;
+        } catch (ClassCastException e) {
             Log.e(TAG, "Need to implement search interface");
         }
     }
@@ -90,13 +90,13 @@ public class JoinedGroupFragment extends Fragment implements GroupRecyclerAdapte
             }
         });
         groupView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        if(adapter != null) groupView.setAdapter(adapter);
+        if (adapter != null) groupView.setAdapter(adapter);
     }
 
     public void onSignIn() {
         if (signedIn) return;
         signedIn = true;
-        if(adapter == null) {
+        if (adapter == null) {
             Comparator<Group> timeSortComparator = new Comparator<Group>() {
                 @Override
                 public int compare(Group o1, Group o2) {
@@ -104,7 +104,7 @@ public class JoinedGroupFragment extends Fragment implements GroupRecyclerAdapte
                 }
             };
             adapter = new GroupRecyclerAdapter(this, timeSortComparator);
-            if(groupView != null) groupView.setAdapter(adapter);
+            if (groupView != null) groupView.setAdapter(adapter);
         }
         mJoinedListDatabaseReference = FirebaseDatabase.getInstance().getReference().child("joinedlists").child(MainActivity.userUid);
         mJoinedListDatabaseReference.keepSynced(true);
@@ -116,10 +116,10 @@ public class JoinedGroupFragment extends Fragment implements GroupRecyclerAdapte
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 Group group = dataSnapshot.getValue(Group.class);
-                if(group == null)return;
+                if (group == null) return;
                 joinedgroups.add(group);
                 adapter.addGroup(group);
-                if(!viewState){
+                if (!viewState) {
                     displayNonEmptyLayout();
                 }
             }
@@ -132,14 +132,15 @@ public class JoinedGroupFragment extends Fragment implements GroupRecyclerAdapte
         mChildEventListener = new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                Log.v(TAG, (String)dataSnapshot.getValue());
-                if(((String)dataSnapshot.getValue()).equals("true")) {
+                Log.v(TAG, (String) dataSnapshot.getValue());
+                if (((String) dataSnapshot.getValue()).equals("true")) {
                     joinedgroupIds.add(dataSnapshot.getKey());
                     DatabaseReference ref = mGroupDatabaseReference.child(dataSnapshot.getKey());
                     ref.keepSynced(true);
                     ref.addListenerForSingleValueEvent(mValueEventListener);
                 }
             }
+
             @Override
             public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
             }
@@ -147,14 +148,14 @@ public class JoinedGroupFragment extends Fragment implements GroupRecyclerAdapte
             @Override
             public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
                 String id = dataSnapshot.getKey();
-                for(Group group: joinedgroups){
-                    if(group.getChatId().equals(id)){
+                for (Group group : joinedgroups) {
+                    if (group.getChatId().equals(id)) {
                         joinedgroups.remove(group);
                         adapter.removeGroup(group);
                         break;
                     }
                 }
-                if(adapter.isListEmpty()){
+                if (adapter.isListEmpty()) {
                     displayEmptyLayout();
                 }
                 joinedgroupIds.remove(id);
@@ -174,7 +175,7 @@ public class JoinedGroupFragment extends Fragment implements GroupRecyclerAdapte
     }
 
     public void onSignOut() {
-        if(!signedIn) return;
+        if (!signedIn) return;
         signedIn = false;
         viewState = false;
         displayEmptyLayout();
@@ -199,23 +200,42 @@ public class JoinedGroupFragment extends Fragment implements GroupRecyclerAdapte
         */
         return true;
     }
-    public static boolean alreadyJoinedGroup(String id){
+
+    public static boolean alreadyJoinedGroup(String id) {
         return joinedgroupIds.contains(id);
     }
 
-    public void updateGroupDetails(Group group, final int pos) {
-        if(pos == -1)return;
-        if(group != null) {
-            joinedgroups.set(pos,group);
-            adapter.updateGroup(pos, group);
-        }else{
-            Toasty.error(mContext,"For some reason, this activity has been deleted.", Toast.LENGTH_SHORT).show();
-            joinedgroups.remove(pos);
-            adapter.removeGroupAtPos(pos);
+    public void removeFromList(String id) {
+        for (Group group : joinedgroups) {
+            if (group.getChatId().equals(id)) {
+                joinedgroups.remove(group);
+                adapter.removeGroup(group);
+                //adapter.notifyDataSetChanged();
+                if (adapter.isListEmpty()) displayEmptyLayout();
+                break;
+            }
         }
     }
 
-    public void displayEmptyLayout(){
+    public void updateGroupDetails(String id, Group group, final int pos) {
+        if (pos == -1) return;
+        if (group != null) {
+            Group grp2 = adapter.getGroupAtPos(pos);
+            if (grp2 != null && grp2.getChatId() == group.getChatId()) {
+                for (int x = 0; x < joinedgroups.size(); x++) {
+                    if (joinedgroups.get(x).getChatId() == group.getChatId()) {
+                        adapter.updateGroup(pos, group);
+                        joinedgroups.set(x, group);
+                    }
+                }
+            }
+        } else {
+            Toasty.error(mContext, "For some reason, this activity has been deleted.", Toast.LENGTH_SHORT).show();
+            removeFromList(id);
+        }
+    }
+
+    public void displayEmptyLayout() {
         viewState = false;
         searchButton.setEnabled(true);
         searchButton.setVisibility(View.VISIBLE);
@@ -224,7 +244,7 @@ public class JoinedGroupFragment extends Fragment implements GroupRecyclerAdapte
     }
 
 
-    public void displayNonEmptyLayout(){
+    public void displayNonEmptyLayout() {
         viewState = true;
         searchButton.setEnabled(false);
         searchButton.setVisibility(View.INVISIBLE);
@@ -232,15 +252,15 @@ public class JoinedGroupFragment extends Fragment implements GroupRecyclerAdapte
         groupView.setVisibility(View.VISIBLE);
     }
 
-    public interface SearchInterface{
+    public interface SearchInterface {
         void startSearch();
     }
 
     @Override
     public void onResume() {
-        if(adapter == null || adapter.isListEmpty()){
+        if (adapter == null || adapter.isListEmpty()) {
             displayEmptyLayout();
-        }else{
+        } else {
             displayNonEmptyLayout();
         }
         super.onResume();

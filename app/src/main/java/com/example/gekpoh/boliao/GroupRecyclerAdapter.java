@@ -166,6 +166,15 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdap
         groupList.clear();
     }
 
+    public Group getGroupAtPos(int pos){
+        Group group = null;
+        try{
+            group = groupList.get(pos);
+        }catch(IndexOutOfBoundsException e){
+
+        }
+        return group;
+    }
     public void updateGroup(int pos, Group group){
         groupList.updateItemAt(pos, group);
     }

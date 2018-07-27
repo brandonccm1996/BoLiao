@@ -292,6 +292,7 @@ public class GroupDetailsActivity extends AppCompatActivity implements OnMapRead
         @Override
         public void onComplete(@Nullable DatabaseError databaseError, boolean b, @Nullable DataSnapshot dataSnapshot) {
             if (databaseError != null) {
+                reloadGroupDetails();
                 return;
             }
             if (!allowJoin) {
@@ -321,9 +322,9 @@ public class GroupDetailsActivity extends AppCompatActivity implements OnMapRead
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     mGroup = dataSnapshot.getValue(Group.class);
                     if (inEvent) {
-                        JoinedGroupFragment.getInstance().updateGroupDetails(mGroup, getIntent().getIntExtra(getString(R.string.TapPositionKey), -1));
+                        JoinedGroupFragment.getInstance().updateGroupDetails(groupId, mGroup, getIntent().getIntExtra(getString(R.string.TapPositionKey), -1));
                     } else {
-                        SearchGroupFragment.getInstance().updateGroupDetails(mGroup, getIntent().getIntExtra(getString(R.string.TapPositionKey), -1));
+                        SearchGroupFragment.getInstance().updateGroupDetails(groupId, mGroup, getIntent().getIntExtra(getString(R.string.TapPositionKey), -1));
                     }
                     if (mGroup != null) {
                         if (mapFragment == null) mapFragment = SupportMapFragment.newInstance();

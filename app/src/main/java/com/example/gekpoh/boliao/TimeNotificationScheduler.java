@@ -233,7 +233,7 @@ public class TimeNotificationScheduler {
             PendingIntent pendingIntent = PendingIntent.getBroadcast(mContext, notification.id, intent, PendingIntent.FLAG_UPDATE_CURRENT);
             AlarmManager am = (AlarmManager) mContext.getSystemService(ALARM_SERVICE);
             am.cancel(pendingIntent);
-            Log.v(TAG, "Post updating notification for:" + notification.activityName);
+            Log.v(TAG, "Update: alarm deleted" + notification.activityName);
             setNewReminder(mContext, groupId, activityName, timeStamp, timeDelay);
             super.onPostExecute(notification);
         }

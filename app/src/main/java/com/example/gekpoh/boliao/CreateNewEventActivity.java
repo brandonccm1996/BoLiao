@@ -108,6 +108,10 @@ public class CreateNewEventActivity extends AppCompatActivity implements CreateN
                             Toasty.error(CreateNewEventActivity.this, "Failed to create activity due to parsing error", Toast.LENGTH_SHORT).show();
                             return;
                         }
+                        if(mLatLng == null){
+                            Toasty.error(CreateNewEventActivity.this, "Failed to create activity as LatLng is not set", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
                         //Create group in database with relevant information
                         mapToUpload.put("names", fragment1.sendName());
                         mapToUpload.put("location", fragment1.sendLocation());
@@ -136,6 +140,7 @@ public class CreateNewEventActivity extends AppCompatActivity implements CreateN
                         mJoinedListsReference.child(MainActivity.userUid).child(chatId).setValue("true");
                         //DatabaseReference ref = mFirebaseDatabase.getReference().child("geoFireObjects");
                         GeoFire geoFire = FirebaseDatabaseUtils.getGeoFireInstance();
+
                         geoFire.setLocation(chatId, new GeoLocation(mLatLng.latitude, mLatLng.longitude), new GeoFire.CompletionListener() {
                             @Override
                             public void onComplete(String key, DatabaseError error) {

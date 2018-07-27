@@ -113,7 +113,11 @@ public class EditEventActivity extends AppCompatActivity implements EditEventFra
                             startTimeStamp = Group.groupDateFormatter2.parse(startDateTime).getTime();
                             endTimeStamp = Group.groupDateFormatter2.parse(endDateTime).getTime();
                         } catch (ParseException e) {
-                            Toasty.error(EditEventActivity.this, "Failed to create activity due to parsing error", Toast.LENGTH_SHORT).show();
+                            Toasty.error(EditEventActivity.this, "Failed to edit activity due to parsing error", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                        if(mLatLng == null){
+                            Toasty.error(EditEventActivity.this, "Failed to edit activity as LatLng is not set", Toast.LENGTH_SHORT).show();
                             return;
                         }
 //                    //Create group in database with relevant information

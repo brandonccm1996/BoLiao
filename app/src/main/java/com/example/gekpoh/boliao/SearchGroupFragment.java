@@ -118,14 +118,14 @@ public class SearchGroupFragment extends Fragment implements GroupRecyclerAdapte
         });
         groupView.setLayoutManager(new reloadLayoutManager(getActivity()));
         groupView.setVisibility(View.GONE);
-        if(adapter != null) groupView.setAdapter(adapter);
+        if (adapter != null) groupView.setAdapter(adapter);
     }
 
     public void onSignIn() {
         if (signedIn) return;
-        if(adapter == null){
+        if (adapter == null) {
             adapter = new GroupRecyclerAdapter(this, null);
-            if(groupView != null) groupView.setAdapter(adapter);
+            if (groupView != null) groupView.setAdapter(adapter);
         }
         signedIn = true;
         mDatabaseReference = FirebaseDatabaseUtils.getDatabase().getReference().child("groups");
@@ -163,7 +163,7 @@ public class SearchGroupFragment extends Fragment implements GroupRecyclerAdapte
             return false;
         }
 
-        if(!signedIn){
+        if (!signedIn) {
             Toasty.error(mContext, "Please sign in before joining new activities", Toast.LENGTH_SHORT).show();
             return false;
         }
@@ -187,7 +187,7 @@ public class SearchGroupFragment extends Fragment implements GroupRecyclerAdapte
         adapter.clearList();
         getDeviceLocation();
         if (distanceFilter) {
-            if(locationPermissionGranted) {
+            if (locationPermissionGranted) {
                 changeLocationSettings();
                 mGetLocationSingleValueEventListener = new ValueEventListener() {
                     @Override
@@ -195,7 +195,7 @@ public class SearchGroupFragment extends Fragment implements GroupRecyclerAdapte
                         Group group = dataSnapshot.getValue(Group.class);
                         //Need to implement extra filters here for both time and categories etc.
                         loadingList.remove(dataSnapshot.getKey());
-                        if(group != null) {
+                        if (group != null) {
                             if (group.getNames().toLowerCase().contains(query) || group.getDescription().toLowerCase().contains(query) || group.getLocation().toLowerCase().contains(query)) {
                                 if (!timeFilter || (group.getStartDateTime() >= timefilters[0] && group.getEndDateTime() <= timefilters[1])) {
                                     Log.v(TAG, "group added");
@@ -259,7 +259,7 @@ public class SearchGroupFragment extends Fragment implements GroupRecyclerAdapte
                         Toasty.error(getActivity(), "There is a database error: " + error, Toast.LENGTH_SHORT).show();
                     }
                 });
-            }else{
+            } else {
                 checkRequestLocationPermission();
             }
         } else {
@@ -275,13 +275,13 @@ public class SearchGroupFragment extends Fragment implements GroupRecyclerAdapte
                         } else if (group.getNames().toLowerCase().contains(query) || group.getDescription().toLowerCase().contains(query) || group.getLocation().toLowerCase().contains(query)) {
                             if (!timeFilter || group.getEndDateTime() <= timefilters[1])
                                 searchedgroups.add(group);
-                                adapter.addGroup(group);
+                            adapter.addGroup(group);
                         }
                     }
                     //adapter.notifyDataSetChanged();
-                    if(adapter.isListEmpty()){
+                    if (adapter.isListEmpty()) {
                         displayActivitiesNotFound();
-                    }else{
+                    } else {
                         displayActivitiesFound();
                     }
                 }
@@ -307,21 +307,28 @@ public class SearchGroupFragment extends Fragment implements GroupRecyclerAdapte
                 searchedgroups.remove(group);
                 adapter.removeGroup(group);
                 //adapter.notifyDataSetChanged();
-                if(adapter.isListEmpty()) displayActivitiesNotFound();
+                if (adapter.isListEmpty()) displayActivitiesNotFound();
                 break;
             }
         }
     }
 
-    public void updateGroupDetails(Group group, final int pos) {
+    public void updateGroupDetails(String id, Group group, final int pos) {
         if (pos == -1) return;
         if (group != null) {
-            searchedgroups.set(pos, group);
-            adapter.updateGroup(pos,group);
+            Group grp2 = adapter.getGroupAtPos(pos);
+            if (grp2 != null && grp2.getChatId() == group.getChatId()) {
+                for (int x = 0; x < searchedgroups.size(); x++) {
+                    if (searchedgroups.get(x).getChatId() == group.getChatId()) {
+                        adapter.updateGroup(pos, group);
+                        searchedgroups.set(x, group);
+                    }
+                }
+            }
         } else {
             Toasty.error(mContext, "For some reason, this activity has been deleted.", Toast.LENGTH_SHORT).show();
-            searchedgroups.remove(pos);
-            adapter.removeGroupAtPos(pos);
+            removeFromList(id);
+
         }
         //adapter.notifyDataSetChanged();
     }
@@ -475,10 +482,10 @@ public class SearchGroupFragment extends Fragment implements GroupRecyclerAdapte
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if(requestCode == LOCATION_SETTINGS_RC);
+        if (requestCode == LOCATION_SETTINGS_RC) ;
     }
 
-    public void displayActivitiesFound(){
+    public void displayActivitiesFound() {
         searchTextView.setVisibility(View.INVISIBLE);
         initialSearchButton.setVisibility(View.INVISIBLE);
         initialSearchButton.setEnabled(false);
@@ -486,7 +493,7 @@ public class SearchGroupFragment extends Fragment implements GroupRecyclerAdapte
         noActivitiesTextView.setVisibility(View.INVISIBLE);
     }
 
-    public void displayActivitiesNotFound(){
+    public void displayActivitiesNotFound() {
         searchTextView.setVisibility(View.INVISIBLE);
         initialSearchButton.setVisibility(View.INVISIBLE);
         initialSearchButton.setEnabled(false);
@@ -494,7 +501,7 @@ public class SearchGroupFragment extends Fragment implements GroupRecyclerAdapte
         noActivitiesTextView.setVisibility(View.VISIBLE);
     }
 
-    public void displayInitialLayout(){
+    public void displayInitialLayout() {
         searchTextView.setVisibility(View.VISIBLE);
         initialSearchButton.setVisibility(View.VISIBLE);
         initialSearchButton.setEnabled(true);
