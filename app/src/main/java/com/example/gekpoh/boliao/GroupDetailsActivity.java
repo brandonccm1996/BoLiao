@@ -77,6 +77,8 @@ public class GroupDetailsActivity extends AppCompatActivity implements OnMapRead
         getSupportActionBar().setLogo(R.drawable.logowhitesmall);
         getSupportActionBar().setDisplayUseLogoEnabled(true);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         groupId = getIntent().getStringExtra(getString(R.string.groupKey));
         inEvent = getIntent().getBooleanExtra(getString(R.string.InActivityKey), false);
         mFirebaseDatabase = FirebaseDatabaseUtils.getDatabase();

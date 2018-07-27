@@ -65,6 +65,7 @@ public class EditProfileActivity extends AppCompatActivity {
         getSupportActionBar().setLogo(R.drawable.logowhitesmall);
         getSupportActionBar().setDisplayUseLogoEnabled(true);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         mFirebaseDatabase = FirebaseDatabaseUtils.getDatabase();
         mUsersDatabaseReference = mFirebaseDatabase.getReference().child("users").child(MainActivity.userUid);
@@ -136,6 +137,12 @@ public class EditProfileActivity extends AppCompatActivity {
                 startActivityForResult(startEditDescriptionActivityIntent, editDescriptionRequest);
             }
         });
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        finish();
+        return true;
     }
 
     @Override

@@ -21,6 +21,7 @@ public class EditDescriptionActivity extends AppCompatActivity {
         getSupportActionBar().setLogo(R.drawable.logowhitesmall);
         getSupportActionBar().setDisplayUseLogoEnabled(true);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         editTextDescription = findViewById(R.id.editTextDescription);
         saveBtn = findViewById(R.id.saveBtn);
@@ -40,5 +41,11 @@ public class EditDescriptionActivity extends AppCompatActivity {
                 finish();
             }
         });
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        finish();
+        return true;
     }
 }

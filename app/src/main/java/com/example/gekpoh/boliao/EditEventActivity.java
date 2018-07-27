@@ -59,6 +59,7 @@ public class EditEventActivity extends AppCompatActivity implements EditEventFra
         getSupportActionBar().setLogo(R.drawable.logowhitesmall);
         getSupportActionBar().setDisplayUseLogoEnabled(true);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         extras = getIntent().getExtras().getBundle("intentBundle");
         fragment1 = new EditEventFragment1();
@@ -188,6 +189,12 @@ public class EditEventActivity extends AppCompatActivity implements EditEventFra
                 }
             }
         });
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        finish();
+        return true;
     }
 
     private class CreateNewEventAdapter extends FragmentStatePagerAdapter {
