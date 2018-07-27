@@ -287,7 +287,7 @@ public class EventInfoFragment extends Fragment {
 
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
-
+                                    TimeNotificationScheduler.cancelReminder(getActivity(), groupId);
                                     // notification
                                     for (final String memberId : members) {
                                         mJoinedListsDatabaseReference.child(memberId).child(groupId).removeValue();

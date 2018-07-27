@@ -372,8 +372,10 @@ public class MainActivity extends AppCompatActivity implements SearchGroupFragme
                 String deviceToken = FirebaseInstanceId.getInstance().getToken();
                 mUsersDatabaseReference.child(userUid).child("devicetokens").child(deviceToken).removeValue();
                 AuthUI.getInstance().signOut(this);
+                /*
                 Intent startActIntent = new Intent(MainActivity.this, StartActivity.class);
                 startActivity(startActIntent);
+                */
                 return true;
             case R.id.filter:
                 mDrawerLayout.openDrawer(GravityCompat.END);
