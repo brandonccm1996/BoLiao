@@ -56,8 +56,9 @@ public class EditEventActivity extends AppCompatActivity implements EditEventFra
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_new_event);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
-        getSupportActionBar().setLogo(R.drawable.common_google_signin_btn_icon_dark);
+        getSupportActionBar().setLogo(R.drawable.logowhitesmall);
         getSupportActionBar().setDisplayUseLogoEnabled(true);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
 
         extras = getIntent().getExtras().getBundle("intentBundle");
         fragment1 = new EditEventFragment1();

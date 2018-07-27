@@ -54,7 +54,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             String notificationMessage = remoteMessage.getNotification().getBody();
 
             NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this, "default")
-                    .setSmallIcon(R.drawable.common_google_signin_btn_icon_light)   // to change
+                    .setSmallIcon(R.drawable.logoorangesmall)
                     .setContentTitle(notificationTitle)
                     .setContentText(notificationMessage)
                     .setPriority(NotificationCompat.PRIORITY_DEFAULT);

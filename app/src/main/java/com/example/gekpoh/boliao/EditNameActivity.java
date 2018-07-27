@@ -19,8 +19,9 @@ public class EditNameActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_name);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
-        getSupportActionBar().setLogo(R.drawable.common_google_signin_btn_icon_dark);
+        getSupportActionBar().setLogo(R.drawable.logowhitesmall);
         getSupportActionBar().setDisplayUseLogoEnabled(true);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
 
         editTextName = findViewById(R.id.editTextName);
         saveBtn = findViewById(R.id.saveBtn);
