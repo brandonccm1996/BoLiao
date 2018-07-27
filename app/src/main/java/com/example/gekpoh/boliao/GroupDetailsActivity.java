@@ -166,7 +166,6 @@ public class GroupDetailsActivity extends AppCompatActivity implements OnMapRead
             Toasty.error(this, "Please check your internet connection", Toast.LENGTH_SHORT).show();
             return;
         }
-
         final String id = mGroup.getChatId();
         final DatabaseReference joinedlistref = mFirebaseDatabase.getReference().child("joinedlists").child(MainActivity.userUid).child(id);
         final DatabaseReference userlistref = mFirebaseDatabase.getReference().child("userlists").child(id).child(MainActivity.userUid);
@@ -176,29 +175,43 @@ public class GroupDetailsActivity extends AppCompatActivity implements OnMapRead
                 Toasty.error(this, "Organizer can't quit.", Toast.LENGTH_SHORT).show();
                 return;
             }
-            //update userlist and join list
-            TimeNotificationScheduler.cancelReminder(this, mGroup.getChatId());
-            joinedlistref.removeValue();
-            userlistref.removeValue();
-            //update num of participants
-            numParticipantsRef.runTransaction(new Transaction.Handler() {
-                @NonNull
+
+            joinedlistref.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
-                public Transaction.Result doTransaction(@NonNull MutableData mutableData) {
-                    long numParticipants = (long) mutableData.getValue();
-                    numParticipants = numParticipants - 1;
-                    Log.v(TAG, "DOING TRANSACTION" + numParticipants);
-                    mutableData.setValue(numParticipants);
-                    return Transaction.success(mutableData);
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    if(dataSnapshot.exists()){
+                        //update userlist and join list
+                        joinedlistref.removeValue();
+                        //update num of participants
+                        numParticipantsRef.runTransaction(new Transaction.Handler() {
+                            @NonNull
+                            @Override
+                            public Transaction.Result doTransaction(@NonNull MutableData mutableData) {
+                                long numParticipants = (long) mutableData.getValue();
+                                numParticipants = numParticipants - 1;
+                                Log.v(TAG, "DOING TRANSACTION" + numParticipants);
+                                mutableData.setValue(numParticipants);
+                                return Transaction.success(mutableData);
+                            }
+
+                            @Override
+                            public void onComplete(@Nullable DatabaseError databaseError, boolean b, @Nullable DataSnapshot dataSnapshot) {
+                                if (databaseError != null) {
+                                    return;
+                                }
+                            }
+                        });
+                    }
                 }
 
                 @Override
-                public void onComplete(@Nullable DatabaseError databaseError, boolean b, @Nullable DataSnapshot dataSnapshot) {
-                    if (databaseError != null) {
-                        return;
-                    }
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
                 }
             });
+            userlistref.removeValue();
+            TimeNotificationScheduler.cancelReminder(this, mGroup.getChatId());
+
             finish();
         } else {
             numParticipantsRef.runTransaction(new numParticipantJoinTransactionHandler(id, userlistref, joinedlistref));

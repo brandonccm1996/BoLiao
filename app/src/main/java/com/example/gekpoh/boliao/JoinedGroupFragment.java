@@ -221,7 +221,7 @@ public class JoinedGroupFragment extends Fragment implements GroupRecyclerAdapte
         if (pos == -1) return;
         if (group != null) {
             Group grp2 = adapter.getGroupAtPos(pos);
-            if (grp2 != null && grp2.getChatId() == group.getChatId()) {
+            if (grp2 != null && grp2.getChatId().equals(group.getChatId())) {
                 for (int x = 0; x < joinedgroups.size(); x++) {
                     if (joinedgroups.get(x).getChatId() == group.getChatId()) {
                         adapter.updateGroup(pos, group);
