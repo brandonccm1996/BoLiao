@@ -80,4 +80,8 @@
         <item>Dismiss Admin</item>
     </string-array>
 
+    <string name="helpslide2">On the home page, you can view the activities you have joined, or use the search bar at the top to search for activities you are interested in.</string>
+    <string name="helpslide3">Once you click on an activity, you will first see the event info page, which gives a summary of the activity details.</string>
+    <string name="helpslide4">The event map shows a location of the event. Clicking on the marker on the map will provide directions from your current location to the event location.</string>
+
 </resources>
