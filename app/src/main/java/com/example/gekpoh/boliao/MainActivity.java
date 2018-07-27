@@ -101,8 +101,9 @@ public class MainActivity extends AppCompatActivity implements SearchGroupFragme
         //Initialize google map api at the start of the app to reduce lag when users are using group details activity
         // App Logo
         getSupportActionBar().setDisplayShowHomeEnabled(true);
-        getSupportActionBar().setLogo(R.drawable.common_google_signin_btn_icon_dark);
+        getSupportActionBar().setLogo(R.drawable.logowhitesmall);
         getSupportActionBar().setDisplayUseLogoEnabled(true);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
 
         // Config Toasty
         Toasty.Config.getInstance().setTextSize(14).apply();

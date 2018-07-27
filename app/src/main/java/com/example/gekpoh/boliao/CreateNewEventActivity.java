@@ -52,8 +52,9 @@ public class CreateNewEventActivity extends AppCompatActivity implements CreateN
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_new_event);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
-        getSupportActionBar().setLogo(R.drawable.common_google_signin_btn_icon_dark);
+        getSupportActionBar().setLogo(R.drawable.logowhitesmall);
         getSupportActionBar().setDisplayUseLogoEnabled(true);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
 
         mFirebaseDatabase = FirebaseDatabaseUtils.getDatabase();
         mGroupsDatabaseReference = mFirebaseDatabase.getReference().child("groups");
