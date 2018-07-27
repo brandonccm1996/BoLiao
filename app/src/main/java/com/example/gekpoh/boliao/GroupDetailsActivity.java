@@ -251,7 +251,7 @@ public class GroupDetailsActivity extends AppCompatActivity implements OnMapRead
                 case 1:
                     return getString(R.string.GroupDetailsActivityTab2Name);
                 case 2:
-                    return getString(R.string.GroupDetailsActivityTab3Name) + "\n(" +mGroup.getNumParticipants()+")";
+                    return getString(R.string.GroupDetailsActivityTab3Name);
                 case 3:
                     return getString(R.string.GroupDetailsActivityTab4Name);
                 default:

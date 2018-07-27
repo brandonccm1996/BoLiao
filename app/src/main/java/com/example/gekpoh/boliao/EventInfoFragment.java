@@ -255,134 +255,151 @@ public class EventInfoFragment extends Fragment {
             public void onClick(View v) {
                 if (!FirebaseDatabaseUtils.connectedToDatabase()) {
                     Toasty.error(getActivity(), "Please check your internet connection", Toast.LENGTH_SHORT).show();
-                } else {
-                    members = new ArrayList<>();
-                    mUserListsDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                }
+                else {
+                    mGroupsDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                            for (DataSnapshot childSnapshot : dataSnapshot.getChildren()) {
-                                members.add(childSnapshot.getKey());
+                            Group currGroup = dataSnapshot.getValue(Group.class);
+                            if (currGroup.getNumParticipants() > 1) {
+                                Toasty.error(getActivity(), "Please remove all other participants before deleting the group").show();
+                            }
+                            else {
+                                members = new ArrayList<>();
+                                mUserListsDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                        for (DataSnapshot childSnapshot : dataSnapshot.getChildren()) {
+                                            members.add(childSnapshot.getKey());
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                                    }
+                                });
+
+                                final EditText inputToCheck = new EditText(getActivity());
+                                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                                        LinearLayout.LayoutParams.MATCH_PARENT,
+                                        LinearLayout.LayoutParams.MATCH_PARENT);
+                                inputToCheck.setLayoutParams(lp);
+
+                                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
+                                        .setCancelable(true)
+                                        .setTitle("Deleting activity")
+                                        .setMessage("Are you sure you want to delete this activity? Activity deletion is not reversible.\nTo confirm, type in: 'delete'")
+                                        .setView(inputToCheck)
+                                        .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+                                            final String notifId = mDeleteEventNotifDatabaseReference.push().getKey();
+
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+
+                                                // notification
+                                                for (final String memberId : members) {
+                                                    mJoinedListsDatabaseReference.child(memberId).child(groupId).removeValue();
+                                                    mUsersDatabaseReference.child(memberId).addListenerForSingleValueEvent(new ValueEventListener() {
+                                                        @Override
+                                                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                                            if (!memberId.equals(MainActivity.userUid) && dataSnapshot.child("updateNotifEnabled").getValue(Boolean.class)) mDeleteEventNotifDatabaseReference.child(notifId).child(memberId).setValue(true);
+                                                            mDetectDeleteNotifDatabaseReference.child(notifId).child(memberId).setValue(true);
+                                                        }
+
+                                                        @Override
+                                                        public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                                                        }
+                                                    });
+                                                }
+
+                                                // delete chat photos
+                                                mChatsDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                                                    @Override
+                                                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                                        for (DataSnapshot childSnapshot : dataSnapshot.getChildren()) {
+                                                            if (childSnapshot.hasChild("photoUrl")) {
+                                                                StorageReference photoDeleteRef = mFirebaseStorage.getReferenceFromUrl(childSnapshot.child("photoUrl").getValue().toString());
+                                                                photoDeleteRef.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                                    @Override
+                                                                    public void onSuccess(Void aVoid) {
+                                                                        Log.d("EventInfoFrag", "Deletion working");
+                                                                    }
+                                                                });
+                                                            }
+                                                        }
+                                                    }
+
+                                                    @Override
+                                                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                                                    }
+                                                });
+
+                                                // delete group photo
+                                                mGroupsDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                                                    @Override
+                                                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                                        if (dataSnapshot.hasChild("photoUrl")) {
+                                                            StorageReference photoDeleteRef2 = mFirebaseStorage.getReferenceFromUrl(dataSnapshot.child("photoUrl").getValue().toString());
+                                                            photoDeleteRef2.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                                @Override
+                                                                public void onSuccess(Void aVoid) {
+                                                                    Log.d("EventInfoFrag2", "Deletion working 2");
+                                                                }
+                                                            });
+                                                        }
+
+                                                        mChatsDatabaseReference.removeValue();
+                                                        mGeofireDatabaseReference.removeValue();
+                                                        mGroupsDatabaseReference.removeValue();
+                                                        mUserListsDatabaseReference.removeValue();
+                                                    }
+
+                                                    @Override
+                                                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                                                    }
+                                                });
+
+                                                Toasty.success(getActivity(), "Activity deleted", Toast.LENGTH_LONG).show();
+                                                getActivity().onBackPressed();
+                                            }
+                                        })
+                                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+
+                                            }
+                                        });
+
+                                final AlertDialog dialog = builder.create();
+                                dialog.show();
+                                dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+                                inputToCheck.addTextChangedListener(new TextWatcher() {
+                                    @Override
+                                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+                                    }
+
+                                    @Override
+                                    public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+                                    }
+
+                                    @Override
+                                    public void afterTextChanged(Editable s) {
+                                        if (s.toString().equals("delete")) dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
+                                        else dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+                                    }
+                                });
                             }
                         }
 
                         @Override
                         public void onCancelled(@NonNull DatabaseError databaseError) {
 
-                        }
-                    });
-
-                    final EditText inputToCheck = new EditText(getActivity());
-                    LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                            LinearLayout.LayoutParams.MATCH_PARENT,
-                            LinearLayout.LayoutParams.MATCH_PARENT);
-                    inputToCheck.setLayoutParams(lp);
-
-                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
-                            .setCancelable(true)
-                            .setTitle("Deleting activity")
-                            .setMessage("Are you sure you want to delete this activity? Activity deletion is not reversible.\nTo confirm, type in: 'delete'")
-                            .setView(inputToCheck)
-                            .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
-                                final String notifId = mDeleteEventNotifDatabaseReference.push().getKey();
-
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-
-                                    // notification
-                                    for (final String memberId : members) {
-                                        mJoinedListsDatabaseReference.child(memberId).child(groupId).removeValue();
-                                        mUsersDatabaseReference.child(memberId).addListenerForSingleValueEvent(new ValueEventListener() {
-                                            @Override
-                                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                                if (!memberId.equals(MainActivity.userUid) && dataSnapshot.child("updateNotifEnabled").getValue(Boolean.class)) mDeleteEventNotifDatabaseReference.child(notifId).child(memberId).setValue(true);
-                                                mDetectDeleteNotifDatabaseReference.child(notifId).child(memberId).setValue(true);
-                                            }
-
-                                            @Override
-                                            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                                            }
-                                        });
-                                    }
-
-                                    // delete chat photos
-                                    mChatsDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
-                                        @Override
-                                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                            for (DataSnapshot childSnapshot : dataSnapshot.getChildren()) {
-                                                if (childSnapshot.hasChild("photoUrl")) {
-                                                    StorageReference photoDeleteRef = mFirebaseStorage.getReferenceFromUrl(childSnapshot.child("photoUrl").getValue().toString());
-                                                    photoDeleteRef.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
-                                                        @Override
-                                                        public void onSuccess(Void aVoid) {
-                                                            Log.d("EventInfoFrag", "Deletion working");
-                                                        }
-                                                    });
-                                                }
-                                            }
-                                        }
-
-                                        @Override
-                                        public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                                        }
-                                    });
-
-                                    // delete group photo
-                                    mGroupsDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
-                                        @Override
-                                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                            if (dataSnapshot.hasChild("photoUrl")) {
-                                                StorageReference photoDeleteRef2 = mFirebaseStorage.getReferenceFromUrl(dataSnapshot.child("photoUrl").getValue().toString());
-                                                photoDeleteRef2.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
-                                                    @Override
-                                                    public void onSuccess(Void aVoid) {
-                                                        Log.d("EventInfoFrag2", "Deletion working 2");
-                                                    }
-                                                });
-                                            }
-
-                                            mChatsDatabaseReference.removeValue();
-                                            mGeofireDatabaseReference.removeValue();
-                                            mGroupsDatabaseReference.removeValue();
-                                            mUserListsDatabaseReference.removeValue();
-                                        }
-
-                                        @Override
-                                        public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                                        }
-                                    });
-
-                                    Toasty.success(getActivity(), "Activity deleted", Toast.LENGTH_LONG).show();
-                                    getActivity().onBackPressed();
-                                }
-                            })
-                            .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-
-                                }
-                            });
-
-                    final AlertDialog dialog = builder.create();
-                    dialog.show();
-                    dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
-                    inputToCheck.addTextChangedListener(new TextWatcher() {
-                        @Override
-                        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-                        }
-
-                        @Override
-                        public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-                        }
-
-                        @Override
-                        public void afterTextChanged(Editable s) {
-                            if (s.toString().equals("delete")) dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
-                            else dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
                         }
                     });
                 }
