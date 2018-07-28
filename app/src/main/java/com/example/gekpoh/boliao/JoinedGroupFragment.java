@@ -47,7 +47,7 @@ public class JoinedGroupFragment extends Fragment implements GroupRecyclerAdapte
     private ValueEventListener mValueEventListener;
     private final ArrayList<Group> joinedgroups = new ArrayList<>();
     private final String TAG = "JoinedGroupFragment";
-    private boolean viewState = false;
+    private boolean viewState = false, viewCreated = false, displayEmptyLayout = true, displayLater = true;
 
     public static JoinedGroupFragment getInstance() {
         if (jgFragment == null) {
@@ -91,6 +91,14 @@ public class JoinedGroupFragment extends Fragment implements GroupRecyclerAdapte
         });
         groupView.setLayoutManager(new LinearLayoutManager(getActivity()));
         if (adapter != null) groupView.setAdapter(adapter);
+        viewCreated = true;
+        if(displayLater){
+            if(displayEmptyLayout){
+                displayEmptyLayout();
+            }else{
+                displayNonEmptyLayout();
+            }
+        }
     }
 
     public void onSignIn() {
@@ -236,20 +244,32 @@ public class JoinedGroupFragment extends Fragment implements GroupRecyclerAdapte
     }
 
     public void displayEmptyLayout() {
-        viewState = false;
+        if(viewCreated == false){
+            displayLater = true;
+            displayEmptyLayout = true;
+            return;
+        }
+        displayLater = false;
         searchButton.setEnabled(true);
         searchButton.setVisibility(View.VISIBLE);
         searchActivityText.setVisibility(View.VISIBLE);
         groupView.setVisibility(View.INVISIBLE);
+        viewState = false;
     }
 
 
     public void displayNonEmptyLayout() {
-        viewState = true;
+        if(viewCreated == false){
+            displayLater = true;
+            displayEmptyLayout = false;
+            return;
+        }
+        displayLater = false;
         searchButton.setEnabled(false);
         searchButton.setVisibility(View.INVISIBLE);
         searchActivityText.setVisibility(View.INVISIBLE);
         groupView.setVisibility(View.VISIBLE);
+        viewState = true;
     }
 
     public interface SearchInterface {
