@@ -55,6 +55,7 @@ public class CreateNewEventActivity extends AppCompatActivity implements CreateN
         getSupportActionBar().setLogo(R.drawable.logowhitesmall);
         getSupportActionBar().setDisplayUseLogoEnabled(true);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         mFirebaseDatabase = FirebaseDatabaseUtils.getDatabase();
         mGroupsDatabaseReference = mFirebaseDatabase.getReference().child("groups");
@@ -157,6 +158,12 @@ public class CreateNewEventActivity extends AppCompatActivity implements CreateN
                 }
             }
         });
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        finish();
+        return true;
     }
 
     private class CreateNewEventAdapter extends FragmentStatePagerAdapter {

@@ -22,6 +22,7 @@ public class EditNameActivity extends AppCompatActivity {
         getSupportActionBar().setLogo(R.drawable.logowhitesmall);
         getSupportActionBar().setDisplayUseLogoEnabled(true);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         editTextName = findViewById(R.id.editTextName);
         saveBtn = findViewById(R.id.saveBtn);
@@ -41,5 +42,11 @@ public class EditNameActivity extends AppCompatActivity {
                 finish();
             }
         });
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        finish();
+        return true;
     }
 }

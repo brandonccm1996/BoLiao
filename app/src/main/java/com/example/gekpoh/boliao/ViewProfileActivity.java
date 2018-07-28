@@ -25,6 +25,7 @@ public class ViewProfileActivity extends AppCompatActivity {
         getSupportActionBar().setLogo(R.drawable.logowhitesmall);
         getSupportActionBar().setDisplayUseLogoEnabled(true);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         imageViewProPic = findViewById(R.id.imageViewProPic);
         textViewName = findViewById(R.id.textViewName);
@@ -56,5 +57,11 @@ public class ViewProfileActivity extends AppCompatActivity {
                         .into(imageViewProPic);
             }
         }
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        finish();
+        return true;
     }
 }
