@@ -386,6 +386,10 @@ public class MainActivity extends AppCompatActivity implements SearchGroupFragme
                 Intent intent = new Intent(MainActivity.this,NotificationsSettingsActivity.class);
                 startActivity(intent);
                 return true;
+            case R.id.help:
+                Intent helpIntent = new Intent(MainActivity.this, HelpActivity.class);
+                startActivity(helpIntent);
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }

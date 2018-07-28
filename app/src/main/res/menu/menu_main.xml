@@ -18,10 +18,14 @@
         app:showAsAction="never"/>
 
     <item
+        android:id="@+id/help"
+        android:title="Help"
+        app:showAsAction="never"/>
+
+    <item
         android:id="@+id/signout"
         android:title="Sign Out"
         app:showAsAction="never"/>
-
 
     <item
         android:id="@+id/filter"
