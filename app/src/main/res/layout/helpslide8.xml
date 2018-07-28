@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorRed">
+    android:background="@color/colorGreen">
 
     <TextView
         android:id="@+id/textView9"
@@ -17,7 +17,7 @@
         android:layout_marginStart="4dp"
         android:layout_marginTop="4dp"
         android:gravity="center"
-        android:text="Home Page"
+        android:text="Edit Profile"
         android:textColor="@color/white_background"
         android:textSize="24sp"
         android:textStyle="bold"
@@ -43,7 +43,7 @@
         app:layout_constraintStart_toEndOf="@+id/textView9"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="1.0"
-        app:srcCompat="@drawable/homepage" />
+        app:srcCompat="@drawable/editprofile" />
 
     <android.support.constraint.Guideline
         android:id="@+id/guideline15"
@@ -61,7 +61,7 @@
         android:layout_marginRight="8dp"
         android:layout_marginTop="8dp"
         android:fontFamily="casual"
-        android:text="@string/helpslide2"
+        android:text="@string/helpslide8"
         android:textColor="@color/white_background"
         app:layout_constraintEnd_toStartOf="@+id/guideline17"
         app:layout_constraintHorizontal_bias="1.0"

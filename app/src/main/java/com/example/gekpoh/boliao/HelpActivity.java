@@ -23,8 +23,15 @@ public class HelpActivity extends AppIntro {
         addSlide(SampleSlide.newInstance(R.layout.helpslide2));
         addSlide(SampleSlide.newInstance(R.layout.helpslide3));
         addSlide(SampleSlide.newInstance(R.layout.helpslide4));
+        addSlide(SampleSlide.newInstance(R.layout.helpslide5));
+        addSlide(SampleSlide.newInstance(R.layout.helpslide6));
+        addSlide(SampleSlide.newInstance(R.layout.helpslide7));
+        addSlide(SampleSlide.newInstance(R.layout.helpslide1));
+        addSlide(SampleSlide.newInstance(R.layout.helpslide8));
 
         showSkipButton(true);
+        setProgressButtonEnabled(true);
+        setFadeAnimation();
     }
 
     @Override
