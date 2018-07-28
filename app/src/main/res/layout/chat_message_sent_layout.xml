@@ -60,6 +60,7 @@
         android:focusable="false"
         android:inputType="none"
         android:clickable="false"
+        android:enabled="false"
         android:text="Date"
         android:textSize="12sp"
         android:textStyle="bold"
