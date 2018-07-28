@@ -14,6 +14,7 @@ import java.util.HashMap;
 //Loads relevant user information
 public class GroupUsersInformation {
     private static HashMap<String,String> uidtoName = new HashMap<>();
+    private static HashMap<String,String> uidtoUrl = new HashMap<>();
     private String chatId;
     private DatabaseReference userListsDatabaseReference, usersDatabaseReference;
     private ValueEventListener updateNameListener;
@@ -27,6 +28,7 @@ public class GroupUsersInformation {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 uidtoName.put(dataSnapshot.getKey(),(String)dataSnapshot.child("name").getValue());
+                uidtoUrl.put(dataSnapshot.getKey(),(String)dataSnapshot.child("photoUrl").getValue());
             }
 
             @Override
@@ -64,5 +66,8 @@ public class GroupUsersInformation {
     }
     public static String getNamefromId(String uid){
         return uidtoName.get(uid);
+    }
+    public static String getPhotoUrlfromId(String uid){
+        return uidtoUrl.get(uid);
     }
 }

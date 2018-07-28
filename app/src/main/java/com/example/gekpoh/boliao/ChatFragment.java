@@ -110,6 +110,9 @@ public class ChatFragment extends Fragment{
 
             @Override
             public void afterTextChanged(Editable editable) {
+                if (null != editText.getLayout() && editText.getLayout().getLineCount() > 8) {
+                    editText.getText().delete(editText.getText().length() - 1, editText.getText().length());
+                }
             }
         });
 
@@ -119,7 +122,7 @@ public class ChatFragment extends Fragment{
         layoutManager = new LinearLayoutManager(getActivity());
         layoutManager.setStackFromEnd(true);
         chatRecyclerView.setLayoutManager(layoutManager);
-        adapter = new ChatRecyclerAdapter(chatMessageList);
+        adapter = new ChatRecyclerAdapter(chatMessageList,getArguments().getString("organizerId"));
         chatRecyclerView.setAdapter(adapter);
         chatRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override

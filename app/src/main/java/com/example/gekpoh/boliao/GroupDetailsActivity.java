@@ -74,6 +74,7 @@ public class GroupDetailsActivity extends AppCompatActivity implements OnMapRead
         instanceCreated = true;
         setContentView(R.layout.group_details_activity_layout);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setLogo(R.drawable.logowhitesmall);
         getSupportActionBar().setDisplayUseLogoEnabled(true);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
@@ -83,14 +84,6 @@ public class GroupDetailsActivity extends AppCompatActivity implements OnMapRead
         //reloadGroupDetails();
 
         mGroupUsersInformation = new GroupUsersInformation(groupId);
-
-        if (inEvent) {
-            Bundle args = new Bundle();
-            args.putString(getString(R.string.groupIdKey), groupId);
-            chatFragment = new ChatFragment();
-            chatFragment.setArguments(args);
-        }
-
 
         //mGroup = getIntent().getParcelableExtra(getString(R.string.groupKey));//Need to pass on group details before starting this activity
     }
@@ -344,6 +337,13 @@ public class GroupDetailsActivity extends AppCompatActivity implements OnMapRead
                         mapFragment.getMapAsync(GroupDetailsActivity.this);
                         mGeoDataClient = Places.getGeoDataClient(GroupDetailsActivity.this);
                         if (eventInfoFragment == null) {
+                            if (inEvent) {
+                                Bundle args = new Bundle();
+                                args.putString(getString(R.string.groupIdKey), groupId);
+                                args.putString("organizerId", mGroup.getOrganizerId());
+                                chatFragment = new ChatFragment();
+                                chatFragment.setArguments(args);
+                            }
                             eventInfoFragment = new EventInfoFragment();
                             Bundle args2 = new Bundle();
                             args2.putBoolean(getString(R.string.InActivityKey), inEvent);
