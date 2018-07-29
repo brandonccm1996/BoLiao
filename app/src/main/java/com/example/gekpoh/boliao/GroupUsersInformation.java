@@ -23,6 +23,7 @@ public class GroupUsersInformation {
         this.chatId = chatId;
         FirebaseDatabase database = FirebaseDatabaseUtils.getDatabase();
         userListsDatabaseReference = database.getReference().child("userlists").child(chatId);
+        //userListsDatabaseReference = database.getReference().child("users");
         usersDatabaseReference = database.getReference().child("users");
         updateNameListener = new ValueEventListener() {
             @Override
@@ -65,9 +66,34 @@ public class GroupUsersInformation {
         userListsDatabaseReference.addChildEventListener(listEventListener);
     }
     public static String getNamefromId(String uid){
-        return uidtoName.get(uid);
+        if(!uidtoName.containsKey(uid)){
+            enforceUidExist(uid);
+            return "#notFound:D";
+        }else{
+            return uidtoName.get(uid);
+        }
     }
     public static String getPhotoUrlfromId(String uid){
-        return uidtoUrl.get(uid);
+        if(!uidtoUrl.containsKey(uid)){
+            enforceUidExist(uid);
+            return "";
+        }else{
+            return uidtoUrl.get(uid);
+        }
+    }
+
+    public static void enforceUidExist(String uid){
+        ValueEventListener requestNewNameListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                uidtoName.put(dataSnapshot.getKey(),(String)dataSnapshot.child("name").getValue());
+                uidtoUrl.put(dataSnapshot.getKey(),(String)dataSnapshot.child("photoUrl").getValue());
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        };
+        FirebaseDatabaseUtils.getDatabase().getReference().child("users").child(uid).addListenerForSingleValueEvent(requestNewNameListener);
     }
 }
