@@ -15,6 +15,8 @@ import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 
+import java.util.List;
+
 import static android.content.Context.ALARM_SERVICE;
 
 public class TimeNotificationScheduler {
@@ -30,7 +32,7 @@ public class TimeNotificationScheduler {
             //new RemoveReminderTask(context, notification.groupId).execute();
             return;
         }
-        Log.v(TAG, "Creating New Reminders");
+        Log.v(TAG, "setting up in alarm manager");
         // Enable a receiver
         ComponentName receiver = new ComponentName(context, TimeNotificationReceiver.class);
         PackageManager pm = context.getPackageManager();
@@ -52,7 +54,7 @@ public class TimeNotificationScheduler {
     public static void setNewReminder(Context context, String groupId, String activityName, long activityTimeStamp, long delayTimeStamp) {
         //Create new reminder then insert into database
         //if(System.currentTimeMillis() > activityTimeStamp - delayTimeStamp) return;
-        Log.v(TAG, "Creating new TimeNotification object");
+        Log.v(TAG, "Creating new TimeNotification object for " + activityName);
         TimeNotification notification = new TimeNotification();
         notification.id = (int) System.currentTimeMillis();
         notification.groupId = groupId;
@@ -75,6 +77,9 @@ public class TimeNotificationScheduler {
         new CancelReminderTask(context, groupId).execute();
     }
 
+    public static void nukeAllReminders(Context context){
+        new NukeAllRemindersTask(context).execute();
+    }
     /*
     public static void disableAllReminder(Context context){
         new DisableAllRemindersTask(context).execute();
@@ -104,8 +109,11 @@ public class TimeNotificationScheduler {
         PendingIntent pendingIntent = PendingIntent.getActivity(context, 1, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, channelid);
         Notification notification = builder.setContentTitle(title + "\n")
-                .setContentText(content + "\n").setAutoCancel(true)
-                .setSmallIcon(R.mipmap.ic_launcher_round)
+                //.setContentText(content + "\n")
+                .setAutoCancel(true)
+                .setStyle(new NotificationCompat.BigTextStyle()
+                        .bigText(content))
+                .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentIntent(pendingIntent)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setAutoCancel(true)
@@ -236,6 +244,50 @@ public class TimeNotificationScheduler {
             Log.v(TAG, "Update: alarm deleted" + notification.activityName);
             setNewReminder(mContext, groupId, activityName, timeStamp, timeDelay);
             super.onPostExecute(notification);
+        }
+    }
+    private static class NukeReminderDatabaseTask extends AsyncTask<Void, Void, Void> {
+        private Context mContext;
+        private NukeReminderDatabaseTask(Context context) {
+            mContext = context;
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            TimeNotificationDatabase db = TimeNotificationDatabase.getTimeNotificationDatabase(mContext);
+            db.timeNotificationDao().nukeTable();
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            Log.v(TAG, "Time Notification db Successfully nuked:)");
+        }
+    }
+
+    private static class NukeAllRemindersTask extends AsyncTask<Void, Void, List<TimeNotification>> {
+
+        private Context mContextRef;
+
+        private NukeAllRemindersTask(Context context) {
+            mContextRef = context;
+        }
+        @Override
+        protected List<TimeNotification> doInBackground(Void... voids) {
+            TimeNotificationDatabase db = TimeNotificationDatabase.getTimeNotificationDatabase(mContextRef);
+            return db.timeNotificationDao().getAllNotification();
+        }
+
+        @Override
+        protected void onPostExecute(List<TimeNotification> timeNotifications) {
+            if(timeNotifications != null && timeNotifications.size()>0){
+                for(TimeNotification notification: timeNotifications){
+                    Log.v(TAG,"Nuking all reminders stage 1: Removing time notifications in alarm manager");
+                    TimeNotificationScheduler.cancelReminder(mContextRef, notification.groupId);
+                }
+            }
+            //one final nuke
+            new NukeReminderDatabaseTask(mContextRef).execute();
         }
     }
     /*

@@ -35,6 +35,9 @@ import es.dmoral.toasty.Toasty;
 public class JoinedGroupFragment extends Fragment implements GroupRecyclerAdapter.GroupTouchCallBack {
     private static HashSet<String> joinedgroupIds = new HashSet<>();
     private static JoinedGroupFragment jgFragment;
+    private boolean firstLoad = true;
+    private HashSet<String> loadingList = new HashSet<>();
+    private boolean doneLoading = true;
     private boolean signedIn = false;
     private Context mContext;
     private SearchInterface searchInterface;
@@ -44,7 +47,7 @@ public class JoinedGroupFragment extends Fragment implements GroupRecyclerAdapte
     private ImageButton searchButton;
     private DatabaseReference mGroupDatabaseReference, mJoinedListDatabaseReference;
     private ChildEventListener mChildEventListener;
-    private ValueEventListener mValueEventListener;
+    private ValueEventListener mValueEventListener, mFirstLoadListener;
     private final ArrayList<Group> joinedgroups = new ArrayList<>();
     private final String TAG = "JoinedGroupFragment";
     private boolean viewState = false, viewCreated = false, displayEmptyLayout = true, displayLater = true;
@@ -120,15 +123,49 @@ public class JoinedGroupFragment extends Fragment implements GroupRecyclerAdapte
 
         Log.d("JGFrag", "OnSignIn");
 
+        mFirstLoadListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                Log.v(TAG, "First Load");
+                for(DataSnapshot data: dataSnapshot.getChildren()){
+                    if (((String) data.getValue()).equals("true")) {
+                        loadingList.add(data.getKey());
+                        joinedgroupIds.add(dataSnapshot.getKey());
+                        DatabaseReference ref = mGroupDatabaseReference.child(data.getKey());
+                        ref.keepSynced(true);
+                        ref.addListenerForSingleValueEvent(mValueEventListener);
+                    }
+                }
+                doneLoading = true;
+                mJoinedListDatabaseReference.addChildEventListener(mChildEventListener);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                mJoinedListDatabaseReference.addChildEventListener(mChildEventListener);
+            }
+        };
         mValueEventListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 Group group = dataSnapshot.getValue(Group.class);
-                if (group == null) return;
-                joinedgroups.add(group);
-                adapter.addGroup(group);
-                if (!viewState) {
-                    displayNonEmptyLayout();
+                if(loadingList.contains(dataSnapshot.getKey())){
+                    loadingList.remove(dataSnapshot.getKey());
+                }
+                if (group == null){
+                    joinedgroupIds.remove(dataSnapshot.getKey());
+                }else{
+                    joinedgroups.add(group);
+                    adapter.addGroup(group);
+                    if(MainActivity.needToLoadTimeNotification){
+                        TimeNotificationScheduler.setNewReminder(getActivity(), group.getChatId(),group.getNames(),group.getStartDateTime(),TimeNotificationScheduler.DELAY_2HRS);
+                    }
+                }
+                if(doneLoading && loadingList.isEmpty()) {
+                    MainActivity.needToLoadTimeNotification = false;
+                    if(!viewState && !joinedgroups.isEmpty()){
+                        displayNonEmptyLayout();
+                    }
                 }
             }
 
@@ -140,7 +177,7 @@ public class JoinedGroupFragment extends Fragment implements GroupRecyclerAdapte
         mChildEventListener = new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                Log.v(TAG, (String) dataSnapshot.getValue());
+                if(joinedgroupIds.contains(dataSnapshot.getKey()))return;
                 if (((String) dataSnapshot.getValue()).equals("true")) {
                     joinedgroupIds.add(dataSnapshot.getKey());
                     DatabaseReference ref = mGroupDatabaseReference.child(dataSnapshot.getKey());
@@ -179,7 +216,8 @@ public class JoinedGroupFragment extends Fragment implements GroupRecyclerAdapte
 
             }
         };
-        mJoinedListDatabaseReference.addChildEventListener(mChildEventListener);
+        doneLoading = false;
+        mJoinedListDatabaseReference.addListenerForSingleValueEvent(mFirstLoadListener);
     }
 
     public void onSignOut() {
@@ -226,6 +264,7 @@ public class JoinedGroupFragment extends Fragment implements GroupRecyclerAdapte
     }
 
     public void updateGroupDetails(String id, Group group, final int pos) {
+        Log.v(TAG, "Updating group details in rv");
         if (pos == -1) return;
         if (group != null) {
             Group grp2 = adapter.getGroupAtPos(pos);

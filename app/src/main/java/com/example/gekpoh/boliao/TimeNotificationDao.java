@@ -23,4 +23,7 @@ public interface TimeNotificationDao {
 
     @Query("Select * FROM TimeNotification WHERE groupId = :id")
     TimeNotification getNotificationById(String id);
+
+    @Query("DELETE FROM TimeNotification")
+    public void nukeTable();
 }

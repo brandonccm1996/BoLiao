@@ -68,6 +68,7 @@ import es.dmoral.toasty.Toasty;
 public class MainActivity extends AppCompatActivity implements SearchGroupFragment.reloadFilterInterface,JoinedGroupFragment.SearchInterface {
     public static String userDisplayName;
     public static String userUid;
+    public static boolean needToLoadTimeNotification = false;
     private FirebaseAuth mFirebaseAuth;
     private FirebaseAuth.AuthStateListener mAuthStateListener;
     private FirebaseDatabase mFirebaseDatabase;
@@ -151,6 +152,14 @@ public class MainActivity extends AppCompatActivity implements SearchGroupFragme
                 if (user != null) { // user signed in
                     userDisplayName = user.getDisplayName();
                     userUid = user.getUid();
+                    SharedPreferences prefs = getPreferences(MODE_PRIVATE);
+                    if(!prefs.getString(getString(R.string.currentUserKey), "").equals(userUid)){
+                        needToLoadTimeNotification = true;
+                        Log.v(TAG, String.valueOf(needToLoadTimeNotification));
+                        SharedPreferences.Editor editor = prefs.edit();
+                        editor.putString(getString(R.string.currentUserKey), userUid);
+                        editor.commit();
+                    }
                     mUsersDatabaseReference.child(userUid).keepSynced(true);
                     mUsersRatingDatabaseReference.child(userUid).keepSynced(true);
 
@@ -372,6 +381,11 @@ public class MainActivity extends AppCompatActivity implements SearchGroupFragme
             case R.id.signout:
                 String deviceToken = FirebaseInstanceId.getInstance().getToken();
                 mUsersDatabaseReference.child(userUid).child("devicetokens").child(deviceToken).removeValue();
+                TimeNotificationScheduler.nukeAllReminders(this);
+                SharedPreferences prefs = getPreferences(MODE_PRIVATE);
+                SharedPreferences.Editor editor = prefs.edit();
+                editor.putString(getString(R.string.currentUserKey), "");
+                editor.commit();
                 AuthUI.getInstance().signOut(this);
                 /*
                 Intent startActIntent = new Intent(MainActivity.this, StartActivity.class);

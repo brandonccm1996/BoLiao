@@ -26,7 +26,7 @@ public class TimeNotificationReceiver extends BroadcastReceiver {
         String name = intent.getStringExtra(context.getResources().getString(R.string.EventNotificationNameKey));
         long timestamp = intent.getLongExtra(context.getResources().getString(R.string.EventNotificationTimeKey), 0);
         String time = Group.groupDateFormatter.format(new Date(timestamp));
-        TimeNotificationScheduler.showNotification(context, MainActivity.class, groupId,"You have an event to attend soon!", name + " is happening at " + time, TIME_ID);
+        TimeNotificationScheduler.showNotification(context, MainActivity.class, groupId,"You have an event to attend soon!", name + " is starting at " + time, TIME_ID);
     }
 
 }
