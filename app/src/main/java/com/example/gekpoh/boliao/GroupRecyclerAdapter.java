@@ -36,6 +36,7 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdap
 
             @Override
             public void onChanged(int position, int count) {
+                Log.v(TAG, "onChanged");
                 notifyItemRangeChanged(position, count);
                 //notifyDataSetChanged();
             }
@@ -52,12 +53,14 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdap
 
             @Override
             public void onInserted(int position, int count) {
+                Log.v(TAG, "onInserted");
                 notifyItemRangeInserted(position,count);
                 notifyItemRangeChanged(position, groupList.size() - position);
             }
 
             @Override
             public void onRemoved(int position, int count) {
+                Log.v(TAG, "onreMoved");
                 notifyItemRangeRemoved(position,count);
                 notifyItemRangeChanged(position, groupList.size() - position);
                 //notifyDataSetChanged();
@@ -65,7 +68,11 @@ public class GroupRecyclerAdapter extends RecyclerView.Adapter<GroupRecyclerAdap
 
             @Override
             public void onMoved(int fromPosition, int toPosition) {
+                Log.v(TAG, "onMoved");
+                //notifyDataSetChanged();
                 notifyItemMoved(fromPosition, toPosition);
+                Log.v(TAG, Integer.toString(fromPosition));
+                Log.v(TAG, Integer.toString(toPosition));
                 if(fromPosition > toPosition){
                     notifyItemRangeChanged(toPosition, fromPosition - toPosition + 1);
                 }else{

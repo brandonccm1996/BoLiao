@@ -51,7 +51,10 @@ public class JoinedGroupFragment extends Fragment implements GroupRecyclerAdapte
     private final ArrayList<Group> joinedgroups = new ArrayList<>();
     private final String TAG = "JoinedGroupFragment";
     private boolean viewState = false, viewCreated = false, displayEmptyLayout = true, displayLater = true;
-
+    private static Group toBeUpdated;
+    private static int toBeUpdatedPosition;
+    private static String toBeUpdatedId;
+    private boolean childListenerAttached = false;
     public static JoinedGroupFragment getInstance() {
         if (jgFragment == null) {
             jgFragment = new JoinedGroupFragment();
@@ -115,6 +118,7 @@ public class JoinedGroupFragment extends Fragment implements GroupRecyclerAdapte
                 }
             };
             adapter = new GroupRecyclerAdapter(this, timeSortComparator);
+            //adapter = new GroupRecyclerAdapter(this, null);
             if (groupView != null) groupView.setAdapter(adapter);
         }
         mJoinedListDatabaseReference = FirebaseDatabase.getInstance().getReference().child("joinedlists").child(MainActivity.userUid);
@@ -130,19 +134,27 @@ public class JoinedGroupFragment extends Fragment implements GroupRecyclerAdapte
                 for(DataSnapshot data: dataSnapshot.getChildren()){
                     if (((String) data.getValue()).equals("true")) {
                         loadingList.add(data.getKey());
-                        joinedgroupIds.add(dataSnapshot.getKey());
+                        joinedgroupIds.add(data.getKey());
                         DatabaseReference ref = mGroupDatabaseReference.child(data.getKey());
                         ref.keepSynced(true);
                         ref.addListenerForSingleValueEvent(mValueEventListener);
                     }
                 }
                 doneLoading = true;
-                mJoinedListDatabaseReference.addChildEventListener(mChildEventListener);
+                if(doneLoading && loadingList.isEmpty()) {
+                    MainActivity.needToLoadTimeNotification = false;
+                    if(!childListenerAttached){
+                        mJoinedListDatabaseReference.addChildEventListener(mChildEventListener);
+                        childListenerAttached = true;
+                    }
+                    if(!viewState && !joinedgroups.isEmpty()){
+                        displayNonEmptyLayout();
+                    }
+                }
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-                mJoinedListDatabaseReference.addChildEventListener(mChildEventListener);
             }
         };
         mValueEventListener = new ValueEventListener() {
@@ -165,6 +177,10 @@ public class JoinedGroupFragment extends Fragment implements GroupRecyclerAdapte
                     MainActivity.needToLoadTimeNotification = false;
                     if(!viewState && !joinedgroups.isEmpty()){
                         displayNonEmptyLayout();
+                    }
+                    if(!childListenerAttached){
+                        mJoinedListDatabaseReference.addChildEventListener(mChildEventListener);
+                        childListenerAttached = true;
                     }
                 }
             }
@@ -264,7 +280,7 @@ public class JoinedGroupFragment extends Fragment implements GroupRecyclerAdapte
     }
 
     public void updateGroupDetails(String id, Group group, final int pos) {
-        Log.v(TAG, "Updating group details in rv");
+        /*Log.v(TAG, "Updating group details in rv");
         if (pos == -1) return;
         if (group != null) {
             Group grp2 = adapter.getGroupAtPos(pos);
@@ -279,7 +295,10 @@ public class JoinedGroupFragment extends Fragment implements GroupRecyclerAdapte
         } else {
             Toasty.error(mContext, "For some reason, this activity has been deleted.", Toast.LENGTH_SHORT).show();
             removeFromList(id);
-        }
+        }*/
+        toBeUpdated = group;
+        toBeUpdatedPosition = pos;
+        toBeUpdatedId = id;
     }
 
     public void displayEmptyLayout() {
@@ -317,11 +336,38 @@ public class JoinedGroupFragment extends Fragment implements GroupRecyclerAdapte
 
     @Override
     public void onResume() {
+        Log.v(TAG,"On resumed called");
         if (adapter == null || adapter.isListEmpty()) {
             displayEmptyLayout();
         } else {
+            if(toBeUpdated != null){
+                updateGroupDetailsOnResume(toBeUpdatedId,toBeUpdated,toBeUpdatedPosition);
+            }
             displayNonEmptyLayout();
         }
         super.onResume();
+    }
+
+    public void updateGroupDetailsOnResume(String id, Group group, final int pos){
+        Log.v(TAG, Integer.toString(pos));
+        if (pos == -1) return;
+        if (group != null) {
+            Group grp2 = adapter.getGroupAtPos(pos);
+            Log.v(TAG, grp2.getNames());
+            if (grp2 != null && grp2.getChatId().equals(group.getChatId())) {
+                for (int x = 0; x < joinedgroups.size(); x++) {
+                    if (joinedgroups.get(x).getChatId() == group.getChatId()) {
+                        Log.v(TAG, "adding to adapter");
+                        adapter.updateGroup(pos, group);
+                        joinedgroups.set(x, group);
+                        break;
+                    }
+                }
+            }
+        } else {
+            Toasty.error(mContext, "For some reason, this activity has been deleted.", Toast.LENGTH_SHORT).show();
+            removeFromList(id);
+        }
+        toBeUpdated = null;
     }
 }
