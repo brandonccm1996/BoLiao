@@ -1,5 +1,6 @@
 package com.example.gekpoh.boliao;
 
+import android.arch.persistence.room.Database;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -42,6 +43,7 @@ public class MembersFragment extends Fragment {
     private DatabaseReference mJoinedListsDatabaseReference;
     private DatabaseReference mGroupsDatabaseReference;
     private DatabaseReference mRemoveNotifDatabaseReference;
+    private DatabaseReference mDetectRemoveDatabaseReference;
     private ArrayList<UserInformation2> membersList = new ArrayList<>();
     private boolean userIsAdmin;
     private boolean userIsOrganizer;
@@ -69,6 +71,7 @@ public class MembersFragment extends Fragment {
         mJoinedListsDatabaseReference = FirebaseDatabaseUtils.getDatabase().getReference().child("joinedlists");
         mGroupsDatabaseReference = FirebaseDatabaseUtils.getDatabase().getReference().child("groups").child(groupId);
         mRemoveNotifDatabaseReference = FirebaseDatabaseUtils.getDatabase().getReference().child("removeNotif").child(groupId);
+        mDetectRemoveDatabaseReference = FirebaseDatabaseUtils.getDatabase().getReference().child("detectRemove").child(groupId);
         mUserListsDatabaseReference.keepSynced(true);
         mUsersRatedDatabaseReference.keepSynced(true);
         mUsersRatingDatabaseReference.keepSynced(true);
@@ -216,6 +219,7 @@ public class MembersFragment extends Fragment {
                                                 @Override
                                                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                                                     if (dataSnapshot.child("updateNotifEnabled").getValue(Boolean.class)) mRemoveNotifDatabaseReference.child(notifId).child(memberId).setValue(true);
+                                                    mDetectRemoveDatabaseReference.child(notifId).child(memberId).setValue(true);
                                                 }
 
                                                 @Override

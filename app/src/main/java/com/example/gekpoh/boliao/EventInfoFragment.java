@@ -71,7 +71,6 @@ public class EventInfoFragment extends Fragment {
     private DatabaseReference mGeofireDatabaseReference;
     private DatabaseReference mJoinedListsDatabaseReference;
     private DatabaseReference mChatsDatabaseReference;
-    private DatabaseReference mDeleteEventNotifDatabaseReference;
     private DatabaseReference mUsersDatabaseReference;
     private DatabaseReference mDetectDeleteNotifDatabaseReference;
 
@@ -115,7 +114,6 @@ public class EventInfoFragment extends Fragment {
         mGeofireDatabaseReference = mFirebaseDatabase.getReference().child("geoFireObjects").child(groupId);
         mChatsDatabaseReference = mFirebaseDatabase.getReference().child("chats").child(groupId);
         mJoinedListsDatabaseReference = mFirebaseDatabase.getReference().child("joinedlists");
-        mDeleteEventNotifDatabaseReference = mFirebaseDatabase.getReference().child("deleteEventNotif").child(groupId).child(args.getString("eventname"));
         mDetectDeleteNotifDatabaseReference = mFirebaseDatabase.getReference().child("detectDelete").child(groupId);
         mUsersDatabaseReference = mFirebaseDatabase.getReference().child("users");
         mFirebaseStorage = FirebaseStorage.getInstance();
@@ -292,7 +290,7 @@ public class EventInfoFragment extends Fragment {
                                         .setMessage("Are you sure you want to delete this activity? Activity deletion is not reversible.\nTo confirm, type in: 'delete'")
                                         .setView(inputToCheck)
                                         .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
-                                            final String notifId = mDeleteEventNotifDatabaseReference.push().getKey();
+                                            final String notifId = mDetectDeleteNotifDatabaseReference.push().getKey();
 
                                             @Override
                                             public void onClick(DialogInterface dialog, int which) {
@@ -303,7 +301,6 @@ public class EventInfoFragment extends Fragment {
                                                     mUsersDatabaseReference.child(memberId).addListenerForSingleValueEvent(new ValueEventListener() {
                                                         @Override
                                                         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                                            if (!memberId.equals(MainActivity.userUid) && dataSnapshot.child("updateNotifEnabled").getValue(Boolean.class)) mDeleteEventNotifDatabaseReference.child(notifId).child(memberId).setValue(true);
                                                             mDetectDeleteNotifDatabaseReference.child(notifId).child(memberId).setValue(true);
                                                         }
 
