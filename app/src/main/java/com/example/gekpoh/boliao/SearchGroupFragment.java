@@ -7,8 +7,10 @@ import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.SystemClock;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -188,7 +190,7 @@ public class SearchGroupFragment extends Fragment implements GroupRecyclerAdapte
         getDeviceLocation();
         if (distanceFilter) {
             if (locationPermissionGranted) {
-                changeLocationSettings();
+                if(!changeLocationSettings()) return false;
                 mGetLocationSingleValueEventListener = new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -431,9 +433,9 @@ public class SearchGroupFragment extends Fragment implements GroupRecyclerAdapte
         return lastKnownLatLng;
     }
 
-    public void changeLocationSettings() {
+    public boolean changeLocationSettings() {//check if gps is enabled
 
-        LocationRequest mLocationRequest = new LocationRequest();
+        /*LocationRequest mLocationRequest = new LocationRequest();
         mLocationRequest.setInterval(10000);
         mLocationRequest.setFastestInterval(5000);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
@@ -458,26 +460,40 @@ public class SearchGroupFragment extends Fragment implements GroupRecyclerAdapte
                     }
                 }
             }
-        });
-        /*LocationManager lm = (LocationManager)getActivity().getSystemService(Context.LOCATION_SERVICE);
+        });*/
+        LocationManager lm = (LocationManager)getActivity().getSystemService(Context.LOCATION_SERVICE);
         boolean gps_enabled = false;
-        boolean network_enabled = false;
+        //boolean network_enabled = false;
 
         try {
             gps_enabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
         } catch(Exception ex) {}
 
-        try {
+        /*try {
             network_enabled = lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
-        } catch(Exception ex) {}
+        } catch(Exception ex) {}*/
 
-        if(!gps_enabled && !network_enabled) {
+        if(!gps_enabled/* && !network_enabled*/) {
             // notify user
             AlertDialog.Builder dialog = new AlertDialog.Builder(mContext);
             dialog.setMessage("Please enable GPS to utilize the distance filter");
+            dialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    Intent myIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                    getActivity().startActivity(myIntent);
+                }
+            });
+            dialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+
+                @Override
+                public void onClick(DialogInterface paramDialogInterface, int paramInt) {
+
+                }
+            });
             dialog.show();
         }
-        return gps_enabled||network_enabled;*/
+        return gps_enabled;
     }
 
     @Override
